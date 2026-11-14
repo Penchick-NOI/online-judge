@@ -1,0 +1,289 @@
+// PNOI "monospace grid" frame: monospace labels, thin rules, square corners,
+// coral for emphasis. Loaded last so it overrides the DMOJ component styles.
+@use "vars" as *;
+
+// ---------- page titles ----------
+#content > h2, .problem-title h2, .tabs h2 {
+    font-family: $ui-mono;
+    font-weight: 600;
+    font-size: 1.7em;
+    letter-spacing: -0.01em;
+    color: $color_ink;
+
+    &::before {
+        content: "/";
+        color: $color_emph;
+        margin-right: 0.3em;
+    }
+}
+
+#content > hr {
+    border-bottom: 1px solid $color_ink;
+}
+
+// ---------- navigation ----------
+#nav-shadow {
+    background: $color_ink;
+}
+
+nav {
+    ul li {
+        font-family: $ui-mono;
+        font-weight: 400;
+        text-transform: lowercase;
+
+        a, button {
+            &:hover {
+                background: transparent;
+                box-shadow: inset 0 -2px 0 $color_ink;
+            }
+
+            &.active {
+                color: $color_nav_text;
+                background: transparent;
+                box-shadow: inset 0 -2px 0 $color_emph;
+            }
+        }
+
+        &.home-nav-element a:hover {
+            box-shadow: none;
+        }
+
+        ul {
+            box-shadow: none;
+            border: 1px solid $color_ink;
+
+            li a, li button {
+                border-left: none;
+
+                &:hover {
+                    box-shadow: inset 2px 0 0 $color_emph;
+                }
+            }
+        }
+    }
+
+    .nav-divider {
+        display: none;
+    }
+}
+
+#user-links {
+    font-family: $ui-mono;
+
+    .anon {
+        text-transform: lowercase;
+
+        b {
+            font-weight: 400;
+        }
+
+        a.pnoi-signup {
+            background: none;
+            color: $color_emph;
+            padding: 0;
+            border-radius: 0;
+
+            &::after {
+                content: " \2192";
+            }
+
+            &:hover {
+                filter: none;
+                text-decoration: underline;
+            }
+        }
+    }
+
+    & > ul > li > a > span > img {
+        border-radius: 0;
+    }
+}
+
+.pnoi-logo {
+    .pnoi-mark, .pnoi-word {
+        font-family: $ui-mono;
+    }
+
+    .pnoi-mark {
+        border-radius: 0;
+    }
+}
+
+// ---------- boxes ----------
+.sidebox h3 {
+    background: transparent;
+    border-bottom: 1px solid $color_ink;
+    color: $color_ink;
+    font-family: $ui-mono;
+    font-size: 1em;
+    font-weight: 600;
+    text-transform: lowercase;
+    padding: 8px 2px;
+
+    .fa {
+        color: $color_nav_muted;
+        margin: 0.15em 0.2em 0 0;
+    }
+}
+
+.sidebox-content {
+    border: none;
+    border-bottom: 1px solid $color_hairline;
+    padding: 6px 2px 8px;
+
+    &.sidebox-table {
+        border-bottom: none;
+    }
+}
+
+// ---------- tables ----------
+.table {
+    background: transparent;
+
+    th {
+        height: auto;
+        padding: 8px 10px;
+        background: transparent;
+        color: $color_nav_muted;
+        font-family: $ui-mono;
+        font-size: 0.93em;
+        font-weight: 400;
+        text-transform: lowercase;
+        border-style: solid;
+        border-color: $color_ink;
+        border-width: 1px 0;
+
+        a {
+            color: inherit;
+        }
+    }
+
+    td {
+        border-color: $color_hairline;
+        border-width: 0 0 1px 0;
+    }
+
+    th:first-child, td:first-child {
+        border-left-width: 0;
+    }
+
+    th:last-child, td:last-child {
+        border-right-width: 0;
+    }
+
+    tbody tr:first-child td {
+        border-top-width: 0;
+    }
+}
+
+.striped tr:nth-child(even) {
+    background: transparent;
+}
+
+// ---------- buttons and inputs ----------
+.button, button, input[type=submit] {
+    font-family: $ui-mono;
+    text-transform: lowercase;
+    border-radius: 0;
+}
+
+input {
+    &[type=text], &[type=password], &[type=email], &[type=number] {
+        border-color: $color_ink;
+        border-radius: 0;
+        box-shadow: none;
+
+        &:hover {
+            border-color: $color_nav_active_text;
+            box-shadow: none;
+        }
+
+        &:focus {
+            border-color: $color_nav_active_text;
+            box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.3);
+        }
+    }
+
+    &[type=checkbox] {
+        border-radius: 0;
+        border-color: $color_ink;
+    }
+}
+
+textarea {
+    border-color: $color_ink;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+textarea:hover, textarea:focus {
+    border-color: $color_nav_active_text;
+    box-shadow: none;
+}
+
+// ---------- tabs ----------
+.tabs {
+    border-bottom: 1px solid $color_ink;
+
+    .tab a, .tab span {
+        border-width: 0 !important;
+    }
+
+    > ul > li {
+        > a, > span {
+            font-family: $ui-mono;
+            text-transform: lowercase;
+            border-radius: 0;
+            background: transparent;
+            color: $color_nav_muted;
+            padding: 9px 14px;
+        }
+
+        &.active > a, &.active > span {
+            &, &:hover, &:focus {
+                background: transparent;
+                color: $color_ink;
+                box-shadow: inset 0 -2px 0 $color_emph;
+            }
+        }
+    }
+}
+
+// ---------- pagination ----------
+ul.pagination {
+    > li > a, > li > span {
+        font-family: $ui-mono;
+        background: transparent;
+        color: $color_ink;
+        border: 1px solid $color_hairline;
+        border-radius: 0 !important;
+    }
+
+    > .active-page > a, > .active-page > span {
+        background: $color_ink;
+        border-color: $color_ink;
+        color: $color_pageBg;
+    }
+
+    a:hover {
+        background: $color_nav_hover;
+    }
+}
+
+// ---------- footer ----------
+footer {
+    background: $color_pageBg;
+    border-top: 1px solid $color_ink;
+    font-family: $ui-mono;
+    font-size: 0.9em;
+
+    .footer-brand {
+        color: $color_ink;
+        font-weight: 400;
+    }
+
+    .footer-links a {
+        text-transform: lowercase;
+    }
+}

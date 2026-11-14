@@ -3,16 +3,43 @@
 
 // ---- Problem list ----
 #problem-table {
+    th {
+        height: 34px;
+    }
+
     tbody td {
-        height: 40px;
+        height: 42px;
+    }
+
+    td.code, th.code {
+        text-align: left;
+        padding: 0 10px;
+        white-space: nowrap;
+    }
+
+    td.code {
+        font-family: $ui-mono;
+        font-size: 0.93em;
+        color: $color_nav_muted;
     }
 
     td.problem a {
         font-weight: 600;
     }
 
+    td.category, td.types, td.p, td.ac-rate, td.users {
+        font-family: $ui-mono;
+        font-size: 0.93em;
+    }
+
     tr:hover {
         background: $color_nav_hover;
+    }
+}
+
+@media (max-width: 550px) {
+    #problem-table tr .code {
+        display: none;
     }
 }
 
@@ -26,26 +53,23 @@
 }
 
 // ---- Problem page ----
-.problem-title h2 {
-    font-size: 1.9em;
-    font-weight: 600;
-}
-
-#content-right:not(.problems) .info-float {
+// The side card on the problem page (the one that holds the limits).
+#content-right:not(.problems) .info-float:has(> .pnoi-limits) {
     box-sizing: border-box;
     padding: 14px;
-    border: 1px solid $color_primary25;
-    border-radius: 8px;
-    background: $color_primary5;
+    border: 1px solid $color_ink;
 
     .button.full {
         box-sizing: border-box;
         padding: 9px 12px;
-        font-weight: 600;
     }
 
     > div {
         margin: 3px 0;
+    }
+
+    hr {
+        border-bottom-color: $color_hairline;
     }
 }
 
@@ -54,10 +78,6 @@
         flex: 0 0 17em;
         max-width: 17em;
         padding-left: 2em;
-
-        .info-float {
-            padding: 14px;
-        }
     }
 }
 
@@ -79,10 +99,11 @@
 
     .pi-name {
         flex: 1;
+        font-weight: 400;
     }
 
     .pi-value {
-        font-family: $monospace-fonts;
+        font-family: $ui-mono;
         font-weight: 600;
         white-space: nowrap;
     }
@@ -94,16 +115,20 @@
     line-height: 1.65;
 
     h4 {
-        font-size: 1.25em;
-        margin-top: 1.6em;
+        font-family: $ui-mono;
+        font-size: 1.05em;
+        margin-top: 1.8em;
         margin-bottom: 0.6em;
+        border-bottom: 1px solid $color_ink;
     }
 
     pre {
         padding: 0.8em 1em;
         margin: 0.6em 0 1.2em;
+        font-family: $ui-mono;
 
         code, div.code {
+            font-family: $ui-mono !important;
             line-height: 1.45;
         }
     }
@@ -111,4 +136,9 @@
 
 .copy-clipboard {
     margin-top: 0.6em;
+}
+
+.btn-clipboard {
+    font-family: $ui-mono;
+    text-transform: lowercase;
 }

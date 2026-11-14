@@ -5,7 +5,6 @@
 @use "math";
 @use "status";
 @use "blog";
-@use "pnoi-home";
 @use "problem";
 @use "problem-vote";
 @use "ticket";
@@ -21,4 +20,6 @@
 @use "misc";
 @use "select2-dmoj";
 @use "ace-dmoj";
+@use "pnoi-grid";
+@use "pnoi-home";
 @use "pnoi-problem";

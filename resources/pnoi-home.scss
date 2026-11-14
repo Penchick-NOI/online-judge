@@ -12,11 +12,9 @@
     flex-wrap: wrap;
     gap: 16px 24px;
     padding: 24px 28px;
-    margin-bottom: 20px;
-    background: $color_nav_active_bg;
-    border: 1px solid $color_nav_border;
-    border-radius: 8px;
-    color: $color_logo_word;
+    margin-bottom: 24px;
+    border: 1px solid $color_ink;
+    color: $color_ink;
 }
 
 .pnoi-hero-text {
@@ -25,11 +23,15 @@
 }
 
 .pnoi-hero-label {
-    font-size: 0.9em;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: $color_nav_active_text;
+    font-family: $ui-mono;
+    font-size: 0.93em;
+    text-transform: lowercase;
+    color: $color_emph;
+
+    &::before {
+        content: "/";
+        margin-right: 0.3em;
+    }
 }
 
 .pnoi-hero-title {
@@ -37,7 +39,7 @@
     font-weight: 600;
     letter-spacing: 0;
     line-height: 1.2;
-    margin: 6px 0 8px;
+    margin: 8px 0 10px;
 
     a, a:hover {
         color: inherit;
@@ -45,17 +47,18 @@
 }
 
 .pnoi-hero-meta {
-    font-size: 1.1em;
+    font-size: 1.05em;
 }
 
 .pnoi-countdown {
-    font-family: $monospace-fonts;
-    font-weight: 700;
+    font-family: $ui-mono;
+    font-weight: 600;
     font-size: 1.15em;
     margin: 0 0.3em;
 }
 
 .pnoi-hero-date {
+    font-family: $ui-mono;
     color: $color_nav_muted;
     white-space: nowrap;
 }
@@ -64,10 +67,13 @@ a.pnoi-hero-action {
     flex: 0 0 auto;
     background: $color_signup_bg;
     color: $color_signup_text;
-    font-weight: 600;
-    font-size: 1.05em;
+    font-family: $ui-mono;
+    text-transform: lowercase;
     padding: 10px 18px;
-    border-radius: 6px;
+
+    &::after {
+        content: " \2192";
+    }
 
     &:hover {
         color: $color_signup_text;
@@ -78,11 +84,11 @@ a.pnoi-hero-action {
 .pnoi-home-grid {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    gap: 20px;
+    gap: 28px;
     align-items: start;
 
     .sidebox {
-        margin-bottom: 20px;
+        margin-bottom: 12px;
     }
 }
 
@@ -104,7 +110,12 @@ a.pnoi-hero-action {
 .pnoi-contest-table {
     td, th {
         text-align: left;
-        padding: 9px 10px;
+        padding: 10px;
+    }
+
+    td:not(.pnoi-contest-name) {
+        font-family: $ui-mono;
+        font-size: 0.93em;
     }
 
     .pnoi-contest-name a {
@@ -115,17 +126,22 @@ a.pnoi-hero-action {
 .pnoi-tag {
     display: inline-block;
     margin-left: 6px;
-    padding: 1px 7px;
-    border-radius: 10px;
+    padding: 0 6px;
+    border: 1px solid $color_nav_active_text;
+    font-family: $ui-mono;
     font-size: 0.85em;
-    background: $color_nav_active_bg;
+    text-transform: lowercase;
     color: $color_nav_active_text;
 }
 
 .pnoi-state {
     white-space: nowrap;
+    text-transform: lowercase;
     color: $color_nav_active_text;
-    font-weight: 600;
+
+    &.pnoi-state-live {
+        color: $color_emph;
+    }
 
     &.pnoi-state-live:before {
         content: "";
@@ -133,44 +149,37 @@ a.pnoi-hero-action {
         width: 8px;
         height: 8px;
         margin-right: 6px;
-        border-radius: 50%;
-        background: $color_signup_bg;
+        background: $color_emph;
     }
 
     &.pnoi-state-past {
         color: $color_nav_muted;
-        font-weight: 400;
     }
 }
 
 .pnoi-empty {
     margin: 0;
-    padding: 18px 12px;
+    padding: 18px 2px;
     color: $color_nav_muted;
-    text-align: center;
 }
 
 .pnoi-more {
     margin: 0 -5px;
-    padding: 8px 12px;
+    padding: 8px 2px;
+    font-family: $ui-mono;
+    font-size: 0.93em;
+    text-transform: lowercase;
     text-align: right;
-    border: 1px solid $color_primary25;
-    border-top: none;
-}
-
-.pnoi-home-grid .sidebox-content.sidebox-table {
-    border: 1px solid $color_primary25;
-    border-top: none;
 }
 
 ul.pnoi-news {
     list-style: none;
     margin: 0;
-    padding: 4px 4px;
+    padding: 0;
 
     li {
         padding: 9px 0;
-        border-bottom: 1px solid $color_primary10;
+        border-bottom: 1px solid $color_hairline;
 
         &:last-child {
             border-bottom: none;
@@ -184,11 +193,17 @@ ul.pnoi-news {
     }
 
     .time {
-        font-size: 0.9em;
+        font-family: $ui-mono;
+        font-size: 0.85em;
     }
 }
 
-// Site footer
+.pnoi-home ul.problem-list {
+    padding-left: 0;
+    margin: 8px 0;
+}
+
+// Site footer layout
 footer {
     #footer-content {
         display: flex;
@@ -201,11 +216,6 @@ footer {
         margin: 0 auto;
         padding: 10px 0;
         text-align: left;
-    }
-
-    .footer-brand {
-        color: $color_primary75;
-        font-weight: 600;
     }
 
     .footer-links {
