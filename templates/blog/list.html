@@ -1,12 +1,10 @@
 {% extends "base.html" %}
+{% block legacy_css %}{% endblock %}
 {% block title_row %}{% endblock %}
-{% block title_ruler %}{% endblock %}
 
 {% block media %}
     <link rel="alternate" type="application/atom+xml" href="{{ url('blog_atom') }}" title="Atom Blog Feed">
     <link rel="alternate" type="application/rss+xml" href="{{ url('blog_rss') }}" title="RSS Blog Feed">
-    <link rel="alternate" type="application/atom+xml" href="{{ url('comment_atom') }}" title="Atom Comment Feed">
-    <link rel="alternate" type="application/rss+xml" href="{{ url('comment_rss') }}" title="RSS Comment Feed">
     <link rel="alternate" type="application/atom+xml" href="{{ url('problem_atom') }}" title="Atom Problem Feed">
     <link rel="alternate" type="application/rss+xml" href="{{ url('problem_rss') }}" title="RSS Problem Feed">
 {% endblock %}
@@ -23,12 +21,12 @@
 
 {% macro contest_row(contest, state) %}
     <tr>
-        <td class="pnoi-contest-name">
-            <a href="{{ url('contest_view', contest.key) }}">{{ contest.name }}</a>
-            {% if contest.is_rated %}<span class="pnoi-tag">{{ _('Rated') }}</span>{% endif %}
-        </td>
-        <td>{{ contest.start_time|date(_("M j, Y, G:i")) }}</td>
         <td>
+            <a class="pn-problem-name" href="{{ url('contest_view', contest.key) }}">{{ contest.name }}</a>
+            {% if contest.is_rated %}<span class="pn-tag pn-tag-yellow">{{ _('Rated') }}</span>{% endif %}
+        </td>
+        <td class="pn-hide-sm">{{ contest.start_time|date(_("M j, Y, G:i")) }}</td>
+        <td class="pn-hide-sm">
             {% if contest.time_limit %}
                 {{ contest.time_limit|timedelta('localized-no-seconds') }}
             {% else %}
@@ -37,11 +35,11 @@
         </td>
         <td>
             {% if state == 'live' %}
-                <span class="pnoi-state pnoi-state-live">{{ _('Running') }}</span>
+                <span class="pn-state-live">{{ _('Running') }}</span>
             {% elif state == 'upcoming' %}
-                <span class="pnoi-state">{{ _('Upcoming') }}</span>
+                <span class="pn-tag">{{ _('Upcoming') }}</span>
             {% else %}
-                <span class="pnoi-state pnoi-state-past">{{ _('Finished') }}</span>
+                <span class="pn-muted">{{ _('Finished') }}</span>
             {% endif %}
         </td>
     </tr>
@@ -51,183 +49,176 @@
     {% block before_posts %}{% endblock %}
     {% set live_contest = current_contests|first %}
     {% set next_contest = future_contests|first %}
-    <div class="pnoi-home">
-        <section class="pnoi-hero">
-            {% if live_contest %}
-                <div class="pnoi-hero-text">
-                    <div class="pnoi-hero-label">{{ _('Happening now') }}</div>
-                    <h1 class="pnoi-hero-title">
-                        <a href="{{ url('contest_view', live_contest.key) }}">{{ live_contest.name }}</a>
-                    </h1>
-                    <div class="pnoi-hero-meta">
-                        {{ _('Ends in') }}
-                        <span class="pnoi-countdown">{{ as_countdown(live_contest.time_before_end) }}</span>
-                    </div>
-                </div>
-                <a class="pnoi-hero-action" href="{{ url('contest_view', live_contest.key) }}">{{ _('Go to contest') }}</a>
-            {% elif next_contest %}
-                <div class="pnoi-hero-text">
-                    <div class="pnoi-hero-label">{{ _('Next contest') }}</div>
-                    <h1 class="pnoi-hero-title">
-                        <a href="{{ url('contest_view', next_contest.key) }}">{{ next_contest.name }}</a>
-                    </h1>
-                    <div class="pnoi-hero-meta">
-                        {{ _('Starts in') }}
-                        <span class="pnoi-countdown">{{ as_countdown(next_contest.time_before_start) }}</span>
-                        <span class="pnoi-hero-date">{{ next_contest.start_time|date(_("M j, Y, G:i")) }}</span>
-                    </div>
-                </div>
-                <a class="pnoi-hero-action" href="{{ url('contest_view', next_contest.key) }}">{{ _('View contest') }}</a>
-            {% else %}
-                <div class="pnoi-hero-text">
-                    <div class="pnoi-hero-label">{{ SITE_LONG_NAME }}</div>
-                    <h1 class="pnoi-hero-title">{{ _('Competitive programming for the Philippines') }}</h1>
-                    <div class="pnoi-hero-meta">
-                        {{ _('No contest is scheduled yet. Until then, practise on the problem set.') }}
-                    </div>
-                </div>
-                <a class="pnoi-hero-action" href="{{ url('problem_list') }}">{{ _('Browse problems') }}</a>
-            {% endif %}
-        </section>
-
-        <div class="pnoi-home-grid">
-            <div class="pnoi-home-main">
-                <div class="sidebox">
-                    <h3>{{ _('Contests') }} <i class="fa fa-trophy"></i></h3>
-                    <div class="sidebox-content sidebox-table">
-                        {% if current_contests or future_contests or past_contests %}
-                            <table class="table pnoi-contest-table">
-                                <thead>
-                                    <tr>
-                                        <th>{{ _('Contest') }}</th>
-                                        <th>{{ _('Start') }}</th>
-                                        <th>{{ _('Length') }}</th>
-                                        <th>{{ _('Status') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for contest in current_contests %}{{ contest_row(contest, 'live') }}{% endfor %}
-                                    {% for contest in future_contests %}{{ contest_row(contest, 'upcoming') }}{% endfor %}
-                                    {% for contest in past_contests %}{{ contest_row(contest, 'past') }}{% endfor %}
-                                </tbody>
-                            </table>
-                        {% else %}
-                            <p class="pnoi-empty">{{ _('No contests yet. Upcoming rounds will be listed here.') }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="pnoi-more"><a href="{{ url('contest_list') }}">{{ _('All contests') }} &rarr;</a></div>
+    <section class="pn-hero">
+        {% if live_contest %}
+            <div class="pn-hero-text">
+                <span class="pn-hero-label">{{ _('Happening now') }}</span>
+                <h1 class="pn-hero-title">
+                    <a href="{{ url('contest_view', live_contest.key) }}">{{ live_contest.name }}</a>
+                </h1>
+                <div class="pn-hero-meta">
+                    {{ _('Ends in') }}
+                    <span class="pn-countdown">{{ as_countdown(live_contest.time_before_end) }}</span>
                 </div>
             </div>
+            <a class="pn-btn pn-btn-red" href="{{ url('contest_view', live_contest.key) }}">{{ _('Go to contest') }}</a>
+        {% elif next_contest %}
+            <div class="pn-hero-text">
+                <span class="pn-hero-label">{{ _('Next contest') }}</span>
+                <h1 class="pn-hero-title">
+                    <a href="{{ url('contest_view', next_contest.key) }}">{{ next_contest.name }}</a>
+                </h1>
+                <div class="pn-hero-meta">
+                    {{ _('Starts in') }}
+                    <span class="pn-countdown">{{ as_countdown(next_contest.time_before_start) }}</span>
+                    {{ next_contest.start_time|date(_("M j, Y, G:i")) }}
+                </div>
+            </div>
+            <a class="pn-btn pn-btn-red" href="{{ url('contest_view', next_contest.key) }}">{{ _('View contest') }}</a>
+        {% else %}
+            <div class="pn-hero-text">
+                <span class="pn-hero-label">{{ SITE_LONG_NAME }}</span>
+                <h1 class="pn-hero-title">{{ _('Competitive programming for the Philippines') }}</h1>
+                <div class="pn-hero-meta">
+                    {{ _('No contest is scheduled yet. Until then, practise on the problem set.') }}
+                </div>
+            </div>
+            <a class="pn-btn pn-btn-red" href="{{ url('problem_list') }}">{{ _('Browse problems') }}</a>
+        {% endif %}
+    </section>
 
-            <aside class="pnoi-home-side">
-                {% if request.in_contest and request.participation.contest.use_clarifications %}
-                    <div class="blog-sidebox sidebox">
-                        <h3>{{ _('Clarifications') }} <i class="fa fa-question-circle"></i></h3>
-                        <div class="sidebox-content">
-                            {% if has_clarifications %}
-                                <ul>
-                                    {% for clarification in clarifications %}
-                                        <li class="clarification">
-                                            <a href="{{ url('problem_detail', clarification.problem.code) }}"
-                                               class="problem">
-                                                {{ clarification.problem.name }}
-                                            </a>
-                                            <span class="time">{{ relative_time(clarification.date) }}</span>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p class="no-clarifications-message">
-                                    {{ _('No clarifications have been made at this time.') }}
-                                </p>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endif %}
-
-                <div class="sidebox">
-                    <h3>{{ _('News') }} <i class="fa fa-bullhorn"></i></h3>
-                    <div class="sidebox-content">
-                        {% if posts %}
-                            <ul class="pnoi-news">
-                                {% for post in posts %}
-                                    <li>
-                                        <a class="pnoi-news-title" href="{{ url('blog_post', post.id, post.slug) }}">
-                                            {%- if post.sticky %}<i title="Sticky" class="fa fa-star fa-fw"></i>{% endif -%}
-                                            {{ post.title }}
-                                        </a>
-                                        <span class="time">
-                                            {% with abs=_('posted on {time}'), rel=_('posted {time}') %}
-                                                {{ relative_time(post.publish_on, abs=abs, rel=rel) }}
-                                            {% endwith %}
-                                        </span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p class="pnoi-empty">{{ _('No news yet.') }}</p>
-                        {% endif %}
-                    </div>
-                    {% if page_obj.has_other_pages() %}
-                        <div class="bottom-pagination-bar">{% include "list-pages.html" %}</div>
+    <div class="pn-home-grid">
+        <div>
+            <section>
+                <h2 class="pn-section-title">{{ _('Contests') }}</h2>
+                <div class="pn-card pn-table-wrap">
+                    {% if current_contests or future_contests or past_contests %}
+                        <table class="pn-table">
+                            <thead>
+                                <tr>
+                                    <th>{{ _('Contest') }}</th>
+                                    <th class="pn-hide-sm">{{ _('Start') }}</th>
+                                    <th class="pn-hide-sm">{{ _('Length') }}</th>
+                                    <th>{{ _('Status') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for contest in current_contests %}{{ contest_row(contest, 'live') }}{% endfor %}
+                                {% for contest in future_contests %}{{ contest_row(contest, 'upcoming') }}{% endfor %}
+                                {% for contest in past_contests %}{{ contest_row(contest, 'past') }}{% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="pn-empty">{{ _('No contests yet. Upcoming rounds will be listed here.') }}</p>
                     {% endif %}
                 </div>
+                <div class="pn-more"><a href="{{ url('contest_list') }}">{{ _('All contests') }} &rarr;</a></div>
+            </section>
 
-                <div class="blog-sidebox sidebox">
-                    <h3>{{ _('New problems') }} <i class="fa fa-puzzle-piece"></i></h3>
-                    <div class="sidebox-content">
-                        {% if new_problems %}
-                            <ul class="problem-list">
-                                {% for problem in new_problems %}
-                                    <li><a href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a></li>
+            {% if request.in_contest and request.participation.contest.use_clarifications %}
+                <section>
+                    <h2 class="pn-section-title">{{ _('Clarifications') }}</h2>
+                    <div class="pn-card">
+                        {% if has_clarifications %}
+                            <ul class="pn-list">
+                                {% for clarification in clarifications %}
+                                    <li>
+                                        <a class="pn-list-title"
+                                           href="{{ url('problem_detail', clarification.problem.code) }}">
+                                            {{ clarification.problem.name }}
+                                        </a>
+                                        <span class="pn-list-meta">{{ relative_time(clarification.date) }}</span>
+                                    </li>
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            <p class="pnoi-empty">{{ _('No problems yet.') }}</p>
+                            <p class="pn-empty">{{ _('No clarifications have been made at this time.') }}</p>
                         {% endif %}
                     </div>
-                </div>
-
-                {% if perms.judge.test_site and own_open_tickets %}
-                    <div class="blog-sidebox sidebox">
-                        <h3>{{ _('My open tickets') }} <i class="fa fa-question-circle"></i></h3>
-                        <div class="sidebox-content">
-                            <ul class="open-tickets">
-                                {% for ticket in own_open_tickets %}
-                                    <li>
-                                        <a href="{{ url('ticket', ticket.id) }}">{{ ticket.title }}</a>
-                                        <div class="object">
-                                            <a href="{{ ticket.linked_item.get_absolute_url() }}">
-                                                {{ ticket.linked_item|item_title }}</a>
-                                        </div>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                {% endif %}
-
-                {% if perms.judge.test_site and open_tickets %}
-                    <div class="blog-sidebox sidebox">
-                        <h3>{{ _('New tickets') }} <i class="fa fa-exclamation-circle"></i></h3>
-                        <div class="sidebox-content">
-                            <ul class="open-tickets">
-                                {% for ticket in open_tickets %}
-                                    <li>
-                                        <a href="{{ url('ticket', ticket.id) }}">{{ ticket.title }}</a>
-                                        <div class="object">
-                                            <a href="{{ ticket.linked_item.get_absolute_url() }}">
-                                                {{ ticket.linked_item|item_title }}</a>
-                                        </div>
-                                        <div class="author">{{ link_user(ticket.user) }}</div>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                {% endif %}
-            </aside>
+                </section>
+            {% endif %}
         </div>
+
+        <aside>
+            <section>
+                <h2 class="pn-section-title">{{ _('News') }}</h2>
+                <div class="pn-card">
+                    {% if posts %}
+                        <ul class="pn-list">
+                            {% for post in posts %}
+                                <li>
+                                    <a class="pn-list-title" href="{{ url('blog_post', post.id, post.slug) }}">
+                                        {{- post.title -}}
+                                    </a>
+                                    <span class="pn-list-meta">
+                                        {% with abs=_('posted on {time}'), rel=_('posted {time}') %}
+                                            {{ relative_time(post.publish_on, abs=abs, rel=rel) }}
+                                        {% endwith %}
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="pn-empty">{{ _('No news yet.') }}</p>
+                    {% endif %}
+                </div>
+                {% if page_obj.has_other_pages() %}
+                    <div class="pn-pages">{% include "list-pages.html" %}</div>
+                {% endif %}
+            </section>
+
+            <section>
+                <h2 class="pn-section-title">{{ _('New problems') }}</h2>
+                <div class="pn-card">
+                    {% if new_problems %}
+                        <ul class="pn-list">
+                            {% for problem in new_problems %}
+                                <li>
+                                    <a class="pn-list-title" href="{{ url('problem_detail', problem.code) }}">
+                                        {{- problem.name -}}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="pn-empty">{{ _('No problems yet.') }}</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            {% if own_open_tickets %}
+                <section>
+                    <h2 class="pn-section-title">{{ _('My open tickets') }}</h2>
+                    <div class="pn-card">
+                        <ul class="pn-list">
+                            {% for ticket in own_open_tickets %}
+                                <li>
+                                    <a class="pn-list-title" href="{{ url('ticket', ticket.id) }}">{{ ticket.title }}</a>
+                                    <span class="pn-list-meta">{{ ticket.linked_item|item_title }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </section>
+            {% endif %}
+
+            {% if open_tickets %}
+                <section>
+                    <h2 class="pn-section-title">{{ _('New tickets') }}</h2>
+                    <div class="pn-card">
+                        <ul class="pn-list">
+                            {% for ticket in open_tickets %}
+                                <li>
+                                    <a class="pn-list-title" href="{{ url('ticket', ticket.id) }}">{{ ticket.title }}</a>
+                                    <span class="pn-list-meta">
+                                        {{ ticket.linked_item|item_title }} &middot; {{ ticket.user.user.username }}
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </section>
+            {% endif %}
+        </aside>
     </div>
-    {% block after_posts %}{% endblock %}
 {% endblock %}
