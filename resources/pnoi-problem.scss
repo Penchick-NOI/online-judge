@@ -1,0 +1,144 @@
+// PNOI problem list and problem page.
+@use "vars" as *;
+
+// ---- Problem list ----
+#problem-table {
+    th {
+        height: 34px;
+    }
+
+    tbody td {
+        height: 42px;
+    }
+
+    td.code, th.code {
+        text-align: left;
+        padding: 0 10px;
+        white-space: nowrap;
+    }
+
+    td.code {
+        font-family: $ui-mono;
+        font-size: 0.93em;
+        color: $color_nav_muted;
+    }
+
+    td.problem a {
+        font-weight: 600;
+    }
+
+    td.category, td.types, td.p, td.ac-rate, td.users {
+        font-family: $ui-mono;
+        font-size: 0.93em;
+    }
+
+    tr:hover {
+        background: $color_nav_hover;
+    }
+}
+
+@media (max-width: 550px) {
+    #problem-table tr .code {
+        display: none;
+    }
+}
+
+// Only solved and attempted problems stand out; the rest stay quiet.
+.unsolved-problem-color, .no-editorial-color {
+    color: $color_primary25;
+}
+
+.attempted-problem-color {
+    color: #d98a00;
+}
+
+// ---- Problem page ----
+// The side card on the problem page (the one that holds the limits).
+#content-right:not(.problems) .info-float:has(> .pnoi-limits) {
+    box-sizing: border-box;
+    padding: 14px;
+    border: 1px solid $color_ink;
+
+    .button.full {
+        box-sizing: border-box;
+        padding: 9px 12px;
+    }
+
+    > div {
+        margin: 3px 0;
+    }
+
+    hr {
+        border-bottom-color: $color_hairline;
+    }
+}
+
+@media (min-width: 700px) {
+    #content-right:not(.problems) {
+        flex: 0 0 17em;
+        max-width: 17em;
+        padding-left: 2em;
+    }
+}
+
+@media not all and (min-width: 700px) {
+    #content-right:not(.problems) .info-float {
+        margin-bottom: 1em;
+    }
+}
+
+// Points, time limit and memory limit, right under the Submit button.
+.pnoi-limits {
+    margin: 12px 0 2px !important;
+
+    .problem-info-entry {
+        display: flex;
+        align-items: baseline;
+        padding: 3px 0;
+    }
+
+    .pi-name {
+        flex: 1;
+        font-weight: 400;
+    }
+
+    .pi-value {
+        font-family: $ui-mono;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+}
+
+// ---- Statement text (also used by news posts and pages) ----
+.content-description {
+    font-size: 1.07em;
+    line-height: 1.65;
+
+    h4 {
+        font-family: $ui-mono;
+        font-size: 1.05em;
+        margin-top: 1.8em;
+        margin-bottom: 0.6em;
+        border-bottom: 1px solid $color_ink;
+    }
+
+    pre {
+        padding: 0.8em 1em;
+        margin: 0.6em 0 1.2em;
+        font-family: $ui-mono;
+
+        code, div.code {
+            font-family: $ui-mono !important;
+            line-height: 1.45;
+        }
+    }
+}
+
+.copy-clipboard {
+    margin-top: 0.6em;
+}
+
+.btn-clipboard {
+    font-family: $ui-mono;
+    text-transform: lowercase;
+}
