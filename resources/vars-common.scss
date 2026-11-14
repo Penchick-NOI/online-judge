@@ -1,4 +1,10 @@
-$highlight_blue: #2980B9;
+// PNOI "Dagat" palette. $highlight_blue keeps its upstream name to make
+// merging DMOJ updates easier; in PNOI it is the brand teal.
+$highlight_blue: #0F766E;
+$brand_teal: #0F766E;
+$brand_teal_dark: #0B5F58;
+$brand_coral: #E8563F;
+$brand_coral_dark: #CF4630;
 $announcement_red: #ae0000;
 
 $base_font_size: 14px;

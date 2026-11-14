@@ -1,5 +1,5 @@
-// Navbar should look the same in every theme, so vars-common should be enough.
-@use "vars-common" as *;
+// PNOI: the navbar follows the theme (light bar in light mode, dark bar in dark mode).
+@use "vars" as *;
 
 #user-links {
     top: 0;
@@ -13,10 +13,10 @@
         min-height: 100%;
         align-items: center;
         white-space: nowrap;
-        color: #5c5954;
+        color: $color_nav_muted;
 
         a {
-            color: #FFF;
+            color: $color_nav_text;
         }
     }
 
@@ -48,7 +48,7 @@
 
                     & > span {
                         vertical-align: middle;
-                        color: #eee;
+                        color: $color_nav_text;
                     }
                 }
             }
@@ -61,12 +61,12 @@
 }
 
 #nav-shadow {
-    height: 3px;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), transparent);
+    height: 1px;
+    background: $color_nav_border;
 }
 
 #nav-container {
-    background: #3b3b3b;
+    background: $color_nav_bg;
 
     // opacity: 0.77
     // filter: alpha(opacity=77)
@@ -87,8 +87,9 @@ nav {
 
         li {
             display: inline-block;
-            color: #FFF;
-            text-transform: uppercase;
+            color: $color_nav_text;
+            text-transform: none;
+            font-weight: 500;
             position: relative;
 
             &.home-nav-element a {
@@ -106,23 +107,23 @@ nav {
                 display: inline-block;
                 text-decoration: none;
                 vertical-align: middle;
-                color: #FFF;
+                color: $color_nav_text;
                 padding: 13px 7px;
                 height: 18px;
 
                 &:link {
-                    color: #FFF;
+                    color: $color_nav_text;
                 }
 
                 &:hover {
-                    color: #FFF;
-                    background: rgba(255, 255, 255, 0.25);
+                    color: $color_nav_text;
+                    background: $color_nav_hover;
                     margin: 0;
                 }
 
                 &.active {
-                    color: #FFF;
-                    background: $highlight_blue;
+                    color: $color_nav_active_text;
+                    background: $color_nav_active_bg;
                 }
 
                 .nav-expand {
@@ -135,15 +136,16 @@ nav {
                 position: absolute;
                 left: 5px;
                 display: none;
-                color: #fff;
-                background: #3b3b3b;
+                color: $color_nav_text;
+                background: $color_nav_bg;
                 margin: 0 !important;
-                box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+                border: 1px solid $color_nav_border;
 
                 li {
                     &:first-child {
                         a.active {
-                            border-top: 1px solid #3b3b3b;
+                            border-top: 1px solid $color_nav_bg;
                         }
                     }
                 }
@@ -191,7 +193,7 @@ nav {
         display: inline-block;
         height: 32px;
         margin-right: 1px;
-        border-right: 3px solid rgba(255, 255, 255, 0.15);
+        border-right: 1px solid $color_nav_border;
     }
 }
 
@@ -209,15 +211,15 @@ nav {
         display: block;
         line-height: 26px;
         font-size: 2em;
-        color: #FFF;
+        color: $color_nav_text;
         padding: 0 0.25em;
         margin: 4px 0.25em;
         white-space: nowrap;
         float: left;
 
         &.hover {
-            color: #4db7fe;
-            text-shadow: 0 0 5px $highlight_blue;
+            color: $color_nav_active_text;
+            text-shadow: none;
             transition-duration: 0.25s;
         }
     }
@@ -228,7 +230,7 @@ nav {
         margin: 0;
         position: fixed;
         top: 36px;
-        background: #3b3b3b;
+        background: $color_nav_bg;
         bottom: 0;
         width: 8em;
         left: 0;
@@ -287,5 +289,49 @@ nav {
                 left: 0 !important;
             }
         }
+    }
+}
+
+// PNOI text logo: a square "P" mark followed by the wordmark.
+.pnoi-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 6px 0 2px;
+    text-transform: none;
+
+    .pnoi-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: $color_logo_mark_bg;
+        color: $color_logo_mark_text;
+        font-family: $monospace-fonts;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .pnoi-word {
+        color: $color_logo_word;
+        font-family: $monospace-fonts;
+        font-size: 19px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+    }
+}
+
+// The "Sign up" link in the navbar is the one coral call to action.
+#user-links .anon a.pnoi-signup {
+    background: $color_signup_bg;
+    color: $color_signup_text;
+    padding: 5px 12px;
+    border-radius: $widget_border_radius;
+
+    &:hover {
+        filter: brightness(0.94);
     }
 }
