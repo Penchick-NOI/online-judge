@@ -1,0 +1,225 @@
+// PNOI home page: the next contest leads the page, then contests, news and new problems.
+@use "vars" as *;
+
+.pnoi-home {
+    padding-top: 0.5em;
+}
+
+.pnoi-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    background: $color_nav_active_bg;
+    border: 1px solid $color_nav_border;
+    border-radius: 8px;
+    color: $color_logo_word;
+}
+
+.pnoi-hero-text {
+    min-width: 0;
+    flex: 1 1 320px;
+}
+
+.pnoi-hero-label {
+    font-size: 0.9em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: $color_nav_active_text;
+}
+
+.pnoi-hero-title {
+    font-size: 2em;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.2;
+    margin: 6px 0 8px;
+
+    a, a:hover {
+        color: inherit;
+    }
+}
+
+.pnoi-hero-meta {
+    font-size: 1.1em;
+}
+
+.pnoi-countdown {
+    font-family: $monospace-fonts;
+    font-weight: 700;
+    font-size: 1.15em;
+    margin: 0 0.3em;
+}
+
+.pnoi-hero-date {
+    color: $color_nav_muted;
+    white-space: nowrap;
+}
+
+a.pnoi-hero-action {
+    flex: 0 0 auto;
+    background: $color_signup_bg;
+    color: $color_signup_text;
+    font-weight: 600;
+    font-size: 1.05em;
+    padding: 10px 18px;
+    border-radius: 6px;
+
+    &:hover {
+        color: $color_signup_text;
+        filter: brightness(0.94);
+    }
+}
+
+.pnoi-home-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+
+    .sidebox {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 800px) {
+    .pnoi-home-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
+
+    .pnoi-hero {
+        padding: 18px;
+    }
+
+    .pnoi-hero-title {
+        font-size: 1.6em;
+    }
+}
+
+.pnoi-contest-table {
+    td, th {
+        text-align: left;
+        padding: 9px 10px;
+    }
+
+    .pnoi-contest-name a {
+        font-weight: 600;
+    }
+}
+
+.pnoi-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 0.85em;
+    background: $color_nav_active_bg;
+    color: $color_nav_active_text;
+}
+
+.pnoi-state {
+    white-space: nowrap;
+    color: $color_nav_active_text;
+    font-weight: 600;
+
+    &.pnoi-state-live:before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin-right: 6px;
+        border-radius: 50%;
+        background: $color_signup_bg;
+    }
+
+    &.pnoi-state-past {
+        color: $color_nav_muted;
+        font-weight: 400;
+    }
+}
+
+.pnoi-empty {
+    margin: 0;
+    padding: 18px 12px;
+    color: $color_nav_muted;
+    text-align: center;
+}
+
+.pnoi-more {
+    margin: 0 -5px;
+    padding: 8px 12px;
+    text-align: right;
+    border: 1px solid $color_primary25;
+    border-top: none;
+}
+
+.pnoi-home-grid .sidebox-content.sidebox-table {
+    border: 1px solid $color_primary25;
+    border-top: none;
+}
+
+ul.pnoi-news {
+    list-style: none;
+    margin: 0;
+    padding: 4px 4px;
+
+    li {
+        padding: 9px 0;
+        border-bottom: 1px solid $color_primary10;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .pnoi-news-title {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .time {
+        font-size: 0.9em;
+    }
+}
+
+// Site footer
+footer {
+    #footer-content {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 4px 20px;
+        max-width: 1240px;
+        width: 92%;
+        margin: 0 auto;
+        padding: 10px 0;
+        text-align: left;
+    }
+
+    .footer-brand {
+        color: $color_primary75;
+        font-weight: 600;
+    }
+
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 16px;
+
+        a {
+            color: $color_primary66;
+
+            &:hover {
+                color: $color_link100;
+            }
+        }
+    }
+}

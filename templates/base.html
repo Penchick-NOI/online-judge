@@ -275,11 +275,14 @@
     {% block bodyend %}{% endblock %}
 
     <footer>
-        <span id="footer-content">
-            <br>
-            <a style="color: #808080" href="https://dmoj.ca">{{ _('proudly powered by **DMOJ**')|markdown('default', strip_paragraphs=True) }}</a> |
+        <div id="footer-content">
+            <span class="footer-brand">{{ SITE_LONG_NAME }}</span>
+            <span class="footer-links">
+            <a href="/about/">{{ _('About') }}</a>
+            <a href="https://github.com/Penchick-NOI/online-judge">{{ _('Source code') }}</a>
+            <a href="https://dmoj.ca">{{ _('proudly powered by **DMOJ**')|markdown('default', strip_paragraphs=True) }}</a>
             {% if misc_config.footer %}
-                {{ misc_config.footer|safe }} |
+                <span>{{ misc_config.footer|safe }}</span>
             {% endif %}
             <form action="{{ url('set_language') }}" method="post" style="display: inline">
                 {% csrf_token %}
@@ -292,7 +295,8 @@
                 {% endfor %}
             </select>
           </form>
-        </span>
+            </span>
+        </div>
     </footer>
 </div>
 </body>
