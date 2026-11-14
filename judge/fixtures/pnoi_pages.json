@@ -1,0 +1,17 @@
+[
+ {
+  "model": "flatpages.flatpage",
+  "pk": 1,
+  "fields": {
+   "url": "/about/",
+   "title": "About PNOI",
+   "content": "**PNOI**, the Penchick National Olympiad in Informatics, is a competitive programming platform for the Philippines. It is a place to practise solving algorithmic problems and to compete in online contests, in the spirit of Codeforces and AtCoder.\n\n## What you can do here\n\n- **Solve problems.** Read a problem, write a program that solves it, and submit it. An automatic judge runs your program against hidden tests and tells you within seconds whether it is correct and fast enough.\n- **Join contests.** Contests are timed rounds where everyone solves the same set of problems. Rated rounds, where your rating goes up or down with your result, are the first kind of contest PNOI is being built for. Olympiad-style contests with partial scores are planned for later.\n- **Follow your progress.** Your profile keeps a record of the problems you have solved and the contests you have joined.\n\n## Languages\n\nYou can submit solutions in **C++** (C++17 and C++20) and **Python 3**.\n\n## Status\n\nPNOI is still being built. Features, problems and contests will be added over time.\n\n## Open source\n\nPNOI runs on a modified version of [DMOJ](https://github.com/DMOJ/online-judge), a free and open-source online judge. PNOI's own source code is public at [github.com/Penchick-NOI/online-judge](https://github.com/Penchick-NOI/online-judge) under the GNU Affero General Public License, version 3.\n",
+   "enable_comments": false,
+   "template_name": "flatpages/markdown.html",
+   "registration_required": false,
+   "sites": [
+    1
+   ]
+  }
+ }
+]
