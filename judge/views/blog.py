@@ -69,6 +69,7 @@ class PostList(ListView):
 
         context['current_contests'] = visible_contests.filter(start_time__lte=now, end_time__gt=now)
         context['future_contests'] = visible_contests.filter(start_time__gt=now)
+        context['past_contests'] = visible_contests.filter(end_time__lte=now).order_by('-end_time')[:5]
 
         if self.request.user.is_authenticated:
             context['own_open_tickets'] = (
