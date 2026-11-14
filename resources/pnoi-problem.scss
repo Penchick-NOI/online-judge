@@ -1,0 +1,114 @@
+// PNOI problem list and problem page.
+@use "vars" as *;
+
+// ---- Problem list ----
+#problem-table {
+    tbody td {
+        height: 40px;
+    }
+
+    td.problem a {
+        font-weight: 600;
+    }
+
+    tr:hover {
+        background: $color_nav_hover;
+    }
+}
+
+// Only solved and attempted problems stand out; the rest stay quiet.
+.unsolved-problem-color, .no-editorial-color {
+    color: $color_primary25;
+}
+
+.attempted-problem-color {
+    color: #d98a00;
+}
+
+// ---- Problem page ----
+.problem-title h2 {
+    font-size: 1.9em;
+    font-weight: 600;
+}
+
+#content-right:not(.problems) .info-float {
+    box-sizing: border-box;
+    padding: 14px;
+    border: 1px solid $color_primary25;
+    border-radius: 8px;
+    background: $color_primary5;
+
+    .button.full {
+        box-sizing: border-box;
+        padding: 9px 12px;
+        font-weight: 600;
+    }
+
+    > div {
+        margin: 3px 0;
+    }
+}
+
+@media (min-width: 700px) {
+    #content-right:not(.problems) {
+        flex: 0 0 17em;
+        max-width: 17em;
+        padding-left: 2em;
+
+        .info-float {
+            padding: 14px;
+        }
+    }
+}
+
+@media not all and (min-width: 700px) {
+    #content-right:not(.problems) .info-float {
+        margin-bottom: 1em;
+    }
+}
+
+// Points, time limit and memory limit, right under the Submit button.
+.pnoi-limits {
+    margin: 12px 0 2px !important;
+
+    .problem-info-entry {
+        display: flex;
+        align-items: baseline;
+        padding: 3px 0;
+    }
+
+    .pi-name {
+        flex: 1;
+    }
+
+    .pi-value {
+        font-family: $monospace-fonts;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+}
+
+// ---- Statement text (also used by news posts and pages) ----
+.content-description {
+    font-size: 1.07em;
+    line-height: 1.65;
+
+    h4 {
+        font-size: 1.25em;
+        margin-top: 1.6em;
+        margin-bottom: 0.6em;
+    }
+
+    pre {
+        padding: 0.8em 1em;
+        margin: 0.6em 0 1.2em;
+
+        code, div.code {
+            line-height: 1.45;
+        }
+    }
+}
+
+.copy-clipboard {
+    margin-top: 0.6em;
+}

@@ -17,7 +17,7 @@
         color: $color_header_text;
         background-color: $color_header_bg;
         border-color: $color_header_border;
-        border-width: 0 1px 1px 0;
+        border-width: 0 0 1px 0;
         border-style: solid;
         padding: 4px 10px;
         vertical-align: middle;
@@ -29,7 +29,7 @@
 
     td {
         border-color: $color_primary25;
-        border-width: 0 1px 1px 0;
+        border-width: 0 0 1px 0;
         border-style: solid;
         padding: 7px 5px;
         vertical-align: middle;
@@ -39,6 +39,10 @@
     // Border fixes
     th:first-child, td:first-child {
         border-left-width: 1px;
+    }
+
+    th:last-child, td:last-child {
+        border-right-width: 1px;
     }
 
     tr:first-child th, tr:first-child td {
