@@ -2,23 +2,42 @@
 
 $is_light_theme: false;
 
-$color_primary0: #0f0f0f;
-$color_primary5: #111;      // light background
-$color_primary10: #181818;  // background
-$color_primary25: #3b3b3b;  // border
-$color_primary33: #555;     // widget
+$color_primary0: #0b1616;
+$color_primary5: #0e1a1a;      // light background
+$color_primary10: #142222;  // background
+$color_primary25: #2a3d3b;  // border
+$color_primary33: #4a5f5d;     // widget
 $color_primary50: #808080;
 $color_primary66: #aaa;     // tabs
 $color_primary75: #ccc;     // widget
 $color_primary90: #eee;
 $color_primary100: #f8f8f8;
 
-$color_link50: #06d;    // default (title)
-$color_link75: #6bf;    // default
-$color_link100: #49e;   // hover
-$color_link200: #d83;   // active
+$color_link50: #2dd4bf;    // default (title)
+$color_link75: #5eead4;    // default
+$color_link100: #99f6e4;   // hover
+$color_link200: #ff8a75;   // active
 
-$color_pageBg: #222;    // #222 because some elements should be darker than pageBg
+$color_pageBg: #132020;    // #222 because some elements should be darker than pageBg
+
+// table, tab and sidebar headers
+$color_header_bg: #1a2c2b;
+$color_header_text: #e6f0ef;
+$color_header_border: #2a3d3b;
+
+// navigation bar
+$color_nav_bg: #0c1a1a;
+$color_nav_text: #e6f0ef;
+$color_nav_muted: #7f9593;
+$color_nav_hover: rgba(94, 234, 212, 0.1);
+$color_nav_border: #1f3836;
+$color_nav_active_bg: #123331;
+$color_nav_active_text: #5eead4;
+$color_logo_mark_bg: #2dd4bf;
+$color_logo_mark_text: #06302c;
+$color_logo_word: #eef7f6;
+$color_signup_bg: #ff8a75;
+$color_signup_text: #3d0f06;
 
 // custom one-off colours
 $color_base_description_blockquote: #3b3b3b;

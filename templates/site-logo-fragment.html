@@ -3,6 +3,8 @@
 {% elif logo_override_image is defined and logo_override_image %}
     <img src="{{ logo_override_image|camo }}" alt="{{ SITE_NAME }}" height="44" style="border: none">
 {% else %}
-    <img src="{{ static('icons/logo.svg') }}" alt="{{ SITE_NAME }}" width="160" height="44"
-         onerror="this.src=&quot;{{ static('icons/logo.png') }}&quot;; this.onerror=null" style="border: none">
+    <span class="pnoi-logo" role="img" aria-label="{{ SITE_NAME }}">
+        <span class="pnoi-mark" aria-hidden="true">P</span>
+        <span class="pnoi-word" aria-hidden="true">PNOI</span>
+    </span>
 {% endif %}

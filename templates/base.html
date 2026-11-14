@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     {# Chrome 39 for Android colour #}
-    <meta name="theme-color" content="#FFBB33">
+    <meta name="theme-color" content="#0F766E">
     {% if og_image %}
         <meta property="og:image" content="{{ request.build_absolute_uri(og_image) }}">
     {% endif %}
@@ -33,16 +33,12 @@
         <link rel="stylesheet" href="{{ FONTAWESOME_CSS }}">
     {% endif %}
     {% compress css %}
-        {# TODO: once dark mode support is better, enable for all users by deleting the else branch #}
-        {% if perms.judge.test_site %}
-            {% if PREFERRED_STYLE_CSS is not none %}
-                <link rel="stylesheet" href="{{ static(PREFERRED_STYLE_CSS) }}">
-            {% else %}
-                <link rel="stylesheet" href="{{ static(LIGHT_STYLE_CSS) }}">
-                <link rel="stylesheet" href="{{ static(DARK_STYLE_CSS) }}" media="(prefers-color-scheme: dark)">
-            {% endif %}
+        {# PNOI: dark mode is available to every user, not only testers. #}
+        {% if PREFERRED_STYLE_CSS is not none %}
+            <link rel="stylesheet" href="{{ static(PREFERRED_STYLE_CSS) }}">
         {% else %}
             <link rel="stylesheet" href="{{ static(LIGHT_STYLE_CSS) }}">
+            <link rel="stylesheet" href="{{ static(DARK_STYLE_CSS) }}" media="(prefers-color-scheme: dark)">
         {% endif %}
         {% if INLINE_FONTAWESOME %}<link rel="stylesheet" href="{{ static('libs/fontawesome/font-awesome.css') }}">{% endif %}
         <link rel="stylesheet" type="text/css" href="{{ static('libs/clipboard/tooltip.css') }}">
@@ -167,7 +163,7 @@
         </style>
     </noscript>
 </head>
-<body{% if perms.judge.test_site %} data-theme="{{ SITE_THEME_NAME }}"{% endif %}>
+<body data-theme="{{ SITE_THEME_NAME }}">
 <svg width="0" height="0" style="display: block">
     <defs>
         <clipPath id="rating-clip"><circle cx="8" cy="8" r="7"/></clipPath>
@@ -228,7 +224,7 @@
                     <a href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}"><b>{{ _('Log in') }}</b></a>
                     {% if REGISTRATION_OPEN %}
                         &nbsp;{{ _('or') }}&nbsp;
-                        <a href="{{ url('registration_register') }}"><b>{{ _('Sign up') }}</b></a>
+                        <a class="pnoi-signup" href="{{ url('registration_register') }}"><b>{{ _('Sign up') }}</b></a>
                     {% endif %}
                 </span>
             {% endif %}
