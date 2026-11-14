@@ -1,6 +1,6 @@
 {
-  "name": "DMOJ",
-  "short_name": "DMOJ",
+  "name": "Penchick National Olympiad in Informatics",
+  "short_name": "PNOI",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
+  "theme_color": "#0F766E",
   "background_color": "#ffffff",
   "display": "standalone"
 }
