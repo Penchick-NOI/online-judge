@@ -3161,6 +3161,239 @@ body[data-pn] {
     }
 }
 
+// ---------------------------------------------------------------- problem list with filter panel
+.pn-plist {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "search side" "main side";
+    gap: 14px 24px;
+    align-items: start;
+}
+
+.pn-plist-search {
+    grid-area: search;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+
+    .pn-input {
+        flex: 1 1 220px;
+        min-width: 0;
+        height: 44px;
+    }
+}
+
+.pn-plist-toggle {
+    display: none;
+}
+
+.pn-plist-main {
+    grid-area: main;
+    min-width: 0;
+}
+
+.pn-plist-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin: 0 2px 10px;
+    color: var(--pn-muted);
+    font-size: 13px;
+}
+
+.pn-plist-active {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+}
+
+[data-pn] a.pn-plist-remove {
+    color: inherit;
+
+    span {
+        opacity: 0.7;
+    }
+
+    &:hover {
+        text-decoration: none;
+        background: var(--pn-line-strong);
+        color: var(--pn-text);
+    }
+}
+
+.pn-plist-clear {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pn-plist-side {
+    grid-area: side;
+    position: sticky;
+    top: 20px;
+    padding: 16px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.pn-plist-heading {
+    margin: 18px 0 8px;
+    color: var(--pn-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.pn-tiers {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+[data-pn] a.pn-tier {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1px solid var(--pn-line-strong);
+    border-radius: 10px;
+    color: var(--pn-text);
+    font-size: 13px;
+
+    &:hover {
+        text-decoration: none;
+        background: var(--pn-bg);
+    }
+
+    &.pn-active {
+        border-color: var(--pn-blue);
+        background: var(--pn-blue-tint);
+    }
+}
+
+.pn-facets {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+[data-pn] a.pn-facet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: var(--pn-text);
+    font-size: 14px;
+
+    &:hover {
+        text-decoration: none;
+        background: var(--pn-bg);
+    }
+
+    &.pn-active {
+        background: var(--pn-blue-tint);
+        color: var(--pn-blue);
+        font-weight: 600;
+    }
+
+    .pn-facet-count {
+        color: var(--pn-muted);
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.pn-plist-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+
+    label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    input {
+        width: 15px;
+        height: 15px;
+        margin: 0;
+        accent-color: var(--pn-blue);
+    }
+}
+
+.pn-plist-types {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    padding: 6px;
+    border-radius: 12px;
+}
+
+.pn-plist-points {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 10px;
+
+    label {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--pn-muted);
+    }
+
+    .pn-input {
+        width: 100%;
+        height: auto;
+        padding: 7px 10px;
+        border-radius: 10px;
+    }
+
+    .pn-plist-dash {
+        padding-bottom: 10px;
+        color: var(--pn-muted);
+    }
+}
+
+@media (max-width: 860px) {
+    .pn-plist {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "search" "side" "main";
+    }
+
+    .pn-plist-toggle {
+        display: inline-flex;
+    }
+
+    .pn-plist-side {
+        display: none;
+        position: static;
+        max-height: none;
+    }
+
+    .pn-plist-open .pn-plist-side {
+        display: block;
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.
