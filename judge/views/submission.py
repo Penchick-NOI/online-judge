@@ -311,8 +311,12 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
             queryset = queryset.filter(
                 date__lt=datetime.combine(self.filter_date_to + timedelta(days=1), time.min, tzinfo=tz))
         if self.filter_problem:
-            queryset = queryset.filter(Q(problem__code__icontains=self.filter_problem) |
-                                       Q(problem__name__icontains=self.filter_problem))
+            # Match the code, the name or a translated name; evaluated eagerly for MariaDB, as above.
+            queryset = queryset.filter(problem__in=list(
+                Problem.objects.filter(Q(code__icontains=self.filter_problem) |
+                                       Q(name__icontains=self.filter_problem) |
+                                       Q(translations__name__icontains=self.filter_problem))
+                .distinct().values_list('id', flat=True)))
         if self.filter_user:
             queryset = queryset.filter(user__user__username__icontains=self.filter_user)
 
