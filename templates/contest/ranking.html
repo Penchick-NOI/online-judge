@@ -1,41 +1,13 @@
 {% extends "user/base-users.html" %}
 
-{% block title_ruler %}{% endblock %}
+{% block legacy_css %}{% endblock %}
 
 {% block title_row %}
     {% set title = contest.name %}
     {% include "contest/contest-tabs.html" %}
 {% endblock %}
 
-{% block users_media %}
-    <style>
-        .select2-selection__arrow {
-            display: none;
-        }
 
-        .select2-selection__rendered {
-            cursor: text;
-            overflow: initial !important
-        }
-
-        .select2-results__option--highlighted {
-            background-color: #DEDEDE !important;
-        }
-
-        .select2-results__option {
-            white-space: nowrap;
-        }
-
-        #search-contest, #search-contest + .select2 {
-            margin-top: 0.5em;
-        }
-
-        #search-contest {
-            width: 200px;
-            height: 2.3em;
-        }
-    </style>
-{% endblock %}
 
 {% block users_js_media %}
     {% if can_edit %}
@@ -81,7 +53,7 @@
             })).attr('placeholder');
 
             $('#search-contest').select2({
-                theme: '{{ DMOJ_SELECT2_THEME }}',
+                theme: 'default', width: '240px',
                 placeholder: placeholder,
                 ajax: {
                     url: '{{ url('contest_user_search_select2_ajax', contest.key) }}'
@@ -118,14 +90,16 @@
 {% endblock %}
 
 {% block before_users_table %}
-    <div style="margin-bottom: 0.5em">
+    <div class="pn-board-tools">
         {% if tab == 'participation' %}
             {% if contest.can_see_full_scoreboard(request.user) %}
                 <input id="search-contest" type="text" placeholder="{{ _('View user participation') }}">
             {% endif %}
         {% endif %}
-        <input id="show-organizations-checkbox" type="checkbox" style="vertical-align: bottom">
-        <label for="show-organizations-checkbox" style="vertical-align: bottom">{{ _('Show organizations') }}</label>
+        <label class="pn-check">
+            <input id="show-organizations-checkbox" type="checkbox">
+            {{ _('Show organizations') }}
+        </label>
     </div>
 {% endblock %}
 

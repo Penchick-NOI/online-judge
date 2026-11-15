@@ -166,6 +166,28 @@ class ProblemDetail(ProblemMixin, SolvedProblemMixin, CommentedDetailView):
                                                                                user.profile.current_contest.virtual), 0)
 
         context['available_judges'] = Judge.objects.filter(online=True, problems=self.object)
+
+        # PNOI: the problem page has the code editor beside the statement.
+        if authed:
+            languages = list(
+                self.object.usable_languages.order_by('name', 'key')
+                .prefetch_related(Prefetch('runtimeversion_set', RuntimeVersion.objects.order_by('priority'))),
+            )
+            default_language = next(
+                (language for language in languages if language.id == user.profile.language_id),
+                languages[0] if languages else None,
+            )
+            submit_form = ProblemSubmitForm(initial={'language': default_language})
+            if default_language is not None:
+                submit_form.fields['source'].widget.mode = default_language.ace
+            # A dark editor beside the light statement, unless the user picked an editor theme.
+            submit_form.fields['source'].widget.theme = (
+                'tomorrow_night_blue' if user.profile.ace_theme == 'auto' else user.profile.resolved_ace_theme
+            )
+            context['submit_form'] = submit_form
+            context['submit_languages'] = languages
+            context['submit_default_language'] = default_language
+            context['ACE_URL'] = settings.ACE_URL
         context['show_languages'] = self.object.allowed_languages.count() != Language.objects.count()
         context['has_pdf_render'] = PDF_RENDERING_ENABLED
         context['completed_problem_ids'] = self.get_completed_problems()

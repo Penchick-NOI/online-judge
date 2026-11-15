@@ -160,55 +160,55 @@
         <clipPath id="rating-clip"><circle cx="8" cy="8" r="7"/></clipPath>
     </defs>
 </svg>
-<header class="pn-top">
-    <div class="pn-top-inner">
-        <a class="pn-brand" href="{{ url('home') }}" aria-label="{{ SITE_NAME }}">
-            <span class="pn-sun" aria-hidden="true"></span>{{ SITE_NAME }}
+<div class="pn-rail" role="navigation" aria-label="{{ _('Main') }}">
+    <a class="pn-rail-logo" href="{{ url('home') }}" aria-label="{{ SITE_NAME }}">P</a>
+    <div class="pn-rail-links">
+        {% set rail_icons = {'problems': 'fa-code', 'submit': 'fa-list-ul', 'user': 'fa-bar-chart', 'contest': 'fa-trophy', 'about': 'fa-info-circle', 'status': 'fa-server', 'organization': 'fa-university'} %}
+        <a href="{{ url('home') }}" class="pn-rail-link{% if request.path == url('home') %} active{% endif %}">
+            <i class="fa fa-home" aria-hidden="true"></i><span>{{ _('Home') }}</span>
         </a>
-        <div class="pn-pills" role="navigation" aria-label="{{ _('Main') }}">
-            <a href="{{ url('home') }}" class="pn-pill{% if request.path == url('home') %} active{% endif %}">
-                {{- _('Home') -}}
+        {% for node in mptt_tree(nav_bar) %}
+            <a href="{{ node.path }}" class="pn-rail-link{% if node.key in nav_tab %} active{% endif %}">
+                <i class="fa {{ rail_icons.get(node.key, 'fa-circle-o') }}" aria-hidden="true"></i>
+                <span>{{ user_trans(node.label) }}</span>
             </a>
-            {% for node in mptt_tree(nav_bar) %}
-                <a href="{{ node.path }}" class="pn-pill{% if node.key in nav_tab %} active{% endif %}">
-                    {{- user_trans(node.label) -}}
-                </a>
-            {% endfor %}
-        </div>
-        <div class="pn-account">
-            {% if request.user.is_authenticated %}
-                <details class="pn-user">
-                    <summary>
-                        <img src="{{ gravatar(request.user, 52) }}" alt="" width="26" height="26">
-                        <span>{{ request.profile.display_name }}</span>
-                    </summary>
-                    <div class="pn-menu">
-                        <a href="{{ url('user_page') }}">{{ _('Profile') }}</a>
-                        {% if request.user.is_staff or request.user.is_superuser %}
-                            <a href="{{ url('admin:index') }}">{{ _('Admin') }}</a>
-                        {% endif %}
-                        <a href="{{ url('user_edit_profile') }}">{{ _('Edit profile') }}</a>
-                        {% if request.user.is_impersonate %}
-                            <a href="{{ url('impersonate-stop') }}">{{ _('Stop impersonating') }}</a>
-                        {% else %}
-                            <form action="{{ url('auth_logout') }}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit">{{ _('Log out') }}</button>
-                            </form>
-                        {% endif %}
-                    </div>
-                </details>
-            {% else %}
-                <a class="pn-login" href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}">
-                    {{- _('Log in') -}}
-                </a>
-                {% if REGISTRATION_OPEN %}
-                    <a class="pn-btn pn-btn-red" href="{{ url('registration_register') }}">{{ _('Sign up') }}</a>
-                {% endif %}
-            {% endif %}
-        </div>
+        {% endfor %}
     </div>
-</header>
+    <div class="pn-rail-account">
+        {% if request.user.is_authenticated %}
+            <details class="pn-user">
+                <summary title="{{ request.profile.display_name }}">
+                    <img src="{{ gravatar(request.user, 64) }}" alt="{{ request.profile.display_name }}" width="32" height="32">
+                </summary>
+                <div class="pn-menu">
+                    <div class="pn-menu-name">{{ request.profile.display_name }}</div>
+                    <a href="{{ url('user_page') }}">{{ _('Profile') }}</a>
+                    {% if request.user.is_staff or request.user.is_superuser %}
+                        <a href="{{ url('admin:index') }}">{{ _('Admin') }}</a>
+                    {% endif %}
+                    <a href="{{ url('user_edit_profile') }}">{{ _('Edit profile') }}</a>
+                    {% if request.user.is_impersonate %}
+                        <a href="{{ url('impersonate-stop') }}">{{ _('Stop impersonating') }}</a>
+                    {% else %}
+                        <form action="{{ url('auth_logout') }}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit">{{ _('Log out') }}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </details>
+        {% else %}
+            <a class="pn-rail-link" href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}">
+                <i class="fa fa-sign-in" aria-hidden="true"></i><span>{{ _('Log in') }}</span>
+            </a>
+            {% if REGISTRATION_OPEN %}
+                <a class="pn-rail-link pn-rail-signup" href="{{ url('registration_register') }}">
+                    <i class="fa fa-user-plus" aria-hidden="true"></i><span>{{ _('Sign up') }}</span>
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
 {% if request.in_contest %}
     <div id="contest-info">
         <a href="{{ url('contest_view', request.participation.contest.key) }}">

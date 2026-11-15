@@ -2,12 +2,17 @@
 {% block legacy_css %}{% endblock %}
 
 {% block media %}
+    {% if submit_form %}{{ submit_form.media.css }}{% endif %}
     {% if vote_perm.can_view() %}
         <link rel="stylesheet" href="{{ static('featherlight.css') }}">
     {% endif %}
 {% endblock %}
 
 {% block js_media %}
+    {% if submit_form %}
+        <script type="text/javascript" src="{{ ACE_URL }}/ace.js"></script>
+        {{ submit_form.media.js }}
+    {% endif %}
     {% compress js %}
         <script src="{{ static('libs/clipboard/clipboard.js') }}"></script>
         <script src="{{ static('libs/clipboard/tooltip.js') }}"></script>
@@ -39,9 +44,155 @@
                         showTooltip(e.trigger, fallbackMessage(e.action));
                     });
                 });
+
+                // ---- tabs on the left pane
+                var submissions_url = $('#pn-tab-submissions').attr('data-url');
+                var submissions_loaded = false;
+
+                function load_submissions() {
+                    var $box = $('#pn-tab-submissions');
+                    $.get(submissions_url).done(function (html) {
+                        var doc = new DOMParser().parseFromString(html, 'text/html');
+                        var table = doc.querySelector('#submissions-table');
+                        if (table && table.children.length) {
+                            $box.empty().append($(table).removeAttr('id'));
+                            $box.find('a[onclick]').remove();
+                            register_time($box.find('.time-with-rel'));
+                        } else {
+                            $box.html($('<p>', {'class': 'pn-empty'}).text({{ _('No submissions here yet.')|htmltojs }}));
+                        }
+                        submissions_loaded = true;
+                    }).fail(function () {
+                        $box.html($('<p>', {'class': 'pn-empty'}).text({{ _('Could not load submissions.')|htmltojs }}));
+                    });
+                }
+                window.pnoi_reload_submissions = function () {
+                    if (submissions_loaded) load_submissions();
+                };
+
+                $('.pn-ptabs button').click(function () {
+                    var name = $(this).attr('data-tab');
+                    $('.pn-ptabs button').removeClass('active').attr('aria-selected', 'false');
+                    $(this).addClass('active').attr('aria-selected', 'true');
+                    $('.pn-ptab').hide();
+                    $('#pn-tab-' + name).show();
+                    if (name === 'submissions' && !submissions_loaded) load_submissions();
+                });
             });
         </script>
     {% endcompress %}
+    {% if submit_form and submit_languages %}
+        {% compress js %}
+            <script type="text/javascript">
+                $(function () {
+                    var $form = $('#pn-submit-form');
+                    var $result = $('#pn-live-result');
+                    window.previous_template = '';
+
+                    function current_lang() {
+                        return $('input[name=language]:checked');
+                    }
+
+                    // Load the starter code for the chosen language, unless the contestant has typed their own.
+                    function update_language_template() {
+                        var source = $('textarea#id_source');
+                        if (source.val() == window.previous_template.replace(/\r/g, '') || source.val() == '') {
+                            var lang_id = current_lang().val();
+                            var code = localStorage.getItem('submit:' + lang_id);
+
+                            function update_submit_area(code) {
+                                window.previous_template = code;
+                                source.val(code);
+                                window.ace_source.getSession().setValue(code);
+                            }
+
+                            if (code != null) {
+                                update_submit_area(code);
+                            } else {
+                                $.get('{{ url('language_template_ajax') }}', {id: lang_id}).done(update_submit_area);
+                            }
+                        }
+                    }
+
+                    $('input[name=language]').change(function () {
+                        window.ace_source.getSession().setMode('ace/mode/' + current_lang().attr('data-ace'));
+                        update_language_template();
+                    });
+
+                    $('#ace_source').on('ace_load', function (e, editor) {
+                        update_language_template();
+                        editor.commands.addCommand({
+                            name: 'save',
+                            bindKey: {win: 'Ctrl-S', mac: 'Command-S'},
+                            exec: function () {
+                                localStorage.setItem('submit:' + current_lang().val(), editor.getSession().getValue());
+                            }
+                        });
+                        editor.getSession().setUseWrapMode(true);
+                        editor.setFontSize(14);
+                        editor.setShowPrintMargin(false);
+                    });
+
+                    $(window).resize(function () {
+                        $('#ace_source').height(Math.max($(window).height() - 360, 260));
+                    }).resize();
+
+                    // ---- submit without leaving the page, then show the verdict under the editor
+                    var polling = null;
+
+                    function poll(id) {
+                        $.get('{{ url('submission_testcases_query') }}', {id: id}).done(function (html) {
+                            $result.find('.pn-live-body').html(html);
+                            var busy = $result.find('#grading-label, .pn-status-msg').length > 0;
+                            if (busy) {
+                                polling = setTimeout(function () { poll(id); }, 1500);
+                            } else {
+                                $form.find(':submit').prop('disabled', false);
+                                window.pnoi_reload_submissions();
+                            }
+                        }).fail(function () {
+                            polling = setTimeout(function () { poll(id); }, 3000);
+                        });
+                    }
+
+                    $form.submit(function (event) {
+                        if ($form.data('native')) return;
+                        event.preventDefault();
+                        $('#id_source').val(window.ace_source.getValue());
+                        if ($('#id_source').val().length > 65536) {
+                            alert({{ _('Your source code must contain at most 65536 characters.')|htmltojs }});
+                            return;
+                        }
+                        if (!$.trim($('#id_source').val())) {
+                            window.ace_source.focus();
+                            return;
+                        }
+                        var $button = $form.find(':submit').prop('disabled', true);
+                        clearTimeout(polling);
+
+                        fetch($form.attr('action'), {
+                            method: 'POST',
+                            body: new FormData($form[0]),
+                            credentials: 'same-origin'
+                        }).then(function (response) {
+                            var match = /\/submission\/(\d+)/.exec(response.url);
+                            if (!response.ok || !match) throw new Error('not accepted');
+                            var id = match[1];
+                            $result.show().find('.pn-live-link').attr('href', '{{ url('submission_status', 0) }}'.replace('/0', '/' + id));
+                            $result.find('.pn-live-body').html(
+                                '<div class="pn-card pn-status-msg"><i class="fa fa-spinner fa-pulse"></i> ' +
+                                {{ _('Your submission is being processed...')|htmltojs }} + '</div>');
+                            poll(id);
+                        }).catch(function () {
+                            // Let the ordinary submit page explain what went wrong.
+                            $button.prop('disabled', false);
+                            $form.data('native', true).submit();
+                        });
+                    });
+                });
+            </script>
+        {% endcompress %}
+    {% endif %}
     {% if vote_perm.can_view() %}
         <script src="{{ static('libs/featherlight/featherlight.min.js') }}" type="text/javascript"></script>
         <script src="{{ static('libs/chart.js/Chart.js') }}" type="text/javascript"></script>
@@ -76,16 +227,32 @@
             {% endfor %}
         {% endif %}
         <span class="pn-spacer"></span>
-        {% if has_pdf_render %}
-            <a href="{{ url('problem_pdf', problem.code) }}"><i class="fa fa-file-pdf-o"></i> {{ _('View as PDF') }}</a>
-        {% endif %}
+        <span class="pn-fact-chips">
+            <span class="pn-tag"><i class="fa fa-clock-o"></i> {{ problem.time_limit }}s</span>
+            <span class="pn-tag"><i class="fa fa-server"></i> {{ problem.memory_limit|kbsimpleformat }}</span>
+            <span class="pn-tag pn-tag-yellow">
+                {% if contest_problem %}
+                    {{ contest_problem.points }}{% if contest_problem.partial %}p{% endif %}
+                {% else %}
+                    {{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}
+                {% endif %}
+                {{ _('points') }}
+            </span>
+        </span>
     </div>
 {% endblock %}
 
 {% block body %}
-    <div class="pn-problem">
-        <div>
-            <article class="pn-card pn-card-pad">
+    <div class="pn-workspace">
+        {# ================= left: statement, submissions, details ================= #}
+        <div class="pn-card pn-pane">
+            <div class="pn-ptabs" role="tablist">
+                <button type="button" class="active" data-tab="statement" role="tab" aria-selected="true">{{ _('Statement') }}</button>
+                <button type="button" data-tab="submissions" role="tab" aria-selected="false">{{ _('Submissions') }}</button>
+                <button type="button" data-tab="details" role="tab" aria-selected="false">{{ _('Details') }}</button>
+            </div>
+
+            <div id="pn-tab-statement" class="pn-ptab">
                 <div class="pn-prose">
                     {% cache 86400 'problem_html' problem.id MATH_ENGINE LANGUAGE_CODE %}
                         {{ description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
@@ -109,12 +276,10 @@
                         </a>
                     {% endif %}
                 </div>
-            </article>
 
-            {% if contest_problem and contest_problem.contest.use_clarifications %}
-                <section class="pn-clarifications">
-                    <h2 class="pn-section-title">{{ _('Clarifications') }}</h2>
-                    <div class="pn-card pn-card-pad">
+                {% if contest_problem and contest_problem.contest.use_clarifications %}
+                    <section class="pn-clarifications">
+                        <h2 class="pn-section-title">{{ _('Clarifications') }}</h2>
                         {% if has_clarifications %}
                             {% for clarification in clarifications %}
                                 <div class="pn-clarification">
@@ -129,95 +294,72 @@
                                 {{ _('No clarifications have been made at this time.') }}
                             </p>
                         {% endif %}
-                    </div>
-                </section>
-            {% endif %}
-        </div>
-
-        <aside class="pn-card pn-side">
-            {% if request.user.is_authenticated and request.in_contest and submission_limit %}
-                {% if submissions_left > 0 %}
-                    <a href="{{ url('problem_submit', problem.code) }}" class="pn-btn pn-btn-red pn-btn-block">
-                        {{ _('Submit solution') }}
-                    </a>
-                    <div class="pn-left">
-                        {% trans trimmed counter=submissions_left %}
-                            {{ counter }} submission left
-                            {% pluralize %}
-                            {{ counter }} submissions left
-                        {% endtrans %}
-                    </div>
-                {% else %}
-                    <a class="pn-btn pn-btn-block disabled">{{ _('Submit solution') }}</a>
-                    <div class="pn-left pn-none-left">{{ _('0 submissions left') }}</div>
-                {% endif %}
-            {% else %}
-                <a href="{{ url('problem_submit', problem.code) }}" class="pn-btn pn-btn-red pn-btn-block">
-                    {{ _('Submit solution') }}
-                </a>
-            {% endif %}
-
-            <dl class="pn-facts">
-                <div>
-                    <dt>{{ _('Points') }}</dt>
-                    <dd>
-                        {% if contest_problem %}
-                            {{ contest_problem.points }}{% if contest_problem.partial %} {{ _('(partial)') }}{% endif %}
-                        {% else %}
-                            {{ problem.points|floatformat }}{% if problem.partial %} {{ _('(partial)') }}{% endif %}
-                        {% endif %}
-                    </dd>
-                </div>
-                <div>
-                    <dt>{{ _('Time limit') }}</dt>
-                    <dd>{{ problem.time_limit }}s</dd>
-                </div>
-                {% for name, limit in problem.language_time_limit %}
-                    <div class="pn-sub">
-                        <dt>{{ name }}</dt>
-                        <dd>{{ limit }}s</dd>
-                    </div>
-                {% endfor %}
-                <div>
-                    <dt>{{ _('Memory limit') }}</dt>
-                    <dd>{{ problem.memory_limit|kbsimpleformat }}</dd>
-                </div>
-                {% for name, limit in problem.language_memory_limit %}
-                    <div class="pn-sub">
-                        <dt>{{ name }}</dt>
-                        <dd>{{ limit|kbsimpleformat }}</dd>
-                    </div>
-                {% endfor %}
-            </dl>
-
-            <hr>
-
-            <div class="pn-side-links">
-                {% if request.user.is_authenticated and has_submissions %}
-                    <a href="{{ url('user_submissions', problem.code, request.user.username) }}">{{ _('My submissions') }}</a>
-                {% endif %}
-                <a href="{{ url('chronological_submissions', problem.code) }}">{{ _('All submissions') }}</a>
-                <a href="{{ url('ranked_submissions', problem.code) }}">{{ _('Best submissions') }}</a>
-                {% if (editorial and editorial.is_accessible_by(request.user)) and not request.in_contest %}
-                    <a href="{{ url('problem_editorial', problem.code) }}">{{ _('Read editorial') }}</a>
-                {% endif %}
-                {% if vote_perm.can_view() %}
-                    {% if vote_perm.can_vote() %}
-                        <a href="#" data-featherlight="{{ url('problem_vote', problem.code) }}" id="problem-vote-button">
-                            {%- if vote is none -%}
-                                {{ _('Vote on problem points') }}
-                            {%- else -%}
-                                {{ _('Edit points vote (%(points)d)', points=vote.points) }}
-                            {%- endif -%}
-                        </a>
-                    {% endif %}
-                    <a href="#" data-featherlight="{{ url('problem_vote_stats', problem.code) }}">{{ _('Voting statistics') }}</a>
+                    </section>
                 {% endif %}
             </div>
 
-            {% if can_edit_problem or (request.user.is_authenticated and has_tickets) or problem.is_subs_manageable_by(request.user) or perms.judge.clone_problem %}
+            <div id="pn-tab-submissions" class="pn-ptab" style="display: none"
+                 data-url="{% if request.user.is_authenticated %}{{ url('user_submissions', problem.code, request.user.username) }}{% else %}{{ url('chronological_submissions', problem.code) }}{% endif %}">
+                <p class="pn-empty"><i class="fa fa-spinner fa-pulse"></i></p>
+            </div>
+
+            <div id="pn-tab-details" class="pn-ptab" style="display: none">
+                <dl class="pn-facts" style="margin-top: 0">
+                    <div>
+                        <dt>{{ _('Points') }}</dt>
+                        <dd>
+                            {% if contest_problem %}
+                                {{ contest_problem.points }}{% if contest_problem.partial %} {{ _('(partial)') }}{% endif %}
+                            {% else %}
+                                {{ problem.points|floatformat }}{% if problem.partial %} {{ _('(partial)') }}{% endif %}
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>{{ _('Time limit') }}</dt>
+                        <dd>{{ problem.time_limit }}s</dd>
+                    </div>
+                    {% for name, limit in problem.language_time_limit %}
+                        <div class="pn-sub">
+                            <dt>{{ name }}</dt>
+                            <dd>{{ limit }}s</dd>
+                        </div>
+                    {% endfor %}
+                    <div>
+                        <dt>{{ _('Memory limit') }}</dt>
+                        <dd>{{ problem.memory_limit|kbsimpleformat }}</dd>
+                    </div>
+                    {% for name, limit in problem.language_memory_limit %}
+                        <div class="pn-sub">
+                            <dt>{{ name }}</dt>
+                            <dd>{{ limit|kbsimpleformat }}</dd>
+                        </div>
+                    {% endfor %}
+                </dl>
+
                 <hr>
+
                 <div class="pn-side-links">
+                    <a href="{{ url('chronological_submissions', problem.code) }}">{{ _('All submissions') }}</a>
+                    <a href="{{ url('ranked_submissions', problem.code) }}">{{ _('Best submissions') }}</a>
+                    {% if (editorial and editorial.is_accessible_by(request.user)) and not request.in_contest %}
+                        <a href="{{ url('problem_editorial', problem.code) }}">{{ _('Read editorial') }}</a>
+                    {% endif %}
+                    {% if has_pdf_render %}
+                        <a href="{{ url('problem_pdf', problem.code) }}">{{ _('View as PDF') }}</a>
+                    {% endif %}
+                    {% if vote_perm.can_view() %}
+                        {% if vote_perm.can_vote() %}
+                            <a href="#" data-featherlight="{{ url('problem_vote', problem.code) }}" id="problem-vote-button">
+                                {%- if vote is none -%}
+                                    {{ _('Vote on problem points') }}
+                                {%- else -%}
+                                    {{ _('Edit points vote (%(points)d)', points=vote.points) }}
+                                {%- endif -%}
+                            </a>
+                        {% endif %}
+                        <a href="#" data-featherlight="{{ url('problem_vote_stats', problem.code) }}">{{ _('Voting statistics') }}</a>
+                    {% endif %}
                     {% if can_edit_problem %}
                         <a href="{{ url('problem_ticket_list', problem.code) }}">{{ _('Manage tickets') }}
                             {% if num_open_tickets %}<span class="pn-badge">{{ num_open_tickets }}</span>{% endif %}
@@ -238,84 +380,138 @@
                         <a href="{{ url('problem_clone', problem.code) }}">{{ _('Clone problem') }}</a>
                     {% endif %}
                 </div>
-            {% endif %}
 
-            <hr>
+                <hr>
 
-            {% if not contest_problem or not contest_problem.contest.hide_problem_authors %}
-                {% cache 86400 'pnoi_problem_authors' problem.id LANGUAGE_CODE %}
-                    {% with authors=problem.authors.all() %}
-                        {% if authors %}
-                            <div class="pn-meta-block">
-                                <span class="pn-meta-label">
-                                    {% trans trimmed count=authors|length %}
-                                        Author
-                                        {% pluralize count %}
-                                        Authors
+                {% if not contest_problem or not contest_problem.contest.hide_problem_authors %}
+                    {% cache 86400 'pnoi_problem_authors' problem.id LANGUAGE_CODE %}
+                        {% with authors=problem.authors.all() %}
+                            {% if authors %}
+                                <div class="pn-meta-block">
+                                    <span class="pn-meta-label">
+                                        {% trans trimmed count=authors|length %}
+                                            Author
+                                            {% pluralize count %}
+                                            Authors
+                                        {% endtrans %}
+                                    </span>
+                                    {{ link_users(authors) }}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% endcache %}
+                {% endif %}
+
+                {% if show_languages %}
+                    <div class="pn-meta-block">
+                        <span class="pn-meta-label">{{ _('Allowed languages') }}</span>
+                        {% with usable=problem.usable_common_names, langs=problem.languages_list() %}
+                            {% for lang in langs %}
+                                {%- if lang in usable -%}
+                                    {{ lang }}
+                                {%- else -%}
+                                    <s title="{{ _('No %(lang)s judge online', lang=lang) }}">{{ lang }}</s>
+                                {%- endif -%}
+                                {% if not loop.last %}, {% endif -%}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                {% endif %}
+
+                {% if not contest_problem or not contest_problem.contest.hide_problem_tags %}
+                    {% if problem.types_list %}
+                        <div class="pn-meta-block">
+                            <span class="pn-meta-label">
+                                {% trans trimmed count=problem.types_list|length %}
+                                    Problem type
+                                    {% pluralize count %}
+                                    Problem types
+                                {% endtrans %}
+                            </span>
+                            {{ problem.types_list|join(", ") }}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                {% if problem.is_editable_by(request.user) %}
+                    <div class="pn-meta-block">
+                        <span class="pn-meta-label">
+                            {% trans trimmed count=available_judges|length %}
+                                Judge
+                                {% pluralize count %}
+                                Judges
+                            {% endtrans %}
+                        </span>
+                        {% if available_judges %}
+                            {% if perms.judge.change_judge %}
+                                {% for judge in available_judges %}
+                                    <a href="{{ url('admin:judge_judge_change', judge.id) }}">{{ judge.name }}</a>
+                                    {%- if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {{ available_judges|join(", ") }}
+                            {% endif %}
+                        {% else %}
+                            <i>{{ _('none available') }}</i>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {# ================= right: code and verdict ================= #}
+        <div class="pn-pane-right">
+            <div class="pn-card pn-pane pn-coder">
+                {% if not request.user.is_authenticated %}
+                    <div class="pn-coder-gate">
+                        <i class="fa fa-code" aria-hidden="true"></i>
+                        <p>{{ _('Log in to write and submit your solution here.') }}</p>
+                        <a class="pn-btn pn-btn-red" href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}">
+                            {{- _('Log in') -}}
+                        </a>
+                    </div>
+                {% elif not submit_languages %}
+                    <p class="pn-note pn-note-red" style="margin: 0">{{ _('No judge is available for this problem.') }}</p>
+                {% else %}
+                    {% set no_subs_left = request.in_contest and submission_limit and submissions_left <= 0 %}
+                    <form id="pn-submit-form" action="{{ url('problem_submit', problem.code) }}" method="post">
+                        {% csrf_token %}
+                        <div class="pn-langs" role="radiogroup" aria-label="{{ _('Language') }}">
+                            {% for lang in submit_languages %}
+                                <label class="pn-lang">
+                                    <input type="radio" name="language" value="{{ lang.id }}" data-ace="{{ lang.ace }}"
+                                           {% if lang.id == submit_default_language.id %}checked{% endif %}>
+                                    <span>{{ lang.name }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                        <div class="pn-editor">{{ submit_form.source }}</div>
+                        <div class="pn-submit-bar">
+                            {% if request.in_contest and submission_limit %}
+                                <span class="pn-muted{% if no_subs_left %} pn-none-left{% endif %}">
+                                    {% trans trimmed counter=submissions_left %}
+                                        {{ counter }} submission left
+                                        {% pluralize %}
+                                        {{ counter }} submissions left
                                     {% endtrans %}
                                 </span>
-                                {{ link_users(authors) }}
-                            </div>
-                        {% endif %}
-                    {% endwith %}
-                {% endcache %}
-            {% endif %}
-
-            {% if show_languages %}
-                <div class="pn-meta-block">
-                    <span class="pn-meta-label">{{ _('Allowed languages') }}</span>
-                    {% with usable=problem.usable_common_names, langs=problem.languages_list() %}
-                        {% for lang in langs %}
-                            {%- if lang in usable -%}
-                                {{ lang }}
-                            {%- else -%}
-                                <s title="{{ _('No %(lang)s judge online', lang=lang) }}">{{ lang }}</s>
-                            {%- endif -%}
-                            {% if not loop.last %}, {% endif -%}
-                        {% endfor %}
-                    {% endwith %}
-                </div>
-            {% endif %}
-
-            {% if not contest_problem or not contest_problem.contest.hide_problem_tags %}
-                {% if problem.types_list %}
-                    <details class="pn-meta-block">
-                        <summary>
-                            {% trans trimmed count=problem.types_list|length %}
-                                Problem type
-                                {% pluralize count %}
-                                Problem types
-                            {% endtrans %}
-                        </summary>
-                        {{ problem.types_list|join(", ") }}
-                    </details>
+                            {% endif %}
+                            <button type="submit" class="pn-btn pn-btn-red" {% if no_subs_left %}disabled{% endif %}>
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i> {{ _('Submit') }}
+                            </button>
+                        </div>
+                    </form>
                 {% endif %}
-            {% endif %}
+            </div>
 
-            {% if problem.is_editable_by(request.user) %}
-                <div class="pn-meta-block">
-                    <span class="pn-meta-label">
-                        {% trans trimmed count=available_judges|length %}
-                            Judge
-                            {% pluralize count %}
-                            Judges
-                        {% endtrans %}
-                    </span>
-                    {% if available_judges %}
-                        {% if perms.judge.change_judge %}
-                            {% for judge in available_judges %}
-                                <a href="{{ url('admin:judge_judge_change', judge.id) }}">{{ judge.name }}</a>
-                                {%- if not loop.last %}, {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            {{ available_judges|join(", ") }}
-                        {% endif %}
-                    {% else %}
-                        <i>{{ _('none available') }}</i>
-                    {% endif %}
+            <div id="pn-live-result" class="pn-live" style="display: none" aria-live="polite">
+                <div class="pn-live-head">
+                    <h2 class="pn-section-title" style="margin: 0">{{ _('Result') }}</h2>
+                    <a class="pn-live-link" href="#">{{ _('Open full result') }} &rarr;</a>
                 </div>
-            {% endif %}
-        </aside>
+                <div class="pn-live-body"></div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 

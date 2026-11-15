@@ -1,6 +1,5 @@
-{% extends "common-content.html" %}
-
-{% block title_ruler %}{% endblock %}
+{% extends "base.html" %}
+{% block legacy_css %}{% endblock %}
 
 {% block title_row %}
     {% set tab = 'detail' %}
@@ -8,7 +7,7 @@
     {% include "contest/contest-tabs.html" %}
 {% endblock %}
 
-{% block content_js_media %}
+{% block js_media %}
     <script type="text/javascript">
         $(document).ready(function () {
             $('.time-remaining').each(function () {
@@ -17,17 +16,11 @@
         });
     </script>
     {% include "contest/media-js.html" %}
-    {% include "comments/media-js.html" %}
-{% endblock %}
-
-{% block content_media %}
-    {% include "comments/media-css.html" %}
 {% endblock %}
 
 {% block body %}
-    <div id="banner">
-        <a href="https://www.timeanddate.com/worldclock/fixedtime.html?msg={{ contest.name|urlquote('') }}&amp;iso=
-                {{- (contest.start_time if contest.start_time >= now else contest.end_time)|utc|date('Y-m-d\TH:i:s') }}" class="date">
+    <div class="pn-contest-banner">
+        <p class="pn-contest-status">
             {%- if contest.is_in_contest(request.user) and not request.participation.live -%}
                 {% if request.participation.spectate %}
                     {{- _('Spectating, contest ends in %(countdown)s.', countdown=as_countdown(contest.time_before_end)) -}}
@@ -53,8 +46,9 @@
                     {%- endif -%}
                 {% endif %}
             {%- endif -%}
-        </a>
-        <div id="time">
+        </p>
+        <div>
+
             {% with start_time=contest.start_time|date(_("F j, Y, G:i T")) %}
                 {% if contest.time_limit %}
                     {% set end_time=contest.end_time|date(_("F j, Y, G:i T")) %}
@@ -66,8 +60,11 @@
                 {% endif %}
             {% endwith %}
         </div>
-        {% if contest.show_short_display %}
-            <div id="details">
+    </div>
+
+    {% if contest.show_short_display %}
+        <div class="pn-card pn-card-pad pn-contest-details">
+
                 <ul>
                     {% with authors=contest.authors.all() %}
                         {% if authors %}
@@ -175,21 +172,23 @@
                         </li>
                     {% endif %}
                 </ul>
-            </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 
-    <div class="content-description">
-        {% cache 3600 'contest_html' contest.id MATH_ENGINE %}
-            {{ contest.description|markdown('contest', MATH_ENGINE)|reference|str|safe }}
-        {% endcache %}
-    </div>
+    {% if contest.description %}
+        <div class="pn-card pn-card-pad" style="margin-bottom: 20px">
+            <div class="pn-prose">
+                {% cache 3600 'contest_html' contest.id MATH_ENGINE %}
+                    {{ contest.description|markdown('contest', MATH_ENGINE)|reference|str|safe }}
+                {% endcache %}
+            </div>
+        </div>
+    {% endif %}
 
     {% if contest.ended or request.user.is_superuser or is_editor or is_tester or (is_spectator and contest.started) %}
-        <hr>
-        <div class="contest-problems">
-            <h2 style="margin-bottom: 0.2em"><i class="fa fa-fw fa-question-circle"></i>{{ _('Problems') }} </h2>
-            <table class="table striped">
+        <h2 class="pn-section-title">{{ _('Problems') }}</h2>
+        <div class="pn-card pn-table-wrap">
+            <table class="pn-table">
                 <thead>
                 <tr>
                     <th>{{ _('Problem') }}</th>
@@ -233,18 +232,10 @@
             </table>
         </div>
     {% endif %}
-
-    {% if enable_social %}
-        <hr>
-        <span class="social">
-            {{ post_to_facebook(request, contest, '<i class="fa fa-facebook-official"></i>') }}
-            {{ post_to_twitter(request, SITE_NAME + ':', contest, '<i class="fa fa-twitter"></i>') }}
-        </span>
-    {% endif %}
-
-    {% if enable_comments %}
-        {% include "comments/list.html" %}
-    {% endif %}
 {% endblock %}
 
-{% block description_end %}{% endblock %}
+{% block bodyend %}
+    {% if REQUIRE_JAX %}
+        {% include "mathjax-load.html" %}
+    {% endif %}
+{% endblock %}
