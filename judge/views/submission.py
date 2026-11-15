@@ -1,9 +1,8 @@
-import json
 from collections import namedtuple
+from datetime import datetime, time, timedelta
 from itertools import groupby
 from operator import attrgetter
 
-from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist, PermissionDenied
@@ -304,6 +303,23 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         if self.selected_statuses:
             queryset = queryset.filter(result__in=self.selected_statuses)
 
+        # Dates are whole days in the viewer's time zone.
+        tz = timezone.get_current_timezone()
+        if self.filter_date_from:
+            queryset = queryset.filter(date__gte=datetime.combine(self.filter_date_from, time.min, tzinfo=tz))
+        if self.filter_date_to:
+            queryset = queryset.filter(
+                date__lt=datetime.combine(self.filter_date_to + timedelta(days=1), time.min, tzinfo=tz))
+        if self.filter_problem:
+            # Match the code, the name or a translated name; evaluated eagerly for MariaDB, as above.
+            queryset = queryset.filter(problem__in=list(
+                Problem.objects.filter(Q(code__icontains=self.filter_problem) |
+                                       Q(name__icontains=self.filter_problem) |
+                                       Q(translations__name__icontains=self.filter_problem))
+                .distinct().values_list('id', flat=True)))
+        if self.filter_user:
+            queryset = queryset.filter(user__user__username__icontains=self.filter_user)
+
         return queryset
 
     def get_queryset(self):
@@ -343,8 +359,15 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         context['all_statuses'] = self.get_searchable_status_codes()
         context['selected_statuses'] = self.selected_statuses
 
-        context['results_json'] = mark_safe(json.dumps(self.get_result_data()))
-        context['results_colors_json'] = mark_safe(json.dumps(settings.DMOJ_STATS_SUBMISSION_RESULT_COLORS))
+        context['filter_date_from'] = self.filter_date_from
+        context['filter_date_to'] = self.filter_date_to
+        context['filter_problem'] = self.filter_problem
+        context['filter_user'] = self.filter_user
+        context['extra_filters'] = self.extra_filters
+
+        today = timezone.localdate()
+        context['today_key'] = str(today)
+        context['day_labels'] = {str(today): _('Today'), str(today - timedelta(days=1)): _('Yesterday')}
 
         context['page_suffix'] = suffix = ('?' + self.request.GET.urlencode()) if self.request.GET else ''
         context['first_page_href'] = (self.first_page_href or '.') + suffix
@@ -352,6 +375,13 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         context['all_submissions_link'] = self.get_all_submissions_page()
         context['tab'] = self.tab
         return context
+
+    @staticmethod
+    def parse_date(value):
+        try:
+            return datetime.strptime(value or '', '%Y-%m-%d').date()
+        except ValueError:
+            return None
 
     def get(self, request, *args, **kwargs):
         check = self.access_check(request)
@@ -364,6 +394,12 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
 
         self.selected_languages = set(request.GET.getlist('language'))
         self.selected_statuses = set(request.GET.getlist('status'))
+        self.filter_date_from = self.parse_date(request.GET.get('date_from'))
+        self.filter_date_to = self.parse_date(request.GET.get('date_to'))
+        self.filter_problem = request.GET.get('problem', '').strip()[:100]
+        self.filter_user = request.GET.get('user', '').strip()[:150]
+        self.extra_filters = bool(self.filter_date_from or self.filter_date_to or
+                                  self.filter_problem or self.filter_user)
 
         if 'results' in request.GET:
             return JsonResponse(self.get_result_data())
@@ -567,7 +603,8 @@ class AllSubmissions(InfinitePaginationMixin, SubmissionsListBase):
         return context
 
     def _get_result_data(self, queryset=None):
-        if queryset is not None or self.in_contest or self.selected_languages or self.selected_statuses:
+        if (queryset is not None or self.in_contest or self.selected_languages or self.selected_statuses or
+                self.extra_filters):
             return super(AllSubmissions, self)._get_result_data(queryset)
 
         key = 'global_submission_result_data'

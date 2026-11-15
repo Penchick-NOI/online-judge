@@ -3394,6 +3394,164 @@ body[data-pn] {
     }
 }
 
+// ---------------------------------------------------------------- submissions list: filter panel + day groups
+.pn-subs-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.pn-subs-active {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+
+    a {
+        margin-left: 4px;
+        font-weight: 600;
+    }
+}
+
+// The filter panel sits to the right of the list (a column of the shared .pn-split grid).
+[data-pn] .pn-btn.pn-subs-toggle {
+    display: none;
+}
+
+.pn-subs-side {
+    position: sticky;
+    top: 16px;
+    padding: 16px;
+
+    h2 {
+        margin: 0 0 4px;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    label {
+        display: block;
+        margin: 10px 0 4px;
+        color: var(--pn-muted);
+        font-size: 13px;
+    }
+
+    select {
+        width: 100%;
+    }
+
+    .pn-input {
+        box-sizing: border-box;
+        width: 100%;
+        height: 38px;
+        padding: 0 12px;
+        border: 1px solid var(--pn-line-strong);
+        border-radius: 12px;
+        background: #fff;
+        font: inherit;
+        color: var(--pn-text);
+    }
+
+    .pn-subs-dates {
+        display: flex;
+        gap: 8px;
+
+        > div {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    .pn-subs-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 16px;
+    }
+}
+
+@media (max-width: 860px) {
+    [data-pn] .pn-btn.pn-subs-toggle {
+        display: inline-flex;
+    }
+
+    .pn-subs-side {
+        display: none;
+        position: static;
+        order: -1;
+    }
+
+    .pn-subs-open .pn-subs-side {
+        display: block;
+    }
+}
+
+.pn-sub-day {
+    margin: 0;
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--pn-line);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pn-muted);
+}
+
+// A thin verdict-coloured edge on each row (browsers without :has() just show no edge).
+.submission-row {
+    border-left: 4px solid transparent;
+
+    &:has(> .pn-v-AC) {
+        border-left-color: var(--pn-green, #1e8e5a);
+    }
+
+    &:has(> .pn-v-_AC) {
+        border-left-color: var(--pn-yellow);
+    }
+
+    &:has(> .pn-v-WA, > .pn-v-TLE, > .pn-v-MLE, > .pn-v-OLE, > .pn-v-RTE, > .pn-v-IR) {
+        border-left-color: var(--pn-red);
+    }
+}
+
+// On phones each row is two lines: verdict, score, time/memory and View; then the problem and who/when.
+@media (max-width: 860px) {
+    .submission-row {
+        display: grid;
+        grid-template-columns: auto auto minmax(0, 1fr) auto;
+        grid-template-areas:
+            "verdict score usage actions"
+            "main main main main";
+        gap: 6px 12px;
+    }
+
+    .submission-row > .pn-v {
+        grid-area: verdict;
+    }
+
+    .pn-sub-score {
+        grid-area: score;
+    }
+
+    .pn-sub-usage {
+        grid-area: usage;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .pn-sub-actions {
+        grid-area: actions;
+    }
+
+    .pn-sub-main {
+        grid-area: main;
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.
