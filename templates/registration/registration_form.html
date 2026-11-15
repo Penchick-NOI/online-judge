@@ -53,19 +53,11 @@
             {{ form.password2.errors }}
 
             {# Sensible defaults are filled in, so these stay folded away. #}
-            <details class="pn-more-options"{% if form.timezone.errors or form.language.errors or form.organizations.errors %} open{% endif %}>
+            <details class="pn-more-options"{% if form.timezone.errors %} open{% endif %}>
                 <summary>{{ _('More options') }}</summary>
                 <label for="{{ form.timezone.id_for_label }}">{{ _('Timezone') }} {{ _('(select your closest major city)') }}</label>
                 {{ form.timezone }}
                 {{ form.timezone.errors }}
-
-                <label for="{{ form.language.id_for_label }}">{{ _('Default language') }}</label>
-                {{ form.language }}
-                {{ form.language.errors }}
-
-                <label for="{{ form.organizations.id_for_label }}">{{ _('Affiliated organizations') }}</label>
-                {{ form.organizations }}
-                {{ form.organizations.errors }}
             </details>
 
             {% if form.newsletter %}

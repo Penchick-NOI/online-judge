@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block legacy_css %}{% endblock %}
 
 {% block media %}
     {% block user_media %}{% endblock %}
@@ -9,51 +10,77 @@
 {% endblock %}
 
 {% block body %}
-    <div class="user-info-page">
-        <div class="user-sidebar">
-            <img src="{{ gravatar(user, 135) }}" class="user-gravatar">
-            <br>
-
-            <div><b>
-                {%- trans trimmed counter=user.problem_count %}
-                    {{ counter }} problem solved
-                {% pluralize %}
-                    {{ counter }} problems solved
-                {% endtrans -%}
-            </b></div>
-
-            {% if not user.is_unlisted %}
-                <div><b class="semibold">{{ _('Rank by points:') }}</b> #{{ rank }}</div>
+    <div class="pn-profile">
+        <aside class="pn-card pn-profile-card">
+            <img src="{{ gravatar(user, 192) }}" class="pn-profile-avatar" alt="" width="96" height="96">
+            <div class="pn-profile-name">{{ link_user(user) }}</div>
+            {% if user.show_school and (user.school or user.grade_label or user.region) %}
+                <ul class="pn-profile-school">
+                    {% if user.grade_label %}
+                        <li><i class="fa fa-graduation-cap fa-fw" aria-hidden="true"></i> {{ user.grade_label }}</li>
+                    {% endif %}
+                    {% if user.school %}
+                        <li><i class="fa fa-university fa-fw" aria-hidden="true"></i> {{ user.school }}</li>
+                    {% endif %}
+                    {% if user.region %}
+                        <li><i class="fa fa-map-marker fa-fw" aria-hidden="true"></i> {{ user.get_region_display() }}</li>
+                    {% endif %}
+                </ul>
+            {% elif user.id == request.profile.id %}
+                <a class="pn-profile-add-school" href="{{ url('user_edit_profile') }}">{{ _('Add your school and grade') }}</a>
             {% endif %}
-            <div>
-                <b class="semibold">{{ _('Total points:') }}</b>
-                <span title="{{ user.performance_points|floatformat(2) }}">
-                    {{ user.performance_points|floatformat(0) }}
-                </span>
-            </div>
 
-            <br>
-            <div>
-                <a href="{{ url('all_user_submissions', user.user.username) }}">{{ _('View submissions') }}</a>
-            </div>
-
-            {% if ratings %}
-                <br>
-                <div><b>
-                    {%- trans trimmed counter=ratings|length %}
-                        {{ counter }} contest written
-                    {% pluralize %}
-                        {{ counter }} contests written
-                    {% endtrans -%}
-                </b></div>
+            <div class="pn-profile-stats">
+                <div>
+                    <b>{{ user.problem_count }}</b>
+                    <span>{{ _('Problems solved') }}</span>
+                </div>
+                <div>
+                    <b title="{{ user.performance_points|floatformat(2) }}">{{ user.performance_points|floatformat(0) }}</b>
+                    <span>{{ _('Total points:')|replace(':', '') }}</span>
+                </div>
                 {% if not user.is_unlisted %}
-                    <div><b class="semibold">{{ _('Rank by rating:') }}</b> #{{ rating_rank }}</div>
+                    <div>
+                        <b>#{{ rank }}</b>
+                        <span>{{ _('Rank by points:')|replace(':', '') }}</span>
+                    </div>
                 {% endif %}
-                <div><b class="semibold">{{ _('Rating:') }}</b> {{ rating_number(rating) }}</div>
-                <div><b class="semibold">{{ _('Min. rating:') }}</b> {{ rating_number(min_rating) }}</div>
-                <div><b class="semibold">{{ _('Max rating:') }}</b> {{ rating_number(max_rating) }}</div>
-            {% endif %}
-        </div>
-        <div class="user-content">{% block user_content %}{% endblock %}</div>
+                {% if ratings %}
+                    <div>
+                        <b>{{ rating_number(rating) }}</b>
+                        <span>{{ _('Rating:')|replace(':', '') }}</span>
+                    </div>
+                    {% if not user.is_unlisted %}
+                        <div>
+                            <b>#{{ rating_rank }}</b>
+                            <span>{{ _('Rank by rating:')|replace(':', '') }}</span>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <b>{{ ratings|length }}</b>
+                        <span>
+                            {%- trans trimmed counter=ratings|length %}
+                                contest written
+                            {% pluralize %}
+                                contests written
+                            {% endtrans -%}
+                        </span>
+                    </div>
+                    <div>
+                        <b>{{ rating_number(min_rating) }}</b>
+                        <span>{{ _('Min. rating:')|replace(':', '') }}</span>
+                    </div>
+                    <div>
+                        <b>{{ rating_number(max_rating) }}</b>
+                        <span>{{ _('Max rating:')|replace(':', '') }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <a class="pn-btn pn-btn-block" href="{{ url('all_user_submissions', user.user.username) }}">
+                {{- _('View submissions') -}}
+            </a>
+        </aside>
+        <div class="pn-profile-main">{% block user_content %}{% endblock %}</div>
     </div>
 {% endblock %}

@@ -3,19 +3,18 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import get_default_password_validators
-from django.forms import ChoiceField, ModelChoiceField
+from django.forms import ChoiceField
 from django.shortcuts import render
-from django.utils.translation import gettext, gettext_lazy as _, ngettext
+from django.utils.translation import gettext, gettext_lazy as _
 from registration.backends.default.views import (ActivationView as OldActivationView,
                                                  RegistrationView as OldRegistrationView)
 from registration.forms import RegistrationForm
-from sortedm2m.forms import SortedMultipleChoiceField
 
-from judge.models import Language, Organization, Profile, TIMEZONE
+from judge.models import Language, Profile, TIMEZONE
 from judge.utils.mail import validate_email_domain
 from judge.utils.recaptcha import ReCaptchaField, ReCaptchaWidget
 from judge.utils.subscription import Subscription, newsletter_id
-from judge.widgets import Select2MultipleWidget, Select2Widget
+from judge.widgets import Select2Widget
 
 
 class CustomRegistrationForm(RegistrationForm):
@@ -24,11 +23,6 @@ class CustomRegistrationForm(RegistrationForm):
                                                              'numbers, or underscores.')})
     timezone = ChoiceField(label=_('Timezone'), choices=TIMEZONE,
                            widget=Select2Widget(attrs={'style': 'width:100%'}))
-    language = ModelChoiceField(queryset=Language.objects.all(), label=_('Preferred language'), empty_label=None,
-                                widget=Select2Widget(attrs={'style': 'width:100%'}))
-    organizations = SortedMultipleChoiceField(queryset=Organization.objects.filter(is_open=True),
-                                              label=_('Organizations'), required=False,
-                                              widget=Select2MultipleWidget(attrs={'style': 'width:100%'}))
 
     if newsletter_id is not None:
         newsletter = forms.BooleanField(label=_('Subscribe to newsletter?'), initial=True, required=False)
@@ -42,15 +36,6 @@ class CustomRegistrationForm(RegistrationForm):
                                                 'is allowed per address.') % self.cleaned_data['email'])
         validate_email_domain(self.cleaned_data['email'])
         return self.cleaned_data['email']
-
-    def clean_organizations(self):
-        organizations = self.cleaned_data.get('organizations') or []
-        max_orgs = settings.DMOJ_USER_MAX_ORGANIZATION_COUNT
-        if len(organizations) > max_orgs:
-            raise forms.ValidationError(ngettext('You may not be part of more than {count} public organization.',
-                                                 'You may not be part of more than {count} public organizations.',
-                                                 max_orgs).format(count=max_orgs))
-        return self.cleaned_data['organizations']
 
 
 class RegistrationView(OldRegistrationView):
@@ -74,8 +59,6 @@ class RegistrationView(OldRegistrationView):
 
         cleaned_data = form.cleaned_data
         profile.timezone = cleaned_data['timezone']
-        profile.language = cleaned_data['language']
-        profile.organizations.add(*cleaned_data['organizations'])
         profile.save()
 
         if newsletter_id is not None and cleaned_data['newsletter']:
@@ -85,7 +68,6 @@ class RegistrationView(OldRegistrationView):
     def get_initial(self, *args, **kwargs):
         initial = super(RegistrationView, self).get_initial(*args, **kwargs)
         initial['timezone'] = settings.DEFAULT_USER_TIME_ZONE
-        initial['language'] = Language.objects.get(key=settings.DEFAULT_USER_LANGUAGE)
         return initial
 
 

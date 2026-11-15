@@ -144,6 +144,40 @@ class Class(models.Model):
         constraints = [UniqueConstraint(fields=['name'], condition=Q(is_active=True), name='unique_active_name')]
 
 
+# Regions of the Philippines, for the optional school details on a profile.
+REGIONS = (
+    ('NCR', _('NCR (Metro Manila)')),
+    ('CAR', _('CAR (Cordillera)')),
+    ('I', _('Region I (Ilocos)')),
+    ('II', _('Region II (Cagayan Valley)')),
+    ('III', _('Region III (Central Luzon)')),
+    ('IV-A', _('Region IV-A (CALABARZON)')),
+    ('MIMAROPA', _('MIMAROPA')),
+    ('V', _('Region V (Bicol)')),
+    ('VI', _('Region VI (Western Visayas)')),
+    ('NIR', _('NIR (Negros Island)')),
+    ('VII', _('Region VII (Central Visayas)')),
+    ('VIII', _('Region VIII (Eastern Visayas)')),
+    ('IX', _('Region IX (Zamboanga Peninsula)')),
+    ('X', _('Region X (Northern Mindanao)')),
+    ('XI', _('Region XI (Davao)')),
+    ('XII', _('Region XII (SOCCSKSARGEN)')),
+    ('XIII', _('Region XIII (Caraga)')),
+    ('BARMM', _('BARMM (Bangsamoro)')),
+    ('ABROAD', _('Outside the Philippines')),
+)
+
+GRADE_MIN = 4
+GRADE_MAX = 12
+# The school year starts in June: from June on, the current school year ends next calendar year.
+SCHOOL_YEAR_START_MONTH = 6
+
+
+def current_school_year_end(today=None):
+    today = today or now().date()
+    return today.year + 1 if today.month >= SCHOOL_YEAR_START_MONTH else today.year
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, verbose_name=_('user associated'), on_delete=models.CASCADE)
     about = models.TextField(verbose_name=_('self-description'), null=True, blank=True)
@@ -151,6 +185,13 @@ class Profile(models.Model):
                                 default=settings.DEFAULT_USER_TIME_ZONE)
     language = models.ForeignKey('Language', verbose_name=_('preferred language'), on_delete=models.SET_DEFAULT,
                                  default=Language.get_default_language_pk)
+    school = models.CharField(max_length=120, verbose_name=_('school'), blank=True, default='')
+    # Stored as the year the student finishes Grade 12, so the grade moves up by itself each school year.
+    grade_class_year = models.IntegerField(verbose_name=_('year of finishing Grade 12'), null=True, blank=True)
+    student_status = models.CharField(max_length=10, verbose_name=_('student status'), blank=True, default='',
+                                      choices=(('college', _('College')), ('none', _('Not a student'))))
+    region = models.CharField(max_length=10, verbose_name=_('region'), blank=True, default='', choices=REGIONS)
+    show_school = models.BooleanField(verbose_name=_('show school details on profile'), default=True)
     points = models.FloatField(default=0)
     performance_points = models.FloatField(default=0)
     problem_count = models.IntegerField(default=0)
@@ -207,6 +248,31 @@ class Profile(models.Model):
     data_last_downloaded = models.DateTimeField(verbose_name=_('last data download time'), null=True, blank=True)
     username_display_override = models.CharField(max_length=100, blank=True, verbose_name=_('display name override'),
                                                  help_text=_('Name displayed in place of username.'))
+
+    @property
+    def grade(self):
+        """Current grade level (4 to 12), or None if not set or already past Grade 12."""
+        if self.grade_class_year is None:
+            return None
+        grade = GRADE_MAX - (self.grade_class_year - current_school_year_end())
+        return grade if grade <= GRADE_MAX else None
+
+    @property
+    def grade_choice(self):
+        """Value of the grade dropdown on the edit profile page."""
+        if self.grade_class_year is not None:
+            grade = self.grade
+            return str(max(grade, GRADE_MIN)) if grade is not None else ''
+        return self.student_status
+
+    @property
+    def grade_label(self):
+        grade = self.grade
+        if grade is not None:
+            return _('Grade %d') % max(grade, 1)
+        if self.student_status == 'college':
+            return _('College')
+        return ''
 
     @cached_property
     def organization(self):
