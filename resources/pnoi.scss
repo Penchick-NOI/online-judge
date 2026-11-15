@@ -3394,6 +3394,155 @@ body[data-pn] {
     }
 }
 
+// ---------------------------------------------------------------- submissions list: folded filter + day groups
+.pn-subs-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.pn-subs-active {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+
+    a {
+        margin-left: 4px;
+        font-weight: 600;
+    }
+}
+
+.pn-subs-filter {
+    display: none;
+    margin-bottom: 14px;
+    padding: 14px 16px;
+
+    &.pn-subs-open {
+        display: block;
+    }
+
+    h2 {
+        margin: 0 0 8px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--pn-muted);
+    }
+
+    .pn-subs-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .pn-subs-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
+// A checkbox drawn as a pill; the real input is hidden but still keyboard-reachable.
+.pn-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border: 1px solid var(--pn-line-strong);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+
+    input {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+
+    &:has(input:checked) {
+        border-color: var(--pn-blue);
+        background: var(--pn-blue);
+        color: #fff;
+    }
+
+    &:has(input:focus-visible) {
+        outline: 2px solid var(--pn-yellow);
+        outline-offset: 2px;
+    }
+}
+
+.pn-sub-day {
+    margin: 0;
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--pn-line);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pn-muted);
+}
+
+// A thin verdict-coloured edge on each row (browsers without :has() just show no edge).
+.submission-row {
+    border-left: 4px solid transparent;
+
+    &:has(> .pn-v-AC) {
+        border-left-color: var(--pn-green, #1e8e5a);
+    }
+
+    &:has(> .pn-v-_AC) {
+        border-left-color: var(--pn-yellow);
+    }
+
+    &:has(> .pn-v-WA, > .pn-v-TLE, > .pn-v-MLE, > .pn-v-OLE, > .pn-v-RTE, > .pn-v-IR) {
+        border-left-color: var(--pn-red);
+    }
+}
+
+// On phones each row is two lines: verdict, score, time/memory and View; then the problem and who/when.
+@media (max-width: 860px) {
+    .submission-row {
+        display: grid;
+        grid-template-columns: auto auto minmax(0, 1fr) auto;
+        grid-template-areas:
+            "verdict score usage actions"
+            "main main main main";
+        gap: 6px 12px;
+    }
+
+    .submission-row > .pn-v {
+        grid-area: verdict;
+    }
+
+    .pn-sub-score {
+        grid-area: score;
+    }
+
+    .pn-sub-usage {
+        grid-area: usage;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .pn-sub-actions {
+        grid-area: actions;
+    }
+
+    .pn-sub-main {
+        grid-area: main;
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.

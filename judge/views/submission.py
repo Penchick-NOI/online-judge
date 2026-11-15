@@ -1,9 +1,8 @@
-import json
 from collections import namedtuple
+from datetime import timedelta
 from itertools import groupby
 from operator import attrgetter
 
-from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist, PermissionDenied
@@ -343,8 +342,9 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         context['all_statuses'] = self.get_searchable_status_codes()
         context['selected_statuses'] = self.selected_statuses
 
-        context['results_json'] = mark_safe(json.dumps(self.get_result_data()))
-        context['results_colors_json'] = mark_safe(json.dumps(settings.DMOJ_STATS_SUBMISSION_RESULT_COLORS))
+        today = timezone.localdate()
+        context['today_key'] = str(today)
+        context['day_labels'] = {str(today): _('Today'), str(today - timedelta(days=1)): _('Yesterday')}
 
         context['page_suffix'] = suffix = ('?' + self.request.GET.urlencode()) if self.request.GET else ''
         context['first_page_href'] = (self.first_page_href or '.') + suffix

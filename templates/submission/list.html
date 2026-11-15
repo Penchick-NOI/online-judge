@@ -25,7 +25,6 @@
                 window.show_problem = 0;
             {% endif %}
         {% endif %}
-        window.results_json = {{ results_json }};
     </script>
 
     {% compress js %}
@@ -47,101 +46,35 @@
             </script>
         {% endif %}
 
-        <script src="{{ static('libs/chart.js/Chart.js') }}"></script>
         <script type="text/javascript">
             $(function () {
-                var info_float = $('.info-float');
-                var container = $('#content-right');
-                if (!featureTest('position', 'sticky')) {
-                    fix_div(info_float, 55);
-                    $(window).resize(function () {
-                        info_float.width(container.width());
-                    });
-                    info_float.width(container.width());
-                }
-
-                function escapeRegExp(string) {
-                    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-                }
-
-                function idAndTextMatcher(params, data) {
-                    if ($.trim(params.term) === '')
-                        return data;
-                    var regex = new RegExp(escapeRegExp(params.term), 'i');
-                    return data.text.search(regex) >= 0 || data.id.search(regex) >= 0 ? data : null;
-                }
-
-                $('#status').select2({
-                    theme: 'default', width: '100%',
-                    multiple: 1,
-                    placeholder: {{ _('Filter by status...')|htmltojs }},
-                    matcher: idAndTextMatcher,
-                }).css({'visibility': 'visible'});
-
-                $('#language').select2({
-                    theme: 'default', width: '100%',
-                    multiple: 1,
-                    placeholder: {{ _('Filter by language...')|htmltojs }},
-                    matcher: idAndTextMatcher,
-                }).css({'visibility': 'visible'});
-            });
-
-            // Draw the statistics graph.
-            var chart = null;
-            function stats_graph(raw_data) {
-                var colors = {{ results_colors_json }};
-
-                var ctx = $('#status-graph').find('canvas')[0].getContext('2d');
-                var font = $('body').css('font-family');
-                if (chart !== null) {
-                    chart.destroy();
-                }
-                chart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        datasets: [{
-                            data: raw_data.categories.map(function(entry) {
-                                return entry.count;
-                            }),
-                            backgroundColor: raw_data.categories.map(function(entry) {
-                                return colors[entry.code];
-                            }),
-                        }],
-                        labels: raw_data.categories.map(function(entry) {
-                            return entry.name;
-                        }),
-                    },
-                    options: {
-                        animation: false,
-                        scaleFontFamily: font,
-                        tooltips: {
-                            titleFontFamily: font,
-                            bodyFontFamily: font,
-                        },
-                        legend: {
-                            display: false,
-                        },
-                    },
+                // The filter panel is folded away until asked for.
+                var $panel = $('#filter-panel');
+                $('#filter-toggle').click(function () {
+                    var open = $panel.toggleClass('pn-subs-open').hasClass('pn-subs-open');
+                    $(this).attr('aria-expanded', open);
                 });
-
-                $('#total-submission-count').text(raw_data.total);
-            }
-
-            $(function () {
-                stats_graph(window.results_json);
             });
 
             function load_dynamic_update(last_msg) {
                 var _collect = function (e) {
                     return e.value;
                 };
-                var language_filter = $.map($('select#language option[selected]'), _collect);
-                var status_filter = $.map($('select#status option[selected]'), _collect);
+                var language_filter = $.map($('#filter-panel input[name=language]:checked'), _collect);
+                var status_filter = $.map($('#filter-panel input[name=status]:checked'), _collect);
 
                 var table = $('#submissions-table');
-                var statistics = $("#statistics-table");
                 var doing_ajax = false;
-                var first = parseInt(table.find('>div:first-child').attr('id'));
+                var first = parseInt(table.find('>div.submission-row:first').attr('id'));
+
+                // New submissions always belong under "Today".
+                var today_heading = function () {
+                    var $first = table.children().first();
+                    if ($first.is('.pn-sub-day[data-today]'))
+                        return $first;
+                    return $('<h2>', {'class': 'pn-sub-day', 'data-today': '1', text: {{ _('Today')|htmltojs }}})
+                        .prependTo(table);
+                };
 
                 var update_submission = function (message, force) {
                     if (language_filter.length && 'language' in message &&
@@ -157,10 +90,14 @@
                         if (id < first)
                             return;
                         first = id;
-                        row = $('<div>', {id: id, 'class': 'submission-row'}).hide().prependTo(table);
+                        row = $('<div>', {id: id, 'class': 'submission-row'}).hide().insertAfter(today_heading());
                         if (table.find('>div').length >= {{ paginator.per_page }})
                             table.find('>div:last-child').slideUp('slow', function () {
                                 $(this).remove();
+                                // Drop a day heading left with no rows under it.
+                                var $last = table.children().last();
+                                if ($last.is('.pn-sub-day'))
+                                    $last.remove();
                             });
                     }
                     if (force || !doing_ajax) {
@@ -186,30 +123,6 @@
                     }
                 };
 
-                var stats_outdated = false;
-                var last_stat_update = Date.now();
-                var stats_update_interval = {{ stats_update_interval|default(0) * 1000 }};
-
-                function update_stats() {
-                    if (Date.now() - last_stat_update < stats_update_interval)
-                        return;
-                    $.ajax({
-                        url: '?results'
-                    }).done(function (data) {
-                        last_stat_update = Date.now();
-                        stats_graph(data);
-                    }).fail(function () {
-                        console.log('Failed to update statistics table!' + id);
-                    }).always(function () {
-                        stats_outdated = false;
-                    });
-                }
-
-                $(window).on('dmoj:window-visible', function () {
-                    if (stats_outdated)
-                        update_stats();
-                });
-
                 var $body = $(document.body);
                 var receiver = new EventReceiver(
                     "{{ EVENT_DAEMON_LOCATION }}", "{{ EVENT_DAEMON_POLL_LOCATION }}",
@@ -224,11 +137,6 @@
                             update_submission(message);
                         } else if (message.type == 'done-submission') {
                             update_submission(message, true);
-
-                            if (!statistics.length) return;
-                            if ($('body').hasClass('window-hidden'))
-                                return stats_outdated = true;
-                            update_stats();
                         }
                     }
                 );
@@ -261,63 +169,83 @@
 {% endblock %}
 
 {% block body %}
-    <div class="pn-split">
-        <div>
-            <div class="ws-closed">
-                <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
-            </div>
+    {% set filtering = selected_statuses or selected_languages %}
+    {% set clear_href = first_page_href.split('?')[0] %}
 
-            {% if submissions %}
-                <div id="submissions-table" class="pn-card">
-                    {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
-                    {% for submission in submissions %}
-                        <div class="submission-row{% if submission.is_archived %} submission-archived{% endif %}" id="{{ submission.id }}">
-                            {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
-                                {% include "submission/row.html" %}
-                            {% endwith %}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div id="submissions-table" class="pn-card"></div>
-                <p class="pn-empty">{{ _('No submissions here yet.') }}</p>
-            {% endif %}
-            {% if page_obj.has_other_pages() %}
-                <div class="pn-pages">{% include "list-pages.html" %}</div>
+    <div class="ws-closed">
+        <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
+    </div>
+
+    <div class="pn-subs-bar">
+        <button id="filter-toggle" type="button" class="pn-btn pn-btn-soft pn-btn-sm"
+                aria-controls="filter-panel" aria-expanded="{{ 'true' if filtering else 'false' }}">
+            <i class="fa fa-filter"></i> {{ _('Filter') }}
+        </button>
+        {% if filtering %}
+            <span class="pn-subs-active">
+                {% for id, name in all_statuses if id in selected_statuses %}
+                    <span class="pn-tag">{{ name }}</span>
+                {% endfor %}
+                {% for code, name in all_languages if code in selected_languages %}
+                    <span class="pn-tag pn-tag-yellow">{{ name }}</span>
+                {% endfor %}
+                <a href="{{ clear_href }}">{{ _('Clear') }}</a>
+            </span>
+        {% endif %}
+    </div>
+
+    <form id="filter-panel" class="pn-card pn-subs-filter{% if filtering %} pn-subs-open{% endif %}"
+          action="{{ clear_href }}" method="get">
+        <h2>{{ _('Verdict') }}</h2>
+        <div class="pn-subs-chips">
+            {% for id, name in all_statuses %}
+                <label class="pn-chip">
+                    <input type="checkbox" name="status" value="{{ id }}"{% if id in selected_statuses %} checked{% endif %}>
+                    <span>{{ name }}</span>
+                </label>
+            {% endfor %}
+        </div>
+        <h2>{{ _('Language') }}</h2>
+        <div class="pn-subs-chips">
+            {% for code, name in all_languages %}
+                <label class="pn-chip">
+                    <input type="checkbox" name="language" value="{{ code }}"{% if code in selected_languages %} checked{% endif %}>
+                    <span>{{ name }}</span>
+                </label>
+            {% endfor %}
+        </div>
+        <div class="pn-subs-actions">
+            <button type="submit" class="pn-btn pn-btn-sm">{{ _('Apply') }}</button>
+            {% if filtering %}
+                <a class="pn-btn pn-btn-soft pn-btn-sm" href="{{ clear_href }}">{{ _('Clear filters') }}</a>
             {% endif %}
         </div>
+    </form>
 
-        <aside>
-            <div class="pn-card pn-side-box">
-                <h2>{{ _('Filter submissions') }}</h2>
-                <form id="filter-form" name="form" action="{{ first_page_href }}" method="get">
-                    <label for="status">{{ _('Status') }}</label>
-                    <select id="status" name="status" multiple>
-                        {% for id, name in all_statuses %}
-                            <option {% if id in selected_statuses %}selected{% endif %}
-                                    value="{{ id }}">{{ name }}</option>
-                        {% endfor %}
-                    </select>
-                    <label for="language">{{ _('Language') }}</label>
-                    <select id="language" name="language" multiple>
-                        {% for code, name in all_languages %}
-                            <option {% if code in selected_languages %}selected{% endif %}
-                                    value="{{ code }}">{{ name }}</option>
-                        {% endfor %}
-                    </select>
-                    <button id="go" type="submit" class="pn-btn pn-btn-block">{{ _('Apply') }}</button>
-                </form>
-            </div>
-
-            <div class="pn-card pn-side-box" id="statistics-table">
-                <h2>{{ _('Statistics') }}</h2>
-                <div id="status-graph">
-                    <canvas width="230" height="170"></canvas>
+    {% if submissions %}
+        <div id="submissions-table" class="pn-card">
+            {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
+            {% set group = namespace(day=none) %}
+            {% for submission in submissions %}
+                {% set day = submission.date|date('Y-m-d') %}
+                {% if day != group.day %}
+                    {% set group.day = day %}
+                    <h2 class="pn-sub-day"{% if day == today_key %} data-today="1"{% endif %}>
+                        {{ day_labels.get(day) or submission.date|date(_('l, j F Y')) }}
+                    </h2>
+                {% endif %}
+                <div class="submission-row{% if submission.is_archived %} submission-archived{% endif %}" id="{{ submission.id }}">
+                    {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
+                        {% include "submission/row.html" %}
+                    {% endwith %}
                 </div>
-                <div class="pn-total">
-                    {{ _('Total:') }} <span id="total-submission-count"></span>
-                </div>
-            </div>
-        </aside>
-    </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div id="submissions-table" class="pn-card"></div>
+        <p class="pn-empty">{{ _('No submissions here yet.') }}</p>
+    {% endif %}
+    {% if page_obj.has_other_pages() %}
+        <div class="pn-pages">{% include "list-pages.html" %}</div>
+    {% endif %}
 {% endblock %}
