@@ -1,25 +1,18 @@
 {% extends "base.html" %}
 {% block legacy_css %}{% endblock %}
 
-{% block media %}
-    <link rel="stylesheet" href="{{ static('libs/nouislider.min.css') }}">
-{% endblock %}
-
 {% block js_media %}
-    <script>
-        window.point_start = {{point_start}};
-        window.point_end = {{point_end}};
-        window.point_values = {{point_values|json|safe}};
-    </script>
     {% compress js %}
-        <script src="{{ static('libs/nouislider.min.js') }}" type="text/javascript"></script>
         <script>
             $(function () {
                 var $form = $('form#filter-form');
                 var $search = $('#search');
 
                 function prep_form() {
-                    $search.prop('disabled', !$search.val());
+                    // Empty fields are left out of the address bar.
+                    $search.add('#point-start, #point-end').each(function () {
+                        $(this).prop('disabled', !$(this).val());
+                    });
                 }
 
                 $form.on('submit', prep_form);
@@ -46,31 +39,6 @@
                         .attr('method', 'POST').appendTo($('body')).submit());
                 });
 
-                var intFormatter = {
-                    to: function (value) {
-                        return value;
-                    },
-                    from: function (value) {
-                        return +value;
-                    }
-                };
-                var $slider = $('#point-slider');
-                if ($slider.length) {
-                    var $start = $('#point-start');
-                    var $end = $('#point-end');
-
-                    noUiSlider.create($slider[0], {
-                        start: [point_start, point_end],
-                        connect: true,
-                        snap: true,
-                        tooltips: [intFormatter, intFormatter],
-                        range: point_values
-                    }).on('change', function (values) {
-                        var start = +values[0], end = +values[1];
-                        $start.prop('disabled', start === point_values.min).val(start);
-                        $end.prop('disabled', end === point_values.max).val(end);
-                    });
-                }
             });
         </script>
     {% endcompress %}
@@ -345,13 +313,23 @@
                     <button class="pn-btn pn-btn-soft pn-btn-block" type="submit">{{ _('Apply types') }}</button>
                 {% endif %}
 
-                {% if point_values %}
-                    <h2 class="pn-plist-heading">{{ _('Point range') }}</h2>
-                    <div class="pn-range"><div id="point-slider"></div></div>
-                    <button class="pn-btn pn-btn-soft pn-btn-block" type="submit">{{ _('Apply range') }}</button>
-                {% endif %}
-                <input id="point-start" type="hidden" name="point_start" {% if point_filter_start is not none %}value="{{ '%g' % point_filter_start }}"{% else %}disabled{% endif %}>
-                <input id="point-end" type="hidden" name="point_end" {% if point_filter_end is not none %}value="{{ '%g' % point_filter_end }}"{% else %}disabled{% endif %}>
+                <h2 class="pn-plist-heading">{{ _('Point range') }}</h2>
+                <div class="pn-plist-points">
+                    <label>
+                        <span>{{ _('Min') }}</span>
+                        <input id="point-start" class="pn-input" type="number" name="point_start" min="0" step="any"
+                               placeholder="{{ '%g' % point_values.min if point_values else '' }}"
+                               {% if point_filter_start is not none %}value="{{ '%g' % point_filter_start }}"{% endif %}>
+                    </label>
+                    <span class="pn-plist-dash">–</span>
+                    <label>
+                        <span>{{ _('Max') }}</span>
+                        <input id="point-end" class="pn-input" type="number" name="point_end" min="0" step="any"
+                               placeholder="{{ '%g' % point_values.max if point_values else '' }}"
+                               {% if point_filter_end is not none %}value="{{ '%g' % point_filter_end }}"{% endif %}>
+                    </label>
+                </div>
+                <button class="pn-btn pn-btn-soft pn-btn-block" type="submit">{{ _('Apply range') }}</button>
                 {% if category %}
                     <input type="hidden" name="category" value="{{ category }}">
                 {% endif %}

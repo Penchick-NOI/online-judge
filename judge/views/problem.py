@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
-from django.db.models import BooleanField, Case, CharField, Count, F, FilteredRelation, Prefetch, Q, When
+from django.db.models import BooleanField, Case, CharField, Count, F, FilteredRelation, Max, Min, Prefetch, Q, When
 from django.db.models.functions import Coalesce
 from django.db.utils import ProgrammingError
 from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect, JsonResponse
@@ -541,7 +541,7 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         if not self.in_contest:
             context.update(self.get_sort_context())
             context['hot_problems'] = hot_problems(timedelta(days=1), settings.DMOJ_PROBLEM_HOT_PROBLEM_COUNT)
-            context['point_start'], context['point_end'], context['point_values'] = self.get_noui_slider_points()
+            context['point_start'], context['point_end'], context['point_values'] = self.get_point_range()
             context.update(self.get_filter_panel_context())
         else:
             context['hot_problems'] = None
@@ -618,25 +618,13 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
             'clear_points_url': self.filter_link(remove=('point_start', 'point_end')),
         }
 
-    def get_noui_slider_points(self):
-        points = sorted(self.prepoint_queryset.values_list('points', flat=True).distinct())
-        if not points:
+    def get_point_range(self):
+        bounds = self.prepoint_queryset.aggregate(min=Min('points'), max=Max('points'))
+        if bounds['min'] is None:
             return 0, 0, {}
-        if len(points) == 1:
-            return points[0] - 1, points[0] + 1, {
-                'min': points[0] - 1,
-                '50%': points[0],
-                'max': points[0] + 1,
-            }
-
-        start, end = points[0], points[-1]
-        if self.point_start is not None:
-            start = self.point_start
-        if self.point_end is not None:
-            end = self.point_end
-        points_map = {0.0: 'min', 1.0: 'max'}
-        size = len(points) - 1
-        return start, end, {points_map.get(i / size, '%.2f%%' % (100 * i / size,)): j for i, j in enumerate(points)}
+        start = self.point_start if self.point_start is not None else bounds['min']
+        end = self.point_end if self.point_end is not None else bounds['max']
+        return start, end, bounds
 
     def GET_with_session(self, request, key):
         if not request.GET:
