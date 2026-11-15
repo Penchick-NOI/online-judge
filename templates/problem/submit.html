@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block legacy_css %}{% endblock %}
 
 {% block js_media %}
     <script type="text/javascript" src="{{ ACE_URL }}/ace.js"></script>
@@ -6,18 +7,18 @@
     {% compress js %}
         <script type="text/javascript">
             $(function () {
-                function format(state) {
-                    if (!state.id) return state.text; // optgroup
-                    return state.text;
-                }
-
                 window.previous_template = '';
 
+                function current_lang() {
+                    return $('input[name=language]:checked');
+                }
+
+                // Load the starter code for the chosen language, unless the contestant has typed their own.
                 function update_language_template() {
                     var source = $('textarea#id_source');
                     if (source.val() == window.previous_template.replace(/\r/g, '') || source.val() == '') {
-                        var lang_id = $('#id_language').val();
-                        var code = localStorage.getItem('submit:' + $('#id_language').val());
+                        var lang_id = current_lang().val();
+                        var code = localStorage.getItem('submit:' + lang_id);
 
                         function update_submit_area(code) {
                             window.previous_template = code;
@@ -37,60 +38,8 @@
                     }
                 }
 
-                function makeDisplayData(data) {
-                    var site_data = data.attr('data-info');
-                    var judge_data = data.attr('data-judge-info');
-                    var display_data = site_data || judge_data;
-                    return display_data;
-                }
-
-                function formatSelection(state) {
-                    if (!state.id) return state.text; // optgroup
-                    var data = makeDisplayData($("option[data-id=" + state.id + "]"));
-                    return $('<span>').append($('<b>').text(state.text), ' (', data, ')');
-                }
-
-                // Terrible hack, adapted from https://github.com/select2/select2/issues/4436
-                $.fn.select2.amd.define('select2/data/customAdapter', ['select2/results', 'select2/utils'], function (Result, Utils) {
-                    RefPresenter = function ($element, options, dataAdapter) {
-                        RefPresenter.__super__.constructor.call(this, $element, options, dataAdapter);
-                    };
-                    Utils.Extend(RefPresenter, Result);
-                    RefPresenter.prototype.bind = function (container, $container) {
-                        container.on('results:focus', function (params) {
-                            var data = makeDisplayData($("option[data-id=" + params.data.id + "]"));
-                            $("#result-version-info").text(data);
-                        });
-                        RefPresenter.__super__.bind.call(this, container, $container);
-                    };
-                    return RefPresenter;
-                });
-
-                var customAdapter = $.fn.select2.amd.require('select2/data/customAdapter');
-
-                $("#id_language").select2({
-                    theme: '{{ DMOJ_SELECT2_THEME }}',
-                    templateResult: format,
-                    templateSelection: formatSelection,
-                    resultsAdapter: customAdapter
-                });
-
-                $('#id_language').on('select2:open', function (evt) {
-                    var dropdown = $('.select2-dropdown');
-                    if (!$('#result-version-info').length)
-                        dropdown.append($("<span id=\"result-version-info\">"));
-                    dropdown.attr('id', 'language-select2');
-                });
-
-                $('#id_judge').on('select2:open', function (evt) {
-                    var dropdown = $('.select2-dropdown');
-                    $('#result-version-info').remove();
-                    dropdown.attr('id', 'judge-select2');
-                });
-
-                $('#id_language').change(function () {
-                    var lang = $("#id_language").find("option:selected").attr('data-ace');
-                    window.ace_source.getSession().setMode("ace/mode/" + lang);
+                $('input[name=language]').change(function () {
+                    window.ace_source.getSession().setMode("ace/mode/" + current_lang().attr('data-ace'));
                     update_language_template();
                 });
 
@@ -100,7 +49,7 @@
                         name: 'save',
                         bindKey: {win: 'Ctrl-S', mac: 'Command-S'},
                         exec: function () {
-                            localStorage.setItem('submit:' + $('#id_language').val(), editor.getSession().getValue());
+                            localStorage.setItem('submit:' + current_lang().val(), editor.getSession().getValue());
                         }
                     });
                     editor.getSession().setUseWrapMode(true);
@@ -110,7 +59,7 @@
                 });
 
                 $(window).resize(function () {
-                    $('#ace_source').height(Math.max($(window).height() - 353, 100));
+                    $('#ace_source').height(Math.max($(window).height() - 400, 240));
                 }).resize();
 
                 $('#problem_submit').submit(function (event) {
@@ -130,69 +79,60 @@
 {% endblock %}
 
 {% block body %}
-    <br>
     {% if not no_judges %}
         {% if default_lang not in form.fields.language.queryset %}
-            <div class="alert alert-warning alert-dismissable">
-                <a class="close">x</a>
+            <p class="pn-note">
                 <b>{{ _('Warning!') }}</b>
                 {{ _('Your default language, %(language)s, is unavailable for this problem and has been deselected.', language=bold(default_lang.name)) }}
-            </div>
+            </p>
         {% endif %}
 
         {% if request.in_contest and submission_limit %}
-            {% if submissions_left > 0 %}
-                <div class="alert alert-warning alert-dismissable">
-                    <a class="close">x</a>
+            <p class="pn-note">
+                {% if submissions_left > 0 %}
                     {% trans left=submissions_left -%}
                         You have {{ left }} submission left
                         {%- pluralize -%}
                         You have {{ left }} submissions left
                     {%- endtrans %}
-                </div>
-            {% else %}
-                <div class="alert alert-warning alert-dismissable">
-                    <a class="close">x</a>
+                {% else %}
                     {{ _('You have 0 submissions left') }}
-                </div>
-            {% endif %}
+                {% endif %}
+            </p>
         {% endif %}
     {% endif %}
 
-    <form id="problem_submit" action="" method="post" class="form-area">
+    <form id="problem_submit" action="" method="post" class="pn-card pn-submit">
         {% csrf_token %}
         {{ form.non_field_errors() }}
-        <div id="submit-wrapper">
-            <div id="editor">
-                {{ form.source.errors }}
-                {{ form.source }}
+        {% if not no_judges %}
+            <p class="pn-submit-label">{{ _('Language') }}</p>
+            {{ form.language.errors }}
+            <div class="pn-langs" role="radiogroup" aria-label="{{ _('Language') }}">
+                {% set has_default = default_lang in form.fields.language.queryset %}
+                {% for lang in form.fields.language.queryset %}
+                    <label class="pn-lang">
+                        <input type="radio" name="language" value="{{ lang.id }}" data-ace="{{ lang.ace }}"
+                               {% if lang.id == default_lang.id or (not has_default and loop.first) %}checked{% endif %}>
+                        <span>{{ lang.name }}<small>{{ lang.info or runtime_versions(lang.runtime_versions()) }}</small></span>
+                    </label>
+                {% endfor %}
             </div>
-            {% if not no_judges %}
-                <div id="language">
-                    {{ form.language.errors }}
-                    <div id="language-select">
-                        <select id="id_language" name="language">
-                            {% for lang in form.fields.language.queryset %}
-                                <option value="{{ lang.id }}" data-id="{{ lang.id }}" data-name="{{ lang.name }}"
-                                        data-info="{{ lang.info }}" data-ace="{{ lang.ace }}"
-                                        data-judge-info="{{ runtime_versions(lang.runtime_versions()) }}"
-                                        {% if lang.id == default_lang.id %}selected{% endif %}>{{ lang.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
+        {% endif %}
 
-        <hr>
+        <p class="pn-submit-label">{{ _('Your code') }}</p>
+        {{ form.source.errors }}
+        <div class="pn-editor">{{ form.source }}</div>
 
         {% if no_judges %}
-            <span style="color: red">{{ _('No judge is available for this problem.') }}</span>
+            <p class="pn-note pn-note-red" style="margin: 0">{{ _('No judge is available for this problem.') }}</p>
         {% else %}
-            <div class="submit-bar">
+            <div class="pn-submit-bar">
                 {{ form.judge }}
-                <input type="submit" value="{{ _('Submit!') }}" class="button"
-                       {% if request.in_contest and submission_limit and not submissions_left %}disabled{% endif %}>
+                <button type="submit" class="pn-btn pn-btn-red"
+                        {% if request.in_contest and submission_limit and not submissions_left %}disabled{% endif %}>
+                    {{- _('Submit!') -}}
+                </button>
             </div>
         {% endif %}
     </form>

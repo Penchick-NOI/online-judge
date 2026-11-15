@@ -6,10 +6,10 @@
     </li>
 {% endmacro %}
 
-<div class="tabs">
-    <h2>{{ content_title or title }}</h2>
+<div class="pn-tabs-head">
+    <h1 class="pn-title">{{ content_title or title }}</h1>
     {% block post_tab_spacer %}{% endblock %}
-    <ul>
+    <ul class="pn-tabs">
         {% block tabs %}{% endblock %}
     </ul>
 </div>
