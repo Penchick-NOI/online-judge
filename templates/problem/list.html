@@ -263,7 +263,7 @@
                             {% if has_point_filter %}
                                 <a class="pn-tag pn-tag-yellow pn-plist-remove" href="{{ clear_points_url }}"
                                    title="{{ _('Remove this filter') }}">
-                                    {{ _('%(start)s–%(end)s points', start=point_start|floatformat, end=point_end|floatformat) }}
+                                    {{ _('%(start)s–%(end)s points', start='%g' % point_start, end='%g' % point_end) }}
                                     <span>&times;</span>
                                 </a>
                             {% endif %}
@@ -350,8 +350,8 @@
                     <div class="pn-range"><div id="point-slider"></div></div>
                     <button class="pn-btn pn-btn-soft pn-btn-block" type="submit">{{ _('Apply range') }}</button>
                 {% endif %}
-                <input id="point-start" type="hidden" name="point_start" {% if point_start and point_start != point_values.min %}value="{{ point_start|floatformat }}"{% else %}disabled{% endif %}>
-                <input id="point-end" type="hidden" name="point_end" {% if point_end and point_end != point_values.max %}value="{{ point_end|floatformat }}"{% else %}disabled{% endif %}>
+                <input id="point-start" type="hidden" name="point_start" {% if point_filter_start is not none %}value="{{ '%g' % point_filter_start }}"{% else %}disabled{% endif %}>
+                <input id="point-end" type="hidden" name="point_end" {% if point_filter_end is not none %}value="{{ '%g' % point_filter_end }}"{% else %}disabled{% endif %}>
                 {% if category %}
                     <input type="hidden" name="category" value="{{ category }}">
                 {% endif %}
