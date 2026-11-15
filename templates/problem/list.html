@@ -8,9 +8,11 @@
                 var $form = $('form#filter-form');
                 var $search = $('#search');
 
+                var $optional = $search.add('#point-start, #point-end');
+
                 function prep_form() {
                     // Empty fields are left out of the address bar.
-                    $search.add('#point-start, #point-end').each(function () {
+                    $optional.each(function () {
                         $(this).prop('disabled', !$(this).val());
                     });
                 }
@@ -27,6 +29,9 @@
                     var action = $form.attr('action');
                     $form.attr('action', '{{ url('problem_random') }}').attr('target', '_blank').submit();
                     $form.attr('action', action).attr('target', '');
+                    // The list stays open in this tab, so the form must be usable again
+                    // (common.js disables the submit buttons on submit).
+                    $optional.add($form.find('button[type=submit]')).prop('disabled', false);
                     e.preventDefault();
                 });
 
