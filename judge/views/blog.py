@@ -11,6 +11,7 @@ from judge.models import BlogPost, Comment, Contest, Language, Problem, ProblemC
     Ticket
 from judge.utils.cachedict import CacheDict
 from judge.utils.diggpaginator import DiggPaginator
+from judge.utils.problems import user_completed_ids
 from judge.utils.opengraph import generate_opengraph
 from judge.utils.tickets import filter_visible_tickets
 from judge.utils.views import TitleMixin
@@ -31,6 +32,21 @@ class PostList(ListView):
     def get_queryset(self):
         return (BlogPost.objects.filter(visible=True, publish_on__lte=timezone.now()).order_by('-sticky', '-publish_on')
                 .prefetch_related('authors__user'))
+
+    @staticmethod
+    def rating_polyline(ratings, width=300, height=80, pad=6):
+        """Points for an SVG polyline of a rating history, or '' if there is nothing to draw."""
+        if not ratings:
+            return ''
+        if len(ratings) == 1:
+            ratings = ratings * 2
+        low, high = min(ratings), max(ratings)
+        span = (high - low) or 1
+        step = width / (len(ratings) - 1)
+        return ' '.join(
+            '%.1f,%.1f' % (i * step, height - pad - (rating - low) / span * (height - 2 * pad))
+            for i, rating in enumerate(ratings)
+        )
 
     def get_context_data(self, **kwargs):
         context = super(PostList, self).get_context_data(**kwargs)
@@ -70,6 +86,22 @@ class PostList(ListView):
         context['current_contests'] = visible_contests.filter(start_time__lte=now, end_time__gt=now)
         context['future_contests'] = visible_contests.filter(start_time__gt=now)
         context['past_contests'] = visible_contests.filter(end_time__lte=now).order_by('-end_time')[:5]
+
+        # Dashboard panels.
+        context['top_users'] = (Profile.objects.filter(is_unlisted=False, user__is_active=True)
+                                .order_by('-performance_points', 'id').select_related('user')[:5])
+        if self.request.user.is_authenticated:
+            profile = self.request.profile
+            context['dash_rank'] = Profile.objects.filter(
+                is_unlisted=False, performance_points__gt=profile.performance_points).count() + 1
+            ratings = list(profile.ratings.order_by('contest__end_time').values_list('rating', flat=True))
+            context['dash_rating_count'] = len(ratings)
+            context['dash_rating_change'] = ratings[-1] - ratings[-2] if len(ratings) >= 2 else None
+            context['dash_rating_points'] = self.rating_polyline(ratings)
+            context['dash_recent'] = (Submission.objects.filter(user=profile).order_by('-id')
+                                      .select_related('problem', 'language')[:5])
+            context['dash_next'] = (Problem.get_public_problems().exclude(id__in=user_completed_ids(profile))
+                                    .order_by('points', 'code')[:4])
 
         if self.request.user.is_authenticated:
             context['own_open_tickets'] = (
