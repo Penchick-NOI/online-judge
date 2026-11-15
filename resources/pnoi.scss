@@ -1617,6 +1617,271 @@ ul.pn-tabs {
     display: none;
 }
 
+// ---------------------------------------------------------------- ratings
+// Names and rating numbers are coloured by rating tier.
+.rating {
+    font-weight: 700;
+}
+
+.rate-none, .rate-none a {
+    color: var(--pn-muted) !important;
+    font-weight: 500;
+}
+
+.rate-newbie, .rate-newbie a {
+    color: #7a7f8c !important;
+}
+
+.rate-amateur, .rate-amateur a {
+    color: #1e8e5a !important;
+}
+
+.rate-expert, .rate-expert a {
+    color: #1d3a8a !important;
+}
+
+.rate-candidate-master, .rate-candidate-master a {
+    color: #7b3fbf !important;
+}
+
+.rate-master, .rate-master a {
+    color: #b7791f !important;
+}
+
+.rate-grandmaster, .rate-grandmaster a, .rate-target, .rate-target a {
+    color: #d7263d !important;
+}
+
+.rate-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+svg.rate-box {
+    width: 16px;
+    height: 16px;
+    color: var(--pn-muted);
+
+    circle {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2px;
+    }
+
+    path {
+        fill: currentColor;
+    }
+
+    &.rate-none {
+        visibility: hidden;
+    }
+
+    &.rate-target circle:last-child {
+        stroke: none;
+        fill: currentColor;
+    }
+}
+
+.admin a, .admin {
+    font-weight: 700;
+}
+
+// ---------------------------------------------------------------- contests
+.pn-tab-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    form {
+        margin: 0;
+    }
+}
+
+.pn-contest-banner {
+    margin: 0 0 20px;
+    padding: 22px 26px;
+    border-radius: 20px;
+    background: var(--pn-blue);
+    color: #d5def7;
+
+    .pn-contest-status {
+        margin: 0 0 6px;
+        color: #fff;
+        font-family: var(--pn-display);
+        font-size: 26px;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .time-remaining {
+        font-family: var(--pn-mono);
+        font-size: 0.9em;
+    }
+
+    b {
+        color: #fff;
+    }
+}
+
+.pn-contest-details {
+    margin: 0 0 20px;
+
+    ul {
+        margin: 0;
+        padding-left: 1.3em;
+    }
+
+    > ul > li {
+        margin: 5px 0;
+    }
+
+    p {
+        display: inline;
+        margin: 0;
+    }
+}
+
+.pn-contest-list {
+    margin-bottom: 28px;
+
+    .pn-contest-time {
+        margin-top: 2px;
+        color: var(--pn-muted);
+        font-size: 13px;
+    }
+
+    .pn-contest-count {
+        color: var(--pn-red-text);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .pn-tag {
+        margin-left: 6px;
+        font-size: 12px;
+    }
+
+    form {
+        margin: 0;
+    }
+
+    td.pn-join {
+        width: 1%;
+        white-space: nowrap;
+    }
+}
+
+.pn-search-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 0 12px;
+
+    form {
+        margin: 0;
+    }
+}
+
+// ---------------------------------------------------------------- scoreboards and rankings
+.pn-board-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+}
+
+table.pn-score {
+    th, td {
+        text-align: center;
+    }
+
+    th.username, td.user-name {
+        text-align: left;
+        min-width: 180px;
+    }
+
+    th.points a {
+        display: block;
+    }
+
+    .point-denominator {
+        color: var(--pn-muted);
+        font-size: 11px;
+        font-weight: 400;
+    }
+
+    td a:hover {
+        text-decoration: none;
+    }
+
+    td[class*="full-score"] a {
+        color: var(--pn-green);
+        font-weight: 700;
+    }
+
+    td[class*="partial-score"] a {
+        color: var(--pn-yellow-text);
+        font-weight: 700;
+    }
+
+    td[class*="failed-score"] a {
+        color: var(--pn-red-text);
+        font-weight: 700;
+    }
+
+    td.user-points {
+        font-weight: 700;
+    }
+
+    .solving-time {
+        color: var(--pn-muted);
+        font-family: var(--pn-mono);
+        font-size: 11px;
+        font-weight: 400;
+    }
+
+    .start-time {
+        color: var(--pn-muted);
+        font-size: 12px;
+    }
+
+    .organization-column {
+        display: none;
+    }
+
+    tr.disqualified td {
+        opacity: 0.5;
+        text-decoration: line-through;
+    }
+
+    tr.highlight {
+        background: var(--pn-yellow-tint);
+    }
+
+    .contest-participation-operation {
+        float: right;
+
+        form {
+            display: inline;
+        }
+
+        a {
+            color: var(--pn-muted);
+        }
+    }
+}
+
+.user-search-image {
+    margin-right: 8px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.
