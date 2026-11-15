@@ -1,76 +1,45 @@
 {% extends "base.html" %}
-
-{% block media %}
-    <style>
-        h4 {
-            padding-top: 1em;
-        }
-
-        .social {
-            display: inline;
-            font-size: 2.3em;
-            float: none;
-        }
-
-        .google-icon i {
-            color: #DD4B38;
-        }
-
-        .facebook-icon i {
-            color: #133783;
-        }
-
-        .github-icon i {
-            color: black;
-        }
-    </style>
-{% endblock %}
+{% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
 
 {% block body %}
-    <div class="auth-flow-form">
-        <form action="" method="post" class="form-area">
+    <div class="pn-auth">
+        <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
+        <form action="" method="post" class="pn-card pn-card-pad pn-form">
             {% csrf_token %}
             {% if form.errors %}
-                <div id="form-errors">
-                    <p class="error">{{ _('Invalid username or password.') }}</p>
-                </div>
+                <p class="pn-note pn-note-red" id="form-errors">{{ _('Invalid username or password.') }}</p>
             {% endif %}
-            <table border="0" style="text-align:left">
-                <tr>
-                    <th><i class="fa fa-user fa-fw"></i>
-                    </th>
-                    <td>{{ form.username }}
-                    </td>
-                </tr>
-                <tr>
-                    <th><i class="fa fa-key fa-fw"></i>
-                    </th>
-                    <td>{{ form.password }}
-                    </td>
-                </tr>
-            </table>
-            <hr>
-            <button style="float:right;" type="submit">{{ _('Login!') }}</button>
+            <label for="{{ form.username.id_for_label }}">{{ _('Username') }}</label>
+            {{ form.username }}
+            <label for="{{ form.password.id_for_label }}">{{ _('Password') }}</label>
+            {{ form.password }}
+            <button type="submit" class="pn-btn pn-btn-red pn-btn-block">{{ _('Log in') }}</button>
             <input type="hidden" name="next" value="{{ next }}">
         </form>
-        <a href="{{ url('password_reset') }}">{{ _('Forgot your password?') }}</a>
+        <p class="pn-auth-links">
+            <a href="{{ url('password_reset') }}">{{ _('Forgot your password?') }}</a>
+            {% if REGISTRATION_OPEN %}
+                <a href="{{ url('registration_register') }}">{{ _('Sign up') }}</a>
+            {% endif %}
+        </p>
 
         {% if form.has_google_auth or form.has_facebook_auth or form.has_github_auth %}
-            <h4>{{ _('Or log in with...') }}</h4>
-            <div>
+            <p class="pn-auth-or">{{ _('Or log in with...') }}</p>
+            <div class="pn-auth-social">
                 {% if form.has_google_auth %}
-                    <a href="{{ url('social:begin', "google-oauth2") }}?next={{ next }}" class="social google-icon">
-                        <i class="fa fa-google-plus-square"></i>
+                    <a class="pn-btn pn-btn-soft" href="{{ url('social:begin', "google-oauth2") }}?next={{ next }}">
+                        <i class="fa fa-google"></i> Google
                     </a>
                 {% endif %}
                 {% if form.has_facebook_auth %}
-                    <a href="{{ url('social:begin', "facebook") }}?next={{ next }}" class="social facebook-icon">
-                        <i class="fa fa-facebook-square"></i>
+                    <a class="pn-btn pn-btn-soft" href="{{ url('social:begin', "facebook") }}?next={{ next }}">
+                        <i class="fa fa-facebook"></i> Facebook
                     </a>
                 {% endif %}
                 {% if form.has_github_auth %}
-                    <a href="{{ url('social:begin', "github-secure") }}?next={{ next }}" class="social github-icon">
-                        <i class="fa fa-github-square"></i>
+                    <a class="pn-btn pn-btn-soft" href="{{ url('social:begin', "github-secure") }}?next={{ next }}">
+                        <i class="fa fa-github"></i> GitHub
                     </a>
                 {% endif %}
             </div>

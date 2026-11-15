@@ -1,4 +1,13 @@
 {% extends "base.html" %}
+{% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
+
 {% block body %}
-    <h3>{{ _('See you later!') }}</h3>
+    <div class="pn-auth">
+        <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
+        <div class="pn-card pn-card-pad">
+            <p style="margin: 0">{{ _('See you later!') }}</p>
+            <a class="pn-btn" style="margin-top: 14px" href="{{ url('auth_login') }}">{{ _('Log in') }}</a>
+        </div>
+    </div>
 {% endblock %}

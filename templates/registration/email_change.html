@@ -1,23 +1,14 @@
 {% extends "base.html" %}
-
-{% block media %}
-<style>
-.errorlist {
-    list-style-type: none;
-    margin-block-start: 0;
-    margin-block-end: 0.5em;
-    padding: 0;
-}
-</style>
-{% endblock %}
+{% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
 
 {% block body %}
-    <div class="centered-form" style="text-align: center">
-        <form action="" method="post" class="form-area">
+    <div class="pn-auth">
+        <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
+        <form action="" method="post" class="pn-card pn-card-pad pn-form">
             {% csrf_token %}
-            <table border="0" class="django-as-table">{{ form.as_table() }}</table>
-            <hr>
-            <button class="submit-bar" type="submit">{{ _('Request email change') }}</button>
+            <table>{{ form.as_table() }}</table>
+            <button type="submit" class="pn-btn pn-btn-block">{{ _('Request email change') }}</button>
         </form>
     </div>
 {% endblock %}

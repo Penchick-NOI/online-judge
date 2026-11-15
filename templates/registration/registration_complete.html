@@ -1,4 +1,12 @@
 {% extends "base.html" %}
+{% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
+
 {% block body %}
-    <p>{{ _('You have successfully been registered. An email has been sent to the email address you provided to confirm your registration.') }}</p>
+    <div class="pn-auth">
+        <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
+        <div class="pn-card pn-card-pad">
+            <p style="margin: 0">{{ _('You have successfully been registered. An email has been sent to the email address you provided to confirm your registration.') }}</p>
+        </div>
+    </div>
 {% endblock %}
