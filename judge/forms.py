@@ -9,7 +9,6 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from django.db.models import Q
 from django.forms import BooleanField, CharField, ChoiceField, Form, ModelForm, MultipleChoiceField
 from django.urls import reverse_lazy
 from django.utils.text import format_lazy
@@ -17,6 +16,7 @@ from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
 from judge.models import Contest, Language, Organization, Problem, ProblemPointsVote, Profile, Submission, \
     WebAuthnCredential
+from judge.models.profile import GRADE_MAX, GRADE_MIN, current_school_year_end
 from judge.utils.mail import validate_email_domain
 from judge.utils.subscription import newsletter_id
 from judge.widgets import AceWidget, MartorWidget, Select2MultipleWidget, Select2Widget
@@ -47,14 +47,21 @@ class ProfileForm(ModelForm):
         newsletter = forms.BooleanField(label=_('Subscribe to contest updates'), initial=False, required=False)
     test_site = forms.BooleanField(label=_('Enable experimental features'), initial=False, required=False)
 
+    grade = ChoiceField(label=_('Grade level'), required=False, choices=(
+        [('', _('Not set'))] +
+        [(str(g), _('Grade %d') % g) for g in range(GRADE_MIN, GRADE_MAX + 1)] +
+        [('college', _('College')), ('none', _('Not a student'))]
+    ))
+
     class Meta:
         model = Profile
-        fields = ['about', 'organizations', 'timezone', 'language', 'ace_theme', 'site_theme', 'user_script']
+        fields = ['about', 'school', 'region', 'show_school', 'timezone', 'ace_theme', 'site_theme', 'user_script']
         widgets = {
             'timezone': Select2Widget(attrs={'style': 'width:200px'}),
-            'language': Select2Widget(attrs={'style': 'width:200px'}),
             'ace_theme': Select2Widget(attrs={'style': 'width:200px'}),
             'site_theme': Select2Widget(attrs={'style': 'width:200px'}),
+            'school': forms.TextInput(attrs={'list': 'pn-school-names', 'autocomplete': 'off',
+                                             'placeholder': _('Start typing the name of your school')}),
         }
 
         has_math_config = bool(settings.MATHOID_URL)
@@ -69,27 +76,26 @@ class ProfileForm(ModelForm):
             raise ValidationError(_('You must solve at least one problem before you can update your profile.'))
         return self.cleaned_data['about']
 
-    def clean(self):
-        organizations = self.cleaned_data.get('organizations') or []
-        max_orgs = settings.DMOJ_USER_MAX_ORGANIZATION_COUNT
-
-        if sum(org.is_open for org in organizations) > max_orgs:
-            raise ValidationError(ngettext_lazy('You may not be part of more than {count} public organization.',
-                                                'You may not be part of more than {count} public organizations.',
-                                                max_orgs).format(count=max_orgs))
-
-        return self.cleaned_data
+    def clean_school(self):
+        return ' '.join(self.cleaned_data['school'].split())
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super(ProfileForm, self).__init__(*args, **kwargs)
-        if not user.has_perm('judge.edit_all_organization'):
-            self.fields['organizations'].queryset = Organization.objects.filter(
-                Q(is_open=True) | Q(id__in=user.profile.organizations.all()),
-            )
-        if not self.fields['organizations'].queryset:
-            self.fields.pop('organizations')
+        self.fields['grade'].initial = self.instance.grade_choice
+        self.fields['region'].choices = [('', _('Not set'))] + list(self.fields['region'].choices)[1:]
         self.fields['user_script'].widget = AceWidget(mode='javascript', theme=user.profile.resolved_ace_theme)
+
+    def save(self, commit=True):
+        grade = self.cleaned_data.get('grade', '')
+        if 'grade' in self.changed_data:
+            if grade.isdigit():
+                self.instance.grade_class_year = current_school_year_end() + GRADE_MAX - int(grade)
+                self.instance.student_status = ''
+            else:
+                self.instance.grade_class_year = None
+                self.instance.student_status = grade
+        return super(ProfileForm, self).save(commit)
 
 
 class EmailChangeForm(Form):

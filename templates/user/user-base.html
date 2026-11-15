@@ -14,16 +14,21 @@
         <aside class="pn-card pn-profile-card">
             <img src="{{ gravatar(user, 192) }}" class="pn-profile-avatar" alt="" width="96" height="96">
             <div class="pn-profile-name">{{ link_user(user) }}</div>
-            {% with orgs=user.organizations.all() %}
-                {% if orgs %}
-                    <div class="pn-profile-orgs">
-                        {% for org in orgs -%}
-                            <a href="{{ org.get_absolute_url() }}">{{ org.name }}</a>
-                            {%- if not loop.last %}, {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
+            {% if user.show_school and (user.school or user.grade_label or user.region) %}
+                <ul class="pn-profile-school">
+                    {% if user.grade_label %}
+                        <li><i class="fa fa-graduation-cap fa-fw" aria-hidden="true"></i> {{ user.grade_label }}</li>
+                    {% endif %}
+                    {% if user.school %}
+                        <li><i class="fa fa-university fa-fw" aria-hidden="true"></i> {{ user.school }}</li>
+                    {% endif %}
+                    {% if user.region %}
+                        <li><i class="fa fa-map-marker fa-fw" aria-hidden="true"></i> {{ user.get_region_display() }}</li>
+                    {% endif %}
+                </ul>
+            {% elif user.id == request.profile.id %}
+                <a class="pn-profile-add-school" href="{{ url('user_edit_profile') }}">{{ _('Add your school and grade') }}</a>
+            {% endif %}
 
             <div class="pn-profile-stats">
                 <div>

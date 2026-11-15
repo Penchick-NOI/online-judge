@@ -180,6 +180,33 @@
             </div>
         {% endif %}
 
+        <section class="pn-card pn-panel pn-school-form">
+            <h2>{{ _('School') }}</h2>
+            <p class="pn-muted">{{ _('All of this is optional. It helps teachers and schoolmates find you.') }}</p>
+            <label for="{{ form.school.id_for_label }}">{{ _('School') }}</label>
+            {{ form.school }}
+            {{ form.school.errors }}
+            <datalist id="pn-school-names">
+                {% for name in school_names %}<option value="{{ name }}">{% endfor %}
+            </datalist>
+            <div class="pn-school-row">
+                <div>
+                    <label for="{{ form.grade.id_for_label }}">{{ _('Grade level') }}</label>
+                    {{ form.grade }}
+                    {{ form.grade.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.region.id_for_label }}">{{ _('Region') }}</label>
+                    {{ form.region }}
+                    {{ form.region.errors }}
+                </div>
+            </div>
+            <p class="pn-help">{{ _('Your grade moves up by itself every June.') }}</p>
+            <label class="pn-check">
+                {{ form.show_school }} {{ _('Show my school, grade and region on my profile') }}
+            </label>
+        </section>
+
         <section class="pn-card pn-panel">
             <h2>{{ _('Self-description:')|replace(':', '') }}</h2>
             {{ form.about }}
@@ -190,8 +217,6 @@
                 <h2>{{ _('Preferences') }}</h2>
                 <label for="{{ form.timezone.id_for_label }}">{{ _('Time zone:')|replace(':', '') }}</label>
                 {{ form.timezone }}
-                <label for="{{ form.language.id_for_label }}">{{ _('Language:')|replace(':', '') }}</label>
-                {{ form.language }}
                 <label for="{{ form.ace_theme.id_for_label }}">{{ _('Editor theme:')|replace(':', '') }}</label>
                 {{ form.ace_theme }}
                 {% if has_math_config %}
@@ -200,10 +225,6 @@
                 {% endif %}
                 {# The PNOI design has one (light) theme for now, so the choice is kept but not shown. #}
                 {{ form.site_theme.as_hidden() }}
-                {% if form.organizations %}
-                    <label for="{{ form.organizations.id_for_label }}">{{ _('Affiliated organizations:')|replace(':', '') }}</label>
-                    {{ form.organizations }}
-                {% endif %}
                 {% if form.newsletter %}
                     <label class="pn-check" style="margin-top: 14px">
                         {{ form.newsletter }} {{ _('Notify me about upcoming contests') }}
