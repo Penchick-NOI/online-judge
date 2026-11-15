@@ -1,5 +1,5 @@
 from collections import namedtuple
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 from itertools import groupby
 from operator import attrgetter
 
@@ -303,6 +303,19 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         if self.selected_statuses:
             queryset = queryset.filter(result__in=self.selected_statuses)
 
+        # Dates are whole days in the viewer's time zone.
+        tz = timezone.get_current_timezone()
+        if self.filter_date_from:
+            queryset = queryset.filter(date__gte=datetime.combine(self.filter_date_from, time.min, tzinfo=tz))
+        if self.filter_date_to:
+            queryset = queryset.filter(
+                date__lt=datetime.combine(self.filter_date_to + timedelta(days=1), time.min, tzinfo=tz))
+        if self.filter_problem:
+            queryset = queryset.filter(Q(problem__code__icontains=self.filter_problem) |
+                                       Q(problem__name__icontains=self.filter_problem))
+        if self.filter_user:
+            queryset = queryset.filter(user__user__username__icontains=self.filter_user)
+
         return queryset
 
     def get_queryset(self):
@@ -342,6 +355,13 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         context['all_statuses'] = self.get_searchable_status_codes()
         context['selected_statuses'] = self.selected_statuses
 
+        context['filter_date_from'] = self.filter_date_from
+        context['filter_date_to'] = self.filter_date_to
+        context['filter_problem'] = self.filter_problem
+        context['filter_user'] = self.filter_user
+        context['extra_filters'] = bool(self.filter_date_from or self.filter_date_to or
+                                        self.filter_problem or self.filter_user)
+
         today = timezone.localdate()
         context['today_key'] = str(today)
         context['day_labels'] = {str(today): _('Today'), str(today - timedelta(days=1)): _('Yesterday')}
@@ -352,6 +372,13 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         context['all_submissions_link'] = self.get_all_submissions_page()
         context['tab'] = self.tab
         return context
+
+    @staticmethod
+    def parse_date(value):
+        try:
+            return datetime.strptime(value or '', '%Y-%m-%d').date()
+        except ValueError:
+            return None
 
     def get(self, request, *args, **kwargs):
         check = self.access_check(request)
@@ -364,6 +391,10 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
 
         self.selected_languages = set(request.GET.getlist('language'))
         self.selected_statuses = set(request.GET.getlist('status'))
+        self.filter_date_from = self.parse_date(request.GET.get('date_from'))
+        self.filter_date_to = self.parse_date(request.GET.get('date_to'))
+        self.filter_problem = request.GET.get('problem', '').strip()[:100]
+        self.filter_user = request.GET.get('user', '').strip()[:150]
 
         if 'results' in request.GET:
             return JsonResponse(self.get_result_data())

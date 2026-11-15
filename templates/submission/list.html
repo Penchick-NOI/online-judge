@@ -3,7 +3,7 @@
 
 {% block js_media %}
     <script type="text/javascript">
-        {% if dynamic_update and last_msg %}
+        {% if dynamic_update and last_msg and not extra_filters %}
             {% if dynamic_contest_id %}
                 window.dynamic_contest_id = {{ dynamic_contest_id }};
             {% else %}
@@ -48,11 +48,49 @@
 
         <script type="text/javascript">
             $(function () {
-                // The filter panel is folded away until asked for.
-                var $panel = $('#filter-panel');
+                function escapeRegExp(string) {
+                    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                }
+
+                function idAndTextMatcher(params, data) {
+                    if ($.trim(params.term) === '')
+                        return data;
+                    var regex = new RegExp(escapeRegExp(params.term), 'i');
+                    return data.text.search(regex) >= 0 || data.id.search(regex) >= 0 ? data : null;
+                }
+
+                function init_dropdowns() {
+                    $('#status').select2({
+                        theme: 'default', width: '100%', multiple: 1,
+                        placeholder: {{ _('Any verdict')|htmltojs }}, matcher: idAndTextMatcher,
+                    }).css({'visibility': 'visible'});
+
+                    $('#language').select2({
+                        theme: 'default', width: '100%', multiple: 1,
+                        placeholder: {{ _('Any language')|htmltojs }}, matcher: idAndTextMatcher,
+                    }).css({'visibility': 'visible'});
+                }
+
+                init_dropdowns();
+
+                // Empty fields are left out of the address bar.
+                $('#filter-form').on('submit', function () {
+                    $(this).find('input, select').each(function () {
+                        var value = $(this).val();
+                        $(this).prop('disabled', !value || value.length === 0);
+                    });
+                });
+
+                // On phones the filter panel is folded away behind a button.
+                var $split = $('#submissions-split');
                 $('#filter-toggle').click(function () {
-                    var open = $panel.toggleClass('pn-subs-open').hasClass('pn-subs-open');
+                    var open = $split.toggleClass('pn-subs-open').hasClass('pn-subs-open');
                     $(this).attr('aria-expanded', open);
+                    // The dropdowns were laid out while hidden; redo them now that they have a width.
+                    if (open) {
+                        $('#status, #language').select2('destroy');
+                        init_dropdowns();
+                    }
                 });
             });
 
@@ -60,8 +98,8 @@
                 var _collect = function (e) {
                     return e.value;
                 };
-                var language_filter = $.map($('#filter-panel input[name=language]:checked'), _collect);
-                var status_filter = $.map($('#filter-panel input[name=status]:checked'), _collect);
+                var language_filter = $.map($('select#language option[selected]'), _collect);
+                var status_filter = $.map($('select#status option[selected]'), _collect);
 
                 var table = $('#submissions-table');
                 var doing_ajax = false;
@@ -155,7 +193,7 @@
         </script>
     {% endcompress %}
 
-    {% if dynamic_update and last_msg %}
+    {% if dynamic_update and last_msg and not extra_filters %}
         <script type="text/javascript">
             $(function () {
                 load_dynamic_update({{ last_msg }});
@@ -169,17 +207,18 @@
 {% endblock %}
 
 {% block body %}
-    {% set filtering = selected_statuses or selected_languages %}
+    {% set filtering = selected_statuses or selected_languages or extra_filters %}
     {% set clear_href = first_page_href.split('?')[0] %}
+    {% set show_user_filter = tab not in ('my_submissions_tab', 'user_submissions_tab') %}
 
     <div class="ws-closed">
         <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
     </div>
 
     <div class="pn-subs-bar">
-        <button id="filter-toggle" type="button" class="pn-btn pn-btn-soft pn-btn-sm"
+        <button id="filter-toggle" type="button" class="pn-btn pn-btn-soft pn-btn-sm pn-subs-toggle"
                 aria-controls="filter-panel" aria-expanded="{{ 'true' if filtering else 'false' }}">
-            <i class="fa fa-filter"></i> {{ _('Filter') }}
+            <i class="fa fa-filter"></i> {{ _('Filters') }}
         </button>
         {% if filtering %}
             <span class="pn-subs-active">
@@ -189,63 +228,89 @@
                 {% for code, name in all_languages if code in selected_languages %}
                     <span class="pn-tag pn-tag-yellow">{{ name }}</span>
                 {% endfor %}
+                {% if filter_date_from %}<span class="pn-tag">{{ _('From %(date)s', date=filter_date_from) }}</span>{% endif %}
+                {% if filter_date_to %}<span class="pn-tag">{{ _('To %(date)s', date=filter_date_to) }}</span>{% endif %}
+                {% if filter_problem and show_problem %}<span class="pn-tag">{{ _('Problem: %(text)s', text=filter_problem) }}</span>{% endif %}
+                {% if filter_user and show_user_filter %}<span class="pn-tag">{{ _('User: %(text)s', text=filter_user) }}</span>{% endif %}
                 <a href="{{ clear_href }}">{{ _('Clear') }}</a>
             </span>
         {% endif %}
     </div>
 
-    <form id="filter-panel" class="pn-card pn-subs-filter{% if filtering %} pn-subs-open{% endif %}"
-          action="{{ clear_href }}" method="get">
-        <h2>{{ _('Verdict') }}</h2>
-        <div class="pn-subs-chips">
-            {% for id, name in all_statuses %}
-                <label class="pn-chip">
-                    <input type="checkbox" name="status" value="{{ id }}"{% if id in selected_statuses %} checked{% endif %}>
-                    <span>{{ name }}</span>
-                </label>
-            {% endfor %}
-        </div>
-        <h2>{{ _('Language') }}</h2>
-        <div class="pn-subs-chips">
-            {% for code, name in all_languages %}
-                <label class="pn-chip">
-                    <input type="checkbox" name="language" value="{{ code }}"{% if code in selected_languages %} checked{% endif %}>
-                    <span>{{ name }}</span>
-                </label>
-            {% endfor %}
-        </div>
-        <div class="pn-subs-actions">
-            <button type="submit" class="pn-btn pn-btn-sm">{{ _('Apply') }}</button>
-            {% if filtering %}
-                <a class="pn-btn pn-btn-soft pn-btn-sm" href="{{ clear_href }}">{{ _('Clear filters') }}</a>
+    <div id="submissions-split" class="pn-split{% if filtering %} pn-subs-open{% endif %}">
+        <div>
+            {% if submissions %}
+                <div id="submissions-table" class="pn-card">
+                    {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
+                    {% set group = namespace(day=none) %}
+                    {% for submission in submissions %}
+                        {% set day = submission.date|date('Y-m-d') %}
+                        {% if day != group.day %}
+                            {% set group.day = day %}
+                            <h2 class="pn-sub-day"{% if day == today_key %} data-today="1"{% endif %}>
+                                {{ day_labels.get(day) or submission.date|date(_('l, j F Y')) }}
+                            </h2>
+                        {% endif %}
+                        <div class="submission-row{% if submission.is_archived %} submission-archived{% endif %}" id="{{ submission.id }}">
+                            {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
+                                {% include "submission/row.html" %}
+                            {% endwith %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div id="submissions-table" class="pn-card"></div>
+                <p class="pn-empty">{{ _('No submissions here yet.') }}</p>
+            {% endif %}
+            {% if page_obj.has_other_pages() %}
+                <div class="pn-pages">{% include "list-pages.html" %}</div>
             {% endif %}
         </div>
-    </form>
 
-    {% if submissions %}
-        <div id="submissions-table" class="pn-card">
-            {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
-            {% set group = namespace(day=none) %}
-            {% for submission in submissions %}
-                {% set day = submission.date|date('Y-m-d') %}
-                {% if day != group.day %}
-                    {% set group.day = day %}
-                    <h2 class="pn-sub-day"{% if day == today_key %} data-today="1"{% endif %}>
-                        {{ day_labels.get(day) or submission.date|date(_('l, j F Y')) }}
-                    </h2>
-                {% endif %}
-                <div class="submission-row{% if submission.is_archived %} submission-archived{% endif %}" id="{{ submission.id }}">
-                    {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
-                        {% include "submission/row.html" %}
-                    {% endwith %}
+        <aside id="filter-panel" class="pn-card pn-subs-side">
+            <h2>{{ _('Filter submissions') }}</h2>
+            <form id="filter-form" action="{{ clear_href }}" method="get">
+                <label for="status">{{ _('Verdict') }}</label>
+                <select id="status" name="status" multiple>
+                    {% for id, name in all_statuses %}
+                        <option value="{{ id }}"{% if id in selected_statuses %} selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="language">{{ _('Language') }}</label>
+                <select id="language" name="language" multiple>
+                    {% for code, name in all_languages %}
+                        <option value="{{ code }}"{% if code in selected_languages %} selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="pn-subs-dates">
+                    <div>
+                        <label for="date-from">{{ _('Date from') }}</label>
+                        <input id="date-from" class="pn-input" type="date" name="date_from"
+                               value="{{ filter_date_from or '' }}">
+                    </div>
+                    <div>
+                        <label for="date-to">{{ _('Date to') }}</label>
+                        <input id="date-to" class="pn-input" type="date" name="date_to"
+                               value="{{ filter_date_to or '' }}">
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div id="submissions-table" class="pn-card"></div>
-        <p class="pn-empty">{{ _('No submissions here yet.') }}</p>
-    {% endif %}
-    {% if page_obj.has_other_pages() %}
-        <div class="pn-pages">{% include "list-pages.html" %}</div>
-    {% endif %}
+                {% if show_problem %}
+                    <label for="problem">{{ _('Problem') }}</label>
+                    <input id="problem" class="pn-input" type="text" name="problem" maxlength="100"
+                           placeholder="{{ _('Code or name') }}" value="{{ filter_problem }}">
+                {% endif %}
+                {% if show_user_filter %}
+                    <label for="user">{{ _('User') }}</label>
+                    <input id="user" class="pn-input" type="text" name="user" maxlength="150"
+                           placeholder="{{ _('Username') }}" value="{{ filter_user }}">
+                {% endif %}
+                <div class="pn-subs-actions">
+                    <button type="submit" class="pn-btn pn-btn-block">{{ _('Apply') }}</button>
+                    {% if filtering %}
+                        <a class="pn-btn pn-btn-soft pn-btn-block" href="{{ clear_href }}">{{ _('Clear filters') }}</a>
+                    {% endif %}
+                </div>
+            </form>
+        </aside>
+    </div>
 {% endblock %}
