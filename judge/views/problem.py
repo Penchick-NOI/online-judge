@@ -383,6 +383,13 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
     all_sorts = sql_sort | manual_sort
     default_desc = frozenset(('points', 'ac_rate', 'user_count'))
     default_sort = 'code'
+    # Difficulty shortcuts in the filter panel: (label, lowest points, highest points), bounds inclusive.
+    difficulty_tiers = (
+        (gettext_lazy('Beginner'), None, 10),
+        (gettext_lazy('Intermediate'), 11, 20),
+        (gettext_lazy('Advanced'), 21, None),
+    )
+    option_keys = ('hide_solved', 'show_types', 'full_text', 'has_public_editorial')
 
     def get_paginator(self, queryset, per_page, orphans=0,
                       allow_empty_first_page=True, **kwargs):
@@ -484,8 +491,6 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         ))
         if self.has_public_editorial:
             queryset = queryset.filter(has_public_editorial=True)
-        if self.category is not None:
-            queryset = queryset.filter(group__id=self.category)
         if self.selected_types:
             queryset = queryset.filter(types__in=self.selected_types)
         if 'search' in self.request.GET:
@@ -497,6 +502,9 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
                     queryset = queryset.filter(
                         Q(code__icontains=query) | Q(name__icontains=query) |
                         Q(translations__name__icontains=query, translations__language=self.request.LANGUAGE_CODE))
+        self.precategory_queryset = queryset
+        if self.category is not None:
+            queryset = queryset.filter(group__id=self.category)
         self.prepoint_queryset = queryset
         if self.point_start is not None:
             queryset = queryset.filter(points__gte=self.point_start)
@@ -531,6 +539,7 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
             context.update(self.get_sort_context())
             context['hot_problems'] = hot_problems(timedelta(days=1), settings.DMOJ_PROBLEM_HOT_PROBLEM_COUNT)
             context['point_start'], context['point_end'], context['point_values'] = self.get_noui_slider_points()
+            context.update(self.get_filter_panel_context())
         else:
             context['hot_problems'] = None
             context['point_start'], context['point_end'], context['point_values'] = 0, 0, {}
@@ -540,6 +549,68 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
                 self.contest.SCOREBOARD_HIDDEN,
             )
         return context
+
+    def filter_link(self, remove=(), **params):
+        """A link to this list with some filters changed, keeping the others and the remembered options."""
+        query = self.request.GET.copy()
+        for key in ('page',) + tuple(remove):
+            query.pop(key, None)
+        for key in self.option_keys:
+            query.pop(key, None)
+            if getattr(self, key):
+                query[key] = '1'
+        for key, value in params.items():
+            query[key] = value
+        encoded = query.urlencode()
+        return '%s?%s' % (self.request.path, encoded) if encoded else self.request.path
+
+    def get_filter_panel_context(self):
+        counts = dict(Problem.objects.filter(id__in=self.precategory_queryset.order_by().values('id'))
+                      .values_list('group_id').annotate(n=Count('id')).order_by())
+        categories = [{
+            'id': None, 'name': _('All categories'), 'count': sum(counts.values()),
+            'url': self.filter_link(remove=('category',)), 'active': self.category is None,
+        }]
+        for group in ProblemGroup.objects.all():
+            count = counts.get(group.id, 0)
+            if count or group.id == self.category:
+                categories.append({
+                    'id': group.id, 'name': group.full_name, 'count': count,
+                    'url': self.filter_link(category=group.id), 'active': group.id == self.category,
+                })
+
+        tier_counts = {}
+        for i, (label, low, high) in enumerate(self.difficulty_tiers):
+            condition = Q()
+            if low is not None:
+                condition &= Q(points__gte=low)
+            if high is not None:
+                condition &= Q(points__lte=high)
+            tier_counts['tier%d' % i] = Count('id', filter=condition)
+        tier_counts = Problem.objects.filter(id__in=self.prepoint_queryset.order_by().values('id')) \
+            .aggregate(**tier_counts)
+        tiers = []
+        for i, (label, low, high) in enumerate(self.difficulty_tiers):
+            params = {}
+            if low is not None:
+                params['point_start'] = low
+            if high is not None:
+                params['point_end'] = high
+            tiers.append({
+                'name': label, 'low': low, 'high': high, 'count': tier_counts['tier%d' % i],
+                'url': self.filter_link(remove=('point_start', 'point_end'), **params),
+                'active': self.point_start == low and self.point_end == high,
+            })
+
+        filter_keys = ('category', 'type', 'search', 'point_start', 'point_end')
+        return {
+            'filter_categories': categories,
+            'filter_tiers': tiers,
+            'has_filters': any(key in self.request.GET for key in filter_keys),
+            'has_point_filter': self.point_start is not None or self.point_end is not None,
+            'clear_filters_url': self.filter_link(remove=filter_keys),
+            'clear_points_url': self.filter_link(remove=('point_start', 'point_end')),
+        }
 
     def get_noui_slider_points(self):
         points = sorted(self.prepoint_queryset.values_list('points', flat=True).distinct())
