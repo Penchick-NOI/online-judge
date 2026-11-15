@@ -1076,3 +1076,20 @@ body[data-pn] #content-body {
 body[data-pn] .pn-title {
     border-radius: 0;
 }
+
+// Point-range slider (noUiSlider) in PNOI colours.
+#point-slider {
+    .noUi-connect {
+        background: var(--pn-blue);
+    }
+
+    .noUi-handle {
+        border-radius: 50%;
+        box-shadow: none;
+        border: 2px solid var(--pn-blue);
+
+        &::before, &::after {
+            display: none;
+        }
+    }
+}
