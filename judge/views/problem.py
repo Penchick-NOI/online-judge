@@ -506,11 +506,14 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         if self.category is not None:
             queryset = queryset.filter(group__id=self.category)
         self.prepoint_queryset = queryset
+        return self.apply_point_filter(queryset).distinct()
+
+    def apply_point_filter(self, queryset):
         if self.point_start is not None:
             queryset = queryset.filter(points__gte=self.point_start)
         if self.point_end is not None:
             queryset = queryset.filter(points__lte=self.point_end)
-        return queryset.distinct()
+        return queryset
 
     def get_queryset(self):
         if self.in_contest:
@@ -565,7 +568,8 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         return '%s?%s' % (self.request.path, encoded) if encoded else self.request.path
 
     def get_filter_panel_context(self):
-        counts = dict(Problem.objects.filter(id__in=self.precategory_queryset.order_by().values('id'))
+        category_base = self.apply_point_filter(self.precategory_queryset)
+        counts = dict(Problem.objects.filter(id__in=category_base.order_by().values('id'))
                       .values_list('group_id').annotate(n=Count('id')).order_by())
         categories = [{
             'id': None, 'name': _('All categories'), 'count': sum(counts.values()),
@@ -608,6 +612,8 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
             'filter_tiers': tiers,
             'has_filters': any(key in self.request.GET for key in filter_keys),
             'has_point_filter': self.point_start is not None or self.point_end is not None,
+            'point_filter_start': self.point_start,
+            'point_filter_end': self.point_end,
             'clear_filters_url': self.filter_link(remove=filter_keys),
             'clear_points_url': self.filter_link(remove=('point_start', 'point_end')),
         }
