@@ -7,6 +7,16 @@
     {% include "user/user-list-tabs.html" %}
 {% endblock %}
 
+{% block before_users_table %}
+    {% if school_filter %}
+        <div class="pn-school-filter">
+            <i class="fa fa-university" aria-hidden="true"></i>
+            <span>{{ _('Showing students of %(school)s', school=school_filter) }}</span>
+            <a class="pn-btn pn-btn-soft pn-btn-sm" href="{{ url('user_list') }}">{{ _('Show everyone') }}</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block users_table %}
     {% include "user/users-table.html" %}
 {% endblock %}

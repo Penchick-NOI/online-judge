@@ -11,6 +11,7 @@ from registration.backends.default.views import (ActivationView as OldActivation
 from registration.forms import RegistrationForm
 
 from judge.models import Language, Profile, TIMEZONE
+from judge.models.profile import GRADE_CHOICES, REGIONS
 from judge.utils.mail import validate_email_domain
 from judge.utils.recaptcha import ReCaptchaField, ReCaptchaWidget
 from judge.utils.subscription import Subscription, newsletter_id
@@ -23,6 +24,13 @@ class CustomRegistrationForm(RegistrationForm):
                                                              'numbers, or underscores.')})
     timezone = ChoiceField(label=_('Timezone'), choices=TIMEZONE,
                            widget=Select2Widget(attrs={'style': 'width:100%'}))
+    school = forms.CharField(label=_('School'), max_length=120, required=False,
+                             widget=forms.TextInput(attrs={
+                                 'list': 'pn-school-names', 'autocomplete': 'off',
+                                 'placeholder': _('Start typing the name of your school'),
+                             }))
+    grade = ChoiceField(label=_('Grade level'), required=False, choices=GRADE_CHOICES)
+    region = ChoiceField(label=_('Region'), required=False, choices=[('', _('Not set'))] + list(REGIONS))
 
     if newsletter_id is not None:
         newsletter = forms.BooleanField(label=_('Subscribe to newsletter?'), initial=True, required=False)
@@ -37,6 +45,9 @@ class CustomRegistrationForm(RegistrationForm):
         validate_email_domain(self.cleaned_data['email'])
         return self.cleaned_data['email']
 
+    def clean_school(self):
+        return Profile.clean_school_name(self.cleaned_data['school'])
+
 
 class RegistrationView(OldRegistrationView):
     title = _('Register')
@@ -49,6 +60,7 @@ class RegistrationView(OldRegistrationView):
         kwargs['TIMEZONE_MAP'] = settings.TIMEZONE_MAP
         kwargs['password_validators'] = get_default_password_validators()
         kwargs['tos_url'] = settings.TERMS_OF_SERVICE_URL
+        kwargs['school_names'] = Profile.school_names()
         return super(RegistrationView, self).get_context_data(**kwargs)
 
     def register(self, form):
@@ -59,6 +71,9 @@ class RegistrationView(OldRegistrationView):
 
         cleaned_data = form.cleaned_data
         profile.timezone = cleaned_data['timezone']
+        profile.school = cleaned_data['school']
+        profile.region = cleaned_data['region']
+        profile.set_grade_choice(cleaned_data['grade'])
         profile.save()
 
         if newsletter_id is not None and cleaned_data['newsletter']:

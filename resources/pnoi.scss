@@ -3093,6 +3093,74 @@ body[data-pn] {
     }
 }
 
+// School details on the sign-up form and the Users leaderboard.
+.pn-signup-school {
+    margin: 18px 0 0;
+    padding: 4px 14px 12px;
+    border: 1px solid var(--pn-line);
+    border-radius: 12px;
+    min-width: 0;
+
+    legend {
+        padding: 0 6px;
+        font-weight: 600;
+        color: var(--pn-blue);
+
+        span {
+            font-weight: 400;
+            color: var(--pn-muted);
+        }
+    }
+
+    .pn-help {
+        margin: 10px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+}
+
+.pn-table .pn-col-school {
+    text-align: left;
+    color: var(--pn-muted);
+    max-width: 320px;
+    overflow-wrap: anywhere;
+
+    a {
+        color: inherit;
+    }
+
+    a:hover {
+        color: var(--pn-blue);
+    }
+}
+
+.pn-school-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--pn-yellow-soft, #fff3cf);
+
+    .fa {
+        color: var(--pn-blue);
+    }
+
+    span {
+        flex: 1;
+        min-width: 180px;
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 700px) {
+    .pn-table .pn-col-school {
+        display: none;
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.

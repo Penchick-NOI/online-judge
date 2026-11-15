@@ -173,6 +173,13 @@ GRADE_MAX = 12
 SCHOOL_YEAR_START_MONTH = 6
 
 
+GRADE_CHOICES = (
+    [('', _('Not set'))] +
+    [(str(g), _('Grade %d') % g) for g in range(GRADE_MIN, GRADE_MAX + 1)] +
+    [('college', _('College')), ('none', _('Not a student'))]
+)
+
+
 def current_school_year_end(today=None):
     today = today or now().date()
     return today.year + 1 if today.month >= SCHOOL_YEAR_START_MONTH else today.year
@@ -264,6 +271,30 @@ class Profile(models.Model):
             grade = self.grade
             return str(max(grade, GRADE_MIN)) if grade is not None else ''
         return self.student_status
+
+    @classmethod
+    def school_names(cls):
+        """School names already entered by users, offered as suggestions when typing a school."""
+        return cls.objects.exclude(school='').order_by('school').values_list('school', flat=True).distinct()[:1000]
+
+    @classmethod
+    def clean_school_name(cls, name):
+        """Tidy a typed school name; reuse the spelling already on record if only the letter case differs."""
+        name = ' '.join(name.split())
+        if name:
+            existing = cls.objects.filter(school__iexact=name).values_list('school', flat=True).first()
+            if existing:
+                return existing
+        return name
+
+    def set_grade_choice(self, choice):
+        """Store a value of the grade dropdown: '4' to '12', 'college', 'none' or ''."""
+        if choice.isdigit():
+            self.grade_class_year = current_school_year_end() + GRADE_MAX - int(choice)
+            self.student_status = ''
+        else:
+            self.grade_class_year = None
+            self.student_status = choice
 
     @property
     def grade_label(self):
