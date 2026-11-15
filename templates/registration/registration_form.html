@@ -52,6 +52,29 @@
             {{ form.password2 }}
             {{ form.password2.errors }}
 
+            <fieldset class="pn-signup-school">
+                <legend>{{ _('Your school') }} <span>{{ _('(optional)') }}</span></legend>
+                <label for="{{ form.school.id_for_label }}">{{ _('School') }}</label>
+                {{ form.school }}
+                {{ form.school.errors }}
+                <datalist id="pn-school-names">
+                    {% for name in school_names %}<option value="{{ name }}">{% endfor %}
+                </datalist>
+                <div class="pn-school-row">
+                    <div>
+                        <label for="{{ form.grade.id_for_label }}">{{ _('Grade level') }}</label>
+                        {{ form.grade }}
+                        {{ form.grade.errors }}
+                    </div>
+                    <div>
+                        <label for="{{ form.region.id_for_label }}">{{ _('Region') }}</label>
+                        {{ form.region }}
+                        {{ form.region.errors }}
+                    </div>
+                </div>
+                <p class="pn-help">{{ _('Shown on your profile. You can change or hide it later.') }}</p>
+            </fieldset>
+
             {# Sensible defaults are filled in, so these stay folded away. #}
             <details class="pn-more-options"{% if form.timezone.errors %} open{% endif %}>
                 <summary>{{ _('More options') }}</summary>

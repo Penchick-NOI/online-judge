@@ -117,6 +117,12 @@ class UserPage(TitleMixin, UserMixin, DetailView):
             is_unlisted=False, performance_points__gt=self.object.performance_points,
         ).exclude(id=self.object.id).count() + 1
 
+        if self.object.school and self.object.show_school and not self.object.is_unlisted:
+            context['school_rank'] = Profile.objects.filter(
+                is_unlisted=False, show_school=True, school=self.object.school,
+                performance_points__gt=self.object.performance_points,
+            ).exclude(id=self.object.id).count() + 1
+
         if rating:
             context['rating_rank'] = Profile.objects.filter(
                 is_unlisted=False, rating__gt=self.object.rating,
@@ -390,8 +396,7 @@ def edit_profile(request):
     return render(request, 'user/edit-profile.html', {
         'require_staff_2fa': settings.DMOJ_REQUIRE_STAFF_2FA,
         'form': form, 'title': _('Edit profile'), 'profile': request.profile,
-        'school_names': Profile.objects.exclude(school='').order_by('school')
-                               .values_list('school', flat=True).distinct()[:1000],
+        'school_names': Profile.school_names(),
         'can_download_data': bool(settings.DMOJ_USER_DATA_DOWNLOAD),
         'has_math_config': bool(settings.MATHOID_URL),
         'ignore_user_script': True,
@@ -442,9 +447,13 @@ class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin
     default_sort = '-performance_points'
 
     def get_queryset(self):
-        return (Profile.objects.filter(is_unlisted=False).order_by(self.order, 'id').select_related('user')
+        queryset = Profile.objects.filter(is_unlisted=False)
+        self.school = ' '.join(self.request.GET.get('school', '').split())
+        if self.school:
+            queryset = queryset.filter(school=self.school, show_school=True)
+        return (queryset.order_by(self.order, 'id').select_related('user')
                 .only('display_rank', 'user__username', 'username_display_override', 'points', 'rating',
-                      'performance_points', 'problem_count'))
+                      'performance_points', 'problem_count', 'school', 'show_school'))
 
     def get_context_data(self, **kwargs):
         context = super(UserList, self).get_context_data(**kwargs)
@@ -454,6 +463,8 @@ class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin
             rank=self.paginate_by * (context['page_obj'].number - 1),
         )
         context['first_page_href'] = '.'
+        context['school_filter'] = self.school
+        context['show_school_column'] = True
         context.update(self.get_sort_context())
         context.update(self.get_sort_paginate_context())
         return context

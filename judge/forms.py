@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
 from judge.models import Contest, Language, Organization, Problem, ProblemPointsVote, Profile, Submission, \
     WebAuthnCredential
-from judge.models.profile import GRADE_MAX, GRADE_MIN, current_school_year_end
+from judge.models.profile import GRADE_CHOICES
 from judge.utils.mail import validate_email_domain
 from judge.utils.subscription import newsletter_id
 from judge.widgets import AceWidget, MartorWidget, Select2MultipleWidget, Select2Widget
@@ -47,11 +47,7 @@ class ProfileForm(ModelForm):
         newsletter = forms.BooleanField(label=_('Subscribe to contest updates'), initial=False, required=False)
     test_site = forms.BooleanField(label=_('Enable experimental features'), initial=False, required=False)
 
-    grade = ChoiceField(label=_('Grade level'), required=False, choices=(
-        [('', _('Not set'))] +
-        [(str(g), _('Grade %d') % g) for g in range(GRADE_MIN, GRADE_MAX + 1)] +
-        [('college', _('College')), ('none', _('Not a student'))]
-    ))
+    grade = ChoiceField(label=_('Grade level'), required=False, choices=GRADE_CHOICES)
 
     class Meta:
         model = Profile
@@ -77,7 +73,7 @@ class ProfileForm(ModelForm):
         return self.cleaned_data['about']
 
     def clean_school(self):
-        return ' '.join(self.cleaned_data['school'].split())
+        return Profile.clean_school_name(self.cleaned_data['school'])
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -87,14 +83,8 @@ class ProfileForm(ModelForm):
         self.fields['user_script'].widget = AceWidget(mode='javascript', theme=user.profile.resolved_ace_theme)
 
     def save(self, commit=True):
-        grade = self.cleaned_data.get('grade', '')
         if 'grade' in self.changed_data:
-            if grade.isdigit():
-                self.instance.grade_class_year = current_school_year_end() + GRADE_MAX - int(grade)
-                self.instance.student_status = ''
-            else:
-                self.instance.grade_class_year = None
-                self.instance.student_status = grade
+            self.instance.set_grade_choice(self.cleaned_data.get('grade', ''))
         return super(ProfileForm, self).save(commit)
 
 

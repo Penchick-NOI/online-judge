@@ -20,7 +20,8 @@
                         <li><i class="fa fa-graduation-cap fa-fw" aria-hidden="true"></i> {{ user.grade_label }}</li>
                     {% endif %}
                     {% if user.school %}
-                        <li><i class="fa fa-university fa-fw" aria-hidden="true"></i> {{ user.school }}</li>
+                        <li><i class="fa fa-university fa-fw" aria-hidden="true"></i>
+                            <a href="{{ url('user_list') }}?school={{ user.school|urlencode }}">{{ user.school }}</a></li>
                     {% endif %}
                     {% if user.region %}
                         <li><i class="fa fa-map-marker fa-fw" aria-hidden="true"></i> {{ user.get_region_display() }}</li>
@@ -43,6 +44,12 @@
                     <div>
                         <b>#{{ rank }}</b>
                         <span>{{ _('Rank by points:')|replace(':', '') }}</span>
+                    </div>
+                {% endif %}
+                {% if school_rank %}
+                    <div>
+                        <b><a href="{{ url('user_list') }}?school={{ user.school|urlencode }}">#{{ school_rank }}</a></b>
+                        <span>{{ _('Rank in school') }}</span>
                     </div>
                 {% endif %}
                 {% if ratings %}

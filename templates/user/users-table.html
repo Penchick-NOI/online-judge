@@ -17,6 +17,20 @@
     <td class="rate">{% if user.rating %}{{ rating_number(user) }}{% endif %}</td>
 {% endblock %}
 
+{% block before_point_head %}
+    {% if show_school_column %}<th class="header pn-col-school">{{ _('School') }}</th>{% endif %}
+{% endblock %}
+
+{% block before_point %}
+    {% if show_school_column %}
+        <td class="pn-col-school">
+            {% if user.show_school and user.school %}
+                <a href="{{ url('user_list') }}?school={{ user.school|urlencode }}">{{ user.school }}</a>
+            {% endif %}
+        </td>
+    {% endif %}
+{% endblock %}
+
 {% block after_point_head %}
     <th class="problems">
         {% if sort_links %}<a href="{{ sort_links.problem_count }}">{% endif %}
