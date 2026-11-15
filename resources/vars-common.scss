@@ -1,10 +1,10 @@
-// PNOI "Dagat" palette. $highlight_blue keeps its upstream name to make
-// merging DMOJ updates easier; in PNOI it is the brand teal.
-$highlight_blue: #0F766E;
-$brand_teal: #0F766E;
-$brand_teal_dark: #0B5F58;
-$brand_coral: #E8563F;
-$brand_coral_dark: #CF4630;
+// PNOI "Araw" palette for the old DMOJ stylesheet, which pages not yet
+// rebuilt still use. The names are historical; the values are Araw blue and red.
+$highlight_blue: #1D3A8A;
+$brand_teal: #1D3A8A;
+$brand_teal_dark: #152C6B;
+$brand_coral: #D7263D;
+$brand_coral_dark: #B81D32;
 $announcement_red: #ae0000;
 
 $base_font_size: 14px;
