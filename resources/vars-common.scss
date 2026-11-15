@@ -8,9 +8,11 @@ $brand_coral_dark: #CF4630;
 $announcement_red: #ae0000;
 
 $base_font_size: 14px;
-$widget_border_radius: 4px;
+$widget_border_radius: 0;
 
-$table_header_rounding: 4px;
+$table_header_rounding: 0;
 
 $sans-fonts: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+// Interface monospace: navigation, labels, table headers, numbers.
+$ui-mono: "Cascadia Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
 $monospace-fonts: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;

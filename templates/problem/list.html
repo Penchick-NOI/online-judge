@@ -185,6 +185,7 @@
                         {% if request.user.is_authenticated %}
                             <th class="solved"><i class="fa fa-check"></i></th>
                         {% endif %}
+                        <th class="code">{{ _('ID') }}</th>
                         <th class="problem">{{ _('Problem') }}</th>
                         <th class="category">{{ _('Category') }}</th>
                         {% if show_types %}
@@ -200,6 +201,7 @@
                                 </a>
                             </th>
                         {% endif %}
+                        <th class="code">{{ _('ID') }}</th>
                         <th class="problem">
                             <a href="{{ sort_links.name }}">{{ _('Problem') }}{{ sort_order.name }}</a>
                         </th>
@@ -262,6 +264,7 @@
                                 </td>
                             {% endif %}
                         {% endif %}
+                        <td class="code">{{ problem.code }}</td>
                         <td class="problem">
                             <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
                         </td>
