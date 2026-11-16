@@ -103,10 +103,12 @@ All of these are CSS variables at the top of `resources/pnoi.scss`. Use the vari
 | Red: the main action button, errors | `--pn-red` | `#d7263d` |
 | Sun yellow: highlights, avatar ring | `--pn-yellow` | `#f9b916` |
 | Green: accepted / success | `--pn-green` | `#1e8e5a` |
-| Lines | `--pn-line`, `--pn-line-strong` | `#f0e6d2`, `#e2d5b8` |
+| Lines | `--pn-line`, `--pn-line-strong` | `#e6dabd`, `#cdbb8f` |
 
 - **Type:** serif display font for page titles (`--pn-display`), system sans for everything else (`--pn-sans`),
   monospace for code and problem codes (`--pn-mono`). No web fonts are loaded.
+- **Outlines:** every card (`.pn-card`) has a tan outline (`--pn-line-strong`) and a soft shadow (`--pn-shadow`),
+  and box titles sit on a cream strip, so the parts of a page are easy to tell apart.
 - **Shapes:** rounded cards (`--pn-radius`, 14px), pill-shaped tabs, buttons and verdict labels.
 - **Light theme only** for now. There is no dark mode; do not add one unless asked.
 
@@ -181,6 +183,8 @@ Newest last. Do not undo these without the owner's say-so.
 - Staff accounts must never appear in rankings anywhere (users list, profile ranks, home page).
 - On list pages the owner wants little-used filters tucked away, no sliders, and no verdict counts or statistics
   that could discourage students.
+- The parts of a page must be obviously separate: cards have a darker tan outline, a soft shadow and a cream strip
+  behind box titles (chosen from three options). The left rail and the footer were left as they are.
 - Organizations: the Organizations page is just a simple list. Each organization's own page is its member
   leaderboard (chosen from ten options): name, a short description and the Join button on top, the ranked member
   table below, and a "Find members" panel on the right. The name "Organizations" is kept.
@@ -202,9 +206,9 @@ problem and contest pages).
 
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
-**Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally; no
-real problems or contests yet; staff accounts can still appear on the organiser-only "Manage members" and class
-pages; the old `.pn-dash*` and
+**Known gaps:** the edit profile page scrolls sideways on phones; no dark mode; maths rendering (Mathoid) is
+switched off; live updates show "disconnected" locally; no real problems or contests yet; staff accounts can still
+appear on the organiser-only "Manage members" and class pages; the old `.pn-dash*` and
 `.pn-stat*` rules in `pnoi.scss` are no longer used; `502.html` and `logo.png` at the repository root are still
 DMOJ's; new interface text has no translations.
 
@@ -233,6 +237,9 @@ DMOJ's; new interface text has no translations.
   join" instead of a greyed-out Join on the contests list; staff and unlisted accounts show no rank on their home
   card or profile. The contest page has no "rated" tag, only a sentence saying who the contest is rated for, which
   was kept. Not tried: pressing Join / Virtual join from the new list; widths below 375px.
+- 2026-11-16, Devin: stronger outlines on every page: darker line colours, a soft shadow on cards, cream strips
+  behind box titles (PR 26). Only `pnoi.scss` changed. Checked on the rebuilt pages at desktop and phone width.
+  Noticed, not fixed: the edit profile page scrolls sideways on phones (the description editor's toolbar).
 - 2026-11-16, Devin: organizations rebuilt: a simple list, an organization page that is its member leaderboard with
   a "Find members" panel (search, sort), and the "ask to join" form and its confirmation page (PR 27). Staff are
   left out of the member ranking and the member counts. Tested locally: join, leave, ask to join, search, phone
