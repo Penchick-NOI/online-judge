@@ -46,6 +46,10 @@
 
 {% macro contest_head(contest) %}
     <a href="{{ url('contest_view', contest.key) }}" class="pn-problem-name">{{ contest.name }}</a>
+    {{ contest_tags(contest) }}
+{% endmacro %}
+
+{% macro contest_tags(contest) %}
     {% if not contest.is_visible %}
         <span class="pn-tag pn-tag-red"><i class="fa fa-eye-slash"></i> {{ _('hidden') }}</span>
     {% endif %}
@@ -134,6 +138,7 @@
                 <h2 class="pn-hero-title">
                     <a href="{{ url('contest_view', contest.key) }}">{{ contest.name }}</a>
                 </h2>
+                <div class="pn-contest-hero-tags">{{ contest_tags(contest) }}</div>
                 <div class="pn-hero-meta">
                     {% if featured.state == 'upcoming' %}
                         {{ _('Starts in %(countdown)s', countdown=as_countdown(contest.time_before_start)) }}

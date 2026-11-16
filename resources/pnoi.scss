@@ -3597,6 +3597,13 @@ body[data-pn] {
         font-size: 30px;
     }
 
+    .pn-contest-hero-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
     .pn-hero-meta + .pn-hero-meta {
         margin-top: 4px;
         font-size: 14px;
