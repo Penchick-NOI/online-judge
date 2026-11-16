@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 from judge.fulltext import SearchQuerySet
 from judge.models.profile import Organization, Profile
 from judge.models.runtime import Language
+from judge.ratings import rating_class
 from judge.user_translations import gettext as user_gettext
 
 __all__ = ['ProblemGroup', 'ProblemType', 'Problem', 'ProblemTranslation', 'ProblemClarification', 'License',
@@ -150,6 +151,17 @@ class Problem(models.Model):
                                            "Points are displayed with a 'p' suffix if partial."),
                                validators=[MinValueValidator(settings.DMOJ_PROBLEM_MIN_PROBLEM_POINTS)])
     partial = models.BooleanField(verbose_name=_('allows partial points'), default=False)
+    difficulty_estimate = models.PositiveIntegerField(
+        verbose_name=_('difficulty estimate'), null=True, blank=True,
+        help_text=_('Your own guess of the difficulty on the rating scale: 800 is the easiest, 1200 is a '
+                    'typical beginner problem, 2000 and above is hard. Shown, marked as an estimate, until '
+                    'the site can calculate the difficulty from a rated contest.'),
+        validators=[MinValueValidator(800), MaxValueValidator(3500)])
+    difficulty_calculated = models.IntegerField(verbose_name=_('calculated difficulty'), null=True, blank=True,
+                                                editable=False)
+    # What the site shows and sorts by: the calculated difficulty when there is one, otherwise the estimate.
+    difficulty = models.IntegerField(verbose_name=_('difficulty'), null=True, blank=True, editable=False,
+                                     db_index=True)
     allowed_languages = models.ManyToManyField(Language, verbose_name=_('allowed languages'),
                                                help_text=_('List of allowed submission languages.'))
     is_public = models.BooleanField(verbose_name=_('publicly visible'), db_index=True, default=False)
@@ -452,7 +464,18 @@ class Problem(models.Model):
     def markdown_style(self):
         return 'problem-full' if self.is_full_markup else 'problem'
 
+    @property
+    def difficulty_is_estimate(self):
+        return self.difficulty is not None and self.difficulty_calculated is None
+
+    @property
+    def difficulty_class(self):
+        # Difficulty uses the rating scale, so it borrows the rating colours.
+        return rating_class(self.difficulty) if self.difficulty is not None else 'rate-none'
+
     def save(self, *args, **kwargs):
+        self.difficulty = (self.difficulty_calculated if self.difficulty_calculated is not None
+                           else self.difficulty_estimate)
         super(Problem, self).save(*args, **kwargs)
         if self.code != self.__original_code:
             try:

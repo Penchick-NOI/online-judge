@@ -378,16 +378,17 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
     context_object_name = 'problems'
     template_name = 'problem/list.html'
     paginate_by = 50
-    sql_sort = frozenset(('points', 'ac_rate', 'user_count', 'code'))
+    sql_sort = frozenset(('points', 'ac_rate', 'user_count', 'code', 'difficulty'))
     manual_sort = frozenset(('name', 'group', 'solved', 'type', 'editorial'))
     all_sorts = sql_sort | manual_sort
     default_desc = frozenset(('points', 'ac_rate', 'user_count'))
     default_sort = 'code'
-    # Difficulty shortcuts in the filter panel: (label, lowest points, highest points), bounds inclusive.
+    # Difficulty shortcuts in the filter panel: (label, lowest difficulty, highest difficulty), bounds inclusive.
+    # Difficulty is on the rating scale. Problems with no difficulty yet are in none of them.
     difficulty_tiers = (
-        (gettext_lazy('Beginner'), None, 10),
-        (gettext_lazy('Intermediate'), 11, 20),
-        (gettext_lazy('Advanced'), 21, None),
+        (gettext_lazy('Beginner'), None, 1199),
+        (gettext_lazy('Intermediate'), 1200, 1799),
+        (gettext_lazy('Advanced'), 1800, None),
     )
     option_keys = ('hide_solved', 'show_types', 'full_text', 'has_public_editorial')
 
@@ -509,6 +510,10 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         return self.apply_point_filter(queryset).distinct()
 
     def apply_point_filter(self, queryset):
+        if self.diff_start is not None:
+            queryset = queryset.filter(difficulty__gte=self.diff_start)
+        if self.diff_end is not None:
+            queryset = queryset.filter(difficulty__lte=self.diff_end)
         if self.point_start is not None:
             queryset = queryset.filter(points__gte=self.point_start)
         if self.point_end is not None:
@@ -587,9 +592,9 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         for i, (label, low, high) in enumerate(self.difficulty_tiers):
             condition = Q()
             if low is not None:
-                condition &= Q(points__gte=low)
+                condition &= Q(difficulty__gte=low)
             if high is not None:
-                condition &= Q(points__lte=high)
+                condition &= Q(difficulty__lte=high)
             tier_counts['tier%d' % i] = Count('id', filter=condition)
         tier_counts = Problem.objects.filter(id__in=self.prepoint_queryset.order_by().values('id')) \
             .aggregate(**tier_counts)
@@ -597,16 +602,16 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         for i, (label, low, high) in enumerate(self.difficulty_tiers):
             params = {}
             if low is not None:
-                params['point_start'] = low
+                params['diff_start'] = low
             if high is not None:
-                params['point_end'] = high
+                params['diff_end'] = high
             tiers.append({
                 'name': label, 'low': low, 'high': high, 'count': tier_counts['tier%d' % i],
-                'url': self.filter_link(remove=('point_start', 'point_end'), **params),
-                'active': self.point_start == low and self.point_end == high,
+                'url': self.filter_link(remove=('diff_start', 'diff_end'), **params),
+                'active': self.diff_start == low and self.diff_end == high,
             })
 
-        filter_keys = ('category', 'type', 'search', 'point_start', 'point_end')
+        filter_keys = ('category', 'type', 'search', 'point_start', 'point_end', 'diff_start', 'diff_end')
         return {
             'filter_categories': categories,
             'filter_tiers': tiers,
@@ -616,6 +621,7 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
             'point_filter_end': self.point_end,
             'clear_filters_url': self.filter_link(remove=filter_keys),
             'clear_points_url': self.filter_link(remove=('point_start', 'point_end')),
+            'clear_difficulty_url': self.filter_link(remove=('diff_start', 'diff_end')),
         }
 
     def get_point_range(self):
@@ -655,6 +661,8 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
 
         self.point_start = safe_float_or_none(request.GET.get('point_start'))
         self.point_end = safe_float_or_none(request.GET.get('point_end'))
+        self.diff_start = safe_int_or_none(request.GET.get('diff_start'))
+        self.diff_end = safe_int_or_none(request.GET.get('diff_end'))
 
     def get(self, request, *args, **kwargs):
         self.setup_problem_list(request)

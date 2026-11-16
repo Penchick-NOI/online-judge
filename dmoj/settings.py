@@ -48,6 +48,10 @@ DMOJ_PP_STEP = 0.95
 DMOJ_PP_ENTRIES = 100
 # PNOI: rated contests a student needs, with a clean record, to get the Verified badge.
 PNOI_VERIFIED_MIN_CONTESTS = 5
+# PNOI: problem difficulty is calculated from a rated contest once it had at least this many rated contestants,
+# and is kept inside this range (the same scale as ratings).
+PNOI_DIFFICULTY_MIN_CONTESTANTS = 10
+PNOI_DIFFICULTY_RANGE = (800, 3500)
 DMOJ_PP_BONUS_FUNCTION = lambda n: 300 * (1 - 0.997 ** n)  # noqa: E731
 
 ACE_URL = '//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3'
