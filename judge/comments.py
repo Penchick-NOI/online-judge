@@ -45,9 +45,9 @@ class CommentForm(ModelForm):
         if self.request is not None and self.request.user.is_authenticated:
             profile = self.request.profile
             if profile.mute:
-                raise ValidationError(_('Your part is silent, little toad.'))
+                raise ValidationError(_('Your account has been muted, so you cannot comment.'))
             elif not self.request.user.is_staff and not profile.has_any_solves:
-                raise ValidationError(_('You must solve at least one problem before your voice can be heard.'))
+                raise ValidationError(_('You need to solve at least one problem before you can comment.'))
         return super(CommentForm, self).clean()
 
 

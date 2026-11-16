@@ -145,7 +145,7 @@ All of these are CSS variables at the top of `resources/pnoi.scss`. Use the vari
   `templates/problem/list.html`, `templates/registration/login.html`.
 - **Back end:** Django 4.2 with Jinja2 templates. It must run on **Python 3.12**; the admin pages crash on
   Python 3.14. `django-admin-sortable2` is pinned below 2.3 for the same reason.
-- **Site content that lives in the database** (languages, the About page) is saved as fixtures in
+- **Site content that lives in the database** (languages, the About page, the welcome news post) is saved as fixtures in
   `judge/fixtures/` so a new server can load it.
 - **PNOI's own profile fields:** `school`, `grade_class_year` (the year the student finishes Grade 12, so the grade
   moves up each June), `student_status`, `region`, `show_school`, in `judge/models/profile.py`.
@@ -251,3 +251,9 @@ DMOJ's; new interface text has no translations.
   a "Find members" panel (search, sort), and the "ask to join" form and its confirmation page (PR 27). Staff are
   left out of the member ranking and the member counts. Tested locally: join, leave, ask to join, search, phone
   width. Not tested: the organiser-only pages (left in the old layout), class requests, more than 100 members.
+- 2026-11-17, Claude: reviewed and tested PRs 25 to 27 on the full local site (join, leave, ask to join, hidden
+  schools, staff left out, phone width). Then: DMOJ's in-joke error messages for muted users and for users with no
+  solved problem reworded in plain English; the local demo news post replaced by a "Welcome to PNOI" post (saved
+  as `judge/fixtures/pnoi_news.json`), and the demo comment and the demo "DMOJ" organization deleted locally. Not
+  tried: posting a comment as a student who has solved a problem. Still open: edit profile scrolls sideways on
+  phones.

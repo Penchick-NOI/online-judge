@@ -143,7 +143,7 @@
             {% endblock %}
             {% if is_new_user %}
                 <div style="margin-bottom: 0" class="alert alert-info">
-                    {{ _('You must solve at least one problem before your voice can be heard.') }}
+                    {{ _('You need to solve at least one problem before you can comment.') }}
                 </div>
             {% else %}
                 <form class="comment-submit-form{% if comment_warn_code %} comment-warn-code{% endif %}" action="" method="post">
