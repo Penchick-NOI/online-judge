@@ -1708,7 +1708,7 @@ svg.rate-box {
 
     .pn-contest-status {
         margin: 0 0 6px;
-        color: #fff;
+        color: var(--pn-surface);
         font-family: var(--pn-display);
         font-size: 26px;
         font-weight: 600;
@@ -3611,7 +3611,7 @@ body[data-pn] {
         padding: 2px 10px;
         border-radius: 999px;
         background: var(--pn-red);
-        color: #fff;
+        color: var(--pn-surface);
         font-size: 12px;
         font-weight: 700;
     }
