@@ -3590,45 +3590,17 @@ body[data-pn] {
     }
 }
 
-// ---------------------------------------------------------------- contests list: cards and rows
+// ---------------------------------------------------------------- contests list rows
 // The filter panel reuses the submissions list's .pn-subs-* panel rules.
-.pn-contest-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 14px;
-}
-
-.pn-contest-card {
-    padding: 14px 16px;
-
-    &.pn-contest-live {
-        border-color: var(--pn-red);
-    }
-
-    .pn-contest-status {
-        display: inline-block;
-        margin-right: 6px;
-        padding: 2px 10px;
-        border-radius: 999px;
-        background: var(--pn-red);
-        color: var(--pn-surface);
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .pn-contest-foot {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        margin-top: 10px;
-    }
-}
-
 .pn-contest-users {
     color: var(--pn-muted);
     font-size: 13px;
     white-space: nowrap;
+}
+
+// Keeps the red edge of a running contest inside the card's rounded corners.
+.pn-contest-rows {
+    overflow: hidden;
 }
 
 .pn-contest-row {
@@ -3646,6 +3618,22 @@ body[data-pn] {
     .pn-contest-main {
         flex: 1 1 200px;
         min-width: 0;
+    }
+
+    // A contest that is running now.
+    &.pn-contest-live {
+        border-left: 4px solid var(--pn-red);
+    }
+
+    .pn-contest-status {
+        display: inline-block;
+        margin-right: 6px;
+        padding: 2px 10px;
+        border-radius: 999px;
+        background: var(--pn-red);
+        color: var(--pn-surface);
+        font-size: 12px;
+        font-weight: 700;
     }
 }
 

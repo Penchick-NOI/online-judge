@@ -112,49 +112,48 @@
     {% endif %}
 {% endmacro %}
 
-{% macro running_card(contest, request, participation=none) %}
-    <div class="pn-card pn-contest-card pn-contest-live">
-        <div>
+{% macro running_row(contest, request, participation=none) %}
+    <div class="pn-contest-row pn-contest-live">
+        <div class="pn-contest-main">
             <span class="pn-contest-status">{{ _('Ongoing') }}</span>
             {{ contest_head(contest) }}
+            {% if participation and contest.time_limit %}
+                <div class="pn-contest-count">{{ _('Your window ends in %(countdown)s', countdown=as_countdown(participation.time_remaining)) }}</div>
+            {% elif contest.time_before_end %}
+                <div class="pn-contest-count">{{ _('Ends in %(countdown)s', countdown=as_countdown(contest.time_before_end)) }}</div>
+            {% endif %}
+            {{ time_line(contest) }}
         </div>
-        {% if participation and contest.time_limit %}
-            <div class="pn-contest-count">{{ _('Your window ends in %(countdown)s', countdown=as_countdown(participation.time_remaining)) }}</div>
-        {% elif contest.time_before_end %}
-            <div class="pn-contest-count">{{ _('Ends in %(countdown)s', countdown=as_countdown(contest.time_before_end)) }}</div>
-        {% endif %}
-        {{ time_line(contest) }}
-        <div class="pn-contest-foot">
-            <span class="pn-contest-users">{{ user_count(contest, request.user) }}</span>
-            {{ join_form(contest, request, 'pn-btn-sm') }}
-        </div>
+        <span class="pn-contest-users">{{ user_count(contest, request.user) }}</span>
+        {{ join_form(contest, request, 'pn-btn-sm') }}
     </div>
 {% endmacro %}
 
 {% block body %}
     <section class="pn-contest-list">
         <h2 class="pn-section-title">{{ _('Upcoming') }}</h2>
-        {% if active_participations or current_contests or future_contests %}
-            <div class="pn-contest-cards">
-                {% for participation in active_participations %}
-                    {{ running_card(participation.contest, request, participation) }}
-                {% endfor %}
-                {% for contest in current_contests %}
-                    {{ running_card(contest, request) }}
-                {% endfor %}
-                {% for contest in future_contests %}
-                    <div class="pn-card pn-contest-card">
-                        <div>{{ contest_head(contest) }}</div>
+        <div class="pn-card pn-contest-rows">
+            {% for participation in active_participations %}
+                {{ running_row(participation.contest, request, participation) }}
+            {% endfor %}
+            {% for contest in current_contests %}
+                {{ running_row(contest, request) }}
+            {% endfor %}
+            {% for contest in future_contests %}
+                <div class="pn-contest-row">
+                    <div class="pn-contest-main">
+                        {{ contest_head(contest) }}
                         {% if contest.time_before_start %}
                             <div class="pn-contest-count">{{ _('Starts in %(countdown)s', countdown=as_countdown(contest.time_before_start)) }}</div>
                         {% endif %}
                         {{ time_line(contest) }}
                     </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="pn-card"><p class="pn-empty">{{ _('There are no scheduled contests at this time.') }}</p></div>
-        {% endif %}
+                </div>
+            {% endfor %}
+            {% if not (active_participations or current_contests or future_contests) %}
+                <p class="pn-empty">{{ _('There are no scheduled contests at this time.') }}</p>
+            {% endif %}
+        </div>
     </section>
 
     {% set filtering = rated_filter or format_filter or joined_filter %}

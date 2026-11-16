@@ -169,10 +169,11 @@ Newest last. Do not undo these without the owner's say-so.
 - The users list is titled **Users** (not "Leaderboard"). It shows rank, rating, username, school and points: no
   profile pictures and no problems-solved count. Staff accounts (admins, organisers) are hidden from it; students
   with zero points still appear.
-- Contests list: no big banner (the owner found it wasted space). Running contests sit first in the **Upcoming**
-  section as cards labelled "Ongoing"; past contests are a list with exactly three filters (Rated, Type, Joined). It
-  shows how many people joined each contest, keeps **Virtual join**, and uses friendly dates
-  ("Sat, Nov 21 · 12:09 PM"). The **Calendar tab is hidden** until the calendar page is rebuilt.
+- Contests list: no big banner and no cards (the banner wasted space; cards would not fit many contests). Both
+  **Upcoming** and **Past contests** are lists of rows. Running contests come first in Upcoming, labelled "Ongoing".
+  Past contests have exactly three filters (Rated, Type, Joined). The page shows how many people joined each
+  contest, keeps **Virtual join**, and uses friendly dates ("Sat, Nov 21 · 12:09 PM"). The **Calendar tab is
+  hidden** until the calendar page is rebuilt.
 - Contests are rated unless said otherwise: do not tag contests "rated"; tag the exceptions "unrated".
 - On list pages the owner wants little-used filters tucked away, no sliders, and no verdict counts or statistics
   that could discourage students.
@@ -182,7 +183,7 @@ Newest last. Do not undo these without the owner's say-so.
 *Update this section when you finish work.*
 
 **Rebuilt in the PNOI design:** home dashboard, problem list, problem page, submit page, submissions list, submission
-result and source pages, contest list (upcoming cards, past list with a filter panel), contest page, contest
+result and source pages, contest list (upcoming list, past list with a filter panel), contest page, contest
 scoreboard, users list (with a right-hand filter panel: search, region, sort), profile, edit profile, log in, sign up,
 password and other account pages, About.
 
@@ -210,7 +211,7 @@ interface text has no translations.
 - 2026-11-16, Devin: users list retitled "Users", with a right-hand panel (search by username or school, region,
   sort), medals for the top three, staff accounts hidden, problems column removed (PR 20). Tested locally without
   a judge; organisation member lists were not checked.
-- 2026-11-16, Devin: contests list rebuilt as upcoming cards (running contests first, labelled "Ongoing") + past
-  list with a Rated / Type / Joined panel; Calendar tab hidden; friendlier dates; "unrated" tag instead of "rated"
+- 2026-11-16, Devin: contests list rebuilt as an upcoming list (running contests first, labelled "Ongoing") + a
+  past list with a Rated / Type / Joined panel; Calendar tab hidden; friendlier dates; "unrated" tag instead of "rated"
   (PR 21). Tested locally without a judge; pressing Join was not tried. The home page and the contest page still
   show a "rated" tag.
