@@ -30,7 +30,7 @@ from django.views.generic.list import BaseListView
 from icalendar import Calendar as ICalendar, Event
 from reversion import revisions
 
-from judge import event_poster as event
+from judge import contest_format, event_poster as event
 from judge.comments import CommentedDetailView
 from judge.forms import ContestCloneForm
 from judge.models import Contest, ContestMoss, ContestParticipation, ContestProblem, ContestTag, \
@@ -110,6 +110,23 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
             self.search_query = search_query = ' '.join(self.request.GET.getlist('search')).strip()
             if search_query:
                 queryset = queryset.filter(Q(key__icontains=search_query) | Q(name__icontains=search_query))
+
+        # The filter panel for past contests.
+        self.rated_filter = self.request.GET.get('rated', '')
+        if self.rated_filter in ('yes', 'no'):
+            queryset = queryset.filter(is_rated=self.rated_filter == 'yes')
+        else:
+            self.rated_filter = ''
+        self.format_filter = self.request.GET.get('type', '')
+        if self.format_filter in dict(contest_format.choices()):
+            queryset = queryset.filter(format_name=self.format_filter)
+        else:
+            self.format_filter = ''
+        self.joined_filter = self.request.GET.get('joined', '')
+        if self.joined_filter in ('yes', 'no') and self.request.profile:
+            queryset = queryset.filter(completed_contest=self.joined_filter == 'yes')
+        else:
+            self.joined_filter = ''
         return queryset
 
     def get_paginator(self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs):
@@ -142,9 +159,26 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         active.sort(key=attrgetter('end_time', 'key'))
         present.sort(key=attrgetter('end_time', 'key'))
         future.sort(key=attrgetter('start_time'))
+
+        # One contest gets the banner: the one the user is in, else one that is running, else the next one.
+        featured = None
+        if active:
+            participation = active.pop(0)
+            featured = {'contest': participation.contest, 'participation': participation, 'state': 'active'}
+        elif present:
+            featured = {'contest': present.pop(0), 'participation': None, 'state': 'ongoing'}
+        elif future:
+            featured = {'contest': future.pop(0), 'participation': None, 'state': 'upcoming'}
+        context['featured'] = featured
+
         context['active_participations'] = active
         context['current_contests'] = present
         context['future_contests'] = future
+        context['rated_filter'] = self.rated_filter
+        context['format_filter'] = self.format_filter
+        context['format_label'] = dict(contest_format.choices()).get(self.format_filter)
+        context['joined_filter'] = self.joined_filter
+        context['contest_formats'] = contest_format.choices()
         context['finished_contests'] = finished
         context['now'] = self._now
         context['first_page_href'] = '.'

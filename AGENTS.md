@@ -169,6 +169,10 @@ Newest last. Do not undo these without the owner's say-so.
 - The users list is titled **Users** (not "Leaderboard"). It shows rank, rating, username, school and points: no
   profile pictures and no problems-solved count. Staff accounts (admins, organisers) are hidden from it; students
   with zero points still appear.
+- Contests list: a banner for the running (or next) contest, upcoming contests as cards, past contests as a list
+  with exactly three filters (Rated, Type, Joined). It shows how many people joined each contest, keeps
+  **Virtual join**, and uses friendly dates ("Sat, Nov 21 · 12:09 PM"). The **Calendar tab is hidden** until the
+  calendar page is rebuilt.
 - On list pages the owner wants little-used filters tucked away, no sliders, and no verdict counts or statistics
   that could discourage students.
 
@@ -177,12 +181,14 @@ Newest last. Do not undo these without the owner's say-so.
 *Update this section when you finish work.*
 
 **Rebuilt in the PNOI design:** home dashboard, problem list, problem page, submit page, submissions list, submission
-result and source pages, contest list, contest page, contest scoreboard, users list (with a right-hand filter panel:
-search, region, sort), profile, edit profile, log in, sign up, password and other account pages, About.
+result and source pages, contest list (banner, upcoming cards, past list with a filter panel), contest page, contest
+scoreboard, users list (with a right-hand filter panel: search, region, sort), profile, edit profile, log in, sign up,
+password and other account pages, About.
 
 **Still in DMOJ's old layout (to rebuild):** single news post, organisation pages, tickets, contest statistics,
-contest calendar, status pages (judges, languages), two-factor setup, "download your data", problem test data
-editor, comment sections (currently left out of the rebuilt problem and contest pages).
+contest calendar (its tab is hidden; the page still exists at its address), status pages (judges, languages), two-
+factor setup, "download your data", problem test data editor, comment sections (currently left out of the rebuilt
+problem and contest pages).
 
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
@@ -203,3 +209,6 @@ interface text has no translations.
 - 2026-11-16, Devin: users list retitled "Users", with a right-hand panel (search by username or school, region,
   sort), medals for the top three, staff accounts hidden, problems column removed (PR 20). Tested locally without
   a judge; organisation member lists were not checked.
+- 2026-11-16, Devin: contests list rebuilt as banner + upcoming cards + past list with a Rated / Type / Joined
+  panel; Calendar tab hidden; friendlier dates (PR 21). Tested locally without a judge; joining a contest from the
+  new banner was not tried.

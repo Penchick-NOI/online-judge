@@ -12,6 +12,20 @@
                 count_down($(this));
             });
 
+            // Filters left on "Any" are kept out of the address bar.
+            $('#filter-form').on('submit', function () {
+                $(this).find('select').each(function () {
+                    $(this).prop('disabled', !$(this).val());
+                });
+            });
+
+            // On phones the filter panel is folded away behind a button.
+            var $split = $('#contests-split');
+            $('#filter-toggle').click(function () {
+                var open = $split.toggleClass('pn-subs-open').hasClass('pn-subs-open');
+                $(this).attr('aria-expanded', open);
+            });
+
             $('.join-warning').click(function () {
                 return confirm({{ _('Are you sure you want to join?')|htmltojs }} + '\n' +
                     {{ _('Joining a contest for the first time starts your timer, after which it becomes unstoppable.')|htmltojs }});
@@ -20,9 +34,14 @@
     </script>
 {% endblock %}
 
+{# The calendar tab is hidden for now, so only staff (who get an Admin tab) have tabs to show. #}
 {% block title_row %}
-    {% set tab = 'list' %}
-    {% include "contest/contest-list-tabs.html" %}
+    {% if perms.judge.edit_all_contest or perms.judge.edit_own_contest %}
+        {% set tab = 'list' %}
+        {% include "contest/contest-list-tabs.html" %}
+    {% else %}
+        {{ super() }}
+    {% endif %}
 {% endblock %}
 
 {% macro contest_head(contest) %}
@@ -48,190 +67,215 @@
     {% endfor %}
 {% endmacro %}
 
-{% macro time_line(contest) %}
+{% macro time_line(contest, with_year=false) %}
     <div class="pn-contest-time">
-        {{ contest.start_time|date(_("M j, Y, G:i")) }}
-        {% if contest.time_limit %}
-            &ndash; {{ contest.end_time|date(_("M j, Y, G:i")) }} &middot;
-            {{ _('%(time_limit)s window', time_limit=contest.time_limit|timedelta('localized-no-seconds')) }}
+        {% if with_year %}
+            {{ contest.start_time|date(_("M j, Y")) }}
         {% else %}
-            &middot; {{ _('%(duration)s long', duration=contest.contest_window_length|timedelta('localized-no-seconds')) }}
+            {{ contest.start_time|date(_("D, M j")) }} &middot; {{ contest.start_time|date(_("g:i A")) }}
+        {% endif %}
+        &middot;
+        {% if contest.time_limit %}
+            {{ _('%(time_limit)s window', time_limit=contest.time_limit|timedelta) }}
+        {% else %}
+            {{ contest.contest_window_length|timedelta }}
         {% endif %}
     </div>
 {% endmacro %}
 
 {% macro user_count(contest, user) %}
     {% if contest.can_see_own_scoreboard(user) %}
-        <a href="{{ url('contest_ranking', contest.key) }}">{{ contest.user_count }}</a>
+        <a href="{{ url('contest_ranking', contest.key) }}">{{ _('%(count)s joined', count=contest.user_count) }}</a>
     {% else %}
-        {{ contest.user_count }}
+        {{ _('%(count)s joined', count=contest.user_count) }}
     {% endif %}
 {% endmacro %}
 
-{% macro contest_join(contest, request) %}
+{% macro join_form(contest, request, size='') %}
     {% if not request.in_contest %}
-        <td class="pn-join">
-            <form action="{{ url('contest_join', contest.key) }}" method="post">
-                {% csrf_token %}
-                {% if contest.is_live_joinable_by(request.user) %}
-                    <button type="submit" class="pn-btn pn-btn-red join-warning">{{ _('Join') }}</button>
-                {% elif contest.is_spectatable_by(request.user) %}
-                    <button type="submit" class="pn-btn pn-btn-soft">{{ _('Spectate') }}</button>
-                {% else %}
-                    <button type="submit" class="pn-btn disabled" disabled
-                            title="{{ _('You cannot join this contest.') }}">{{ _('Join') }}</button>
-                {% endif %}
-            </form>
-        </td>
+        <form action="{{ url('contest_join', contest.key) }}" method="post">
+            {% csrf_token %}
+            {% if contest.is_live_joinable_by(request.user) %}
+                <button type="submit" class="pn-btn pn-btn-red {{ size }} join-warning">{{ _('Join') }}</button>
+            {% elif contest.is_spectatable_by(request.user) %}
+                <button type="submit" class="pn-btn pn-btn-soft {{ size }}">{{ _('Spectate') }}</button>
+            {% else %}
+                <button type="submit" class="pn-btn {{ size }} disabled" disabled
+                        title="{{ _('You cannot join this contest.') }}">{{ _('Join') }}</button>
+            {% endif %}
+        </form>
     {% endif %}
+{% endmacro %}
+
+{% macro running_row(contest, request, participation=none) %}
+    <div class="pn-contest-row">
+        <div class="pn-contest-main">
+            {{ contest_head(contest) }}
+            {% if participation and contest.time_limit %}
+                <div class="pn-contest-count">{{ _('Window ends in %(countdown)s', countdown=as_countdown(participation.time_remaining)) }}</div>
+            {% elif contest.time_before_end %}
+                <div class="pn-contest-count">{{ _('Ends in %(countdown)s', countdown=as_countdown(contest.time_before_end)) }}</div>
+            {% endif %}
+            {{ time_line(contest) }}
+        </div>
+        <span class="pn-contest-users">{{ user_count(contest, request.user) }}</span>
+        {{ join_form(contest, request, 'pn-btn-sm') }}
+    </div>
 {% endmacro %}
 
 {% block body %}
-    {% if active_participations %}
+    {% if featured %}
+        {% set contest = featured.contest %}
+        <section class="pn-hero pn-contest-hero">
+            <div class="pn-hero-text">
+                <span class="pn-hero-label">
+                    {% if featured.state == 'upcoming' %}{{ _('Next contest') }}{% else %}{{ _('Happening now') }}{% endif %}
+                </span>
+                <h2 class="pn-hero-title">
+                    <a href="{{ url('contest_view', contest.key) }}">{{ contest.name }}</a>
+                </h2>
+                <div class="pn-hero-meta">
+                    {% if featured.state == 'upcoming' %}
+                        {{ _('Starts in %(countdown)s', countdown=as_countdown(contest.time_before_start)) }}
+                    {% elif featured.participation and contest.time_limit %}
+                        {{ _('Your window ends in %(countdown)s', countdown=as_countdown(featured.participation.time_remaining)) }}
+                    {% else %}
+                        {{ _('Ends in %(countdown)s', countdown=as_countdown(contest.time_before_end)) }}
+                    {% endif %}
+                </div>
+                <div class="pn-hero-meta">
+                    {{ contest.start_time|date(_("D, M j")) }} &middot; {{ contest.start_time|date(_("g:i A")) }}
+                    &middot; {{ contest.contest_window_length|timedelta }}
+                    {% if contest.is_rated %} &middot; {{ _('rated') }}{% endif %}
+                    {% if featured.state != 'upcoming' %} &middot; {{ _('%(count)s joined', count=contest.user_count) }}{% endif %}
+                </div>
+            </div>
+            {% if featured.state == 'upcoming' %}
+                <a class="pn-btn pn-btn-soft" href="{{ url('contest_view', contest.key) }}">{{ _('View details') }}</a>
+            {% else %}
+                {{ join_form(contest, request) }}
+            {% endif %}
+        </section>
+    {% endif %}
+
+    {% if active_participations or current_contests %}
         <section class="pn-contest-list">
-            <h2 class="pn-section-title">{{ _('Active contests') }}</h2>
-            <div class="pn-card pn-table-wrap">
-                <table class="pn-table">
-                    <thead>
-                    <tr>
-                        <th>{{ _('Contest') }}</th>
-                        <th class="pn-num">{{ _('Users') }}</th>
-                        {% if not request.in_contest %}<th></th>{% endif %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for participation in active_participations %}
-                        {% with contest=participation.contest %}
-                            <tr>
-                                <td>
-                                    {{ contest_head(contest) }}
-                                    {% if contest.start_time %}
-                                        {% if contest.time_limit %}
-                                            <div class="pn-contest-count">{{ _('Window ends in %(countdown)s', countdown=as_countdown(participation.time_remaining)) }}</div>
-                                        {% elif contest.time_before_end %}
-                                            <div class="pn-contest-count">{{ _('Ends in %(countdown)s', countdown=as_countdown(contest.time_before_end)) }}</div>
-                                        {% endif %}
-                                        {{ time_line(contest) }}
-                                    {% endif %}
-                                </td>
-                                <td class="pn-num">{{ user_count(contest, request.user) }}</td>
-                                {{ contest_join(contest, request) }}
-                            </tr>
-                        {% endwith %}
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <h2 class="pn-section-title">{{ _('Also happening now') }}</h2>
+            <div class="pn-card">
+                {% for participation in active_participations %}
+                    {{ running_row(participation.contest, request, participation) }}
+                {% endfor %}
+                {% for contest in current_contests %}
+                    {{ running_row(contest, request) }}
+                {% endfor %}
             </div>
         </section>
     {% endif %}
 
-    {% if current_contests %}
+    {% if future_contests or not featured %}
         <section class="pn-contest-list">
-            <h2 class="pn-section-title">{{ _('Ongoing contests') }}</h2>
-            <div class="pn-card pn-table-wrap">
-                <table class="pn-table">
-                    <thead>
-                    <tr>
-                        <th>{{ _('Contest') }}</th>
-                        <th class="pn-num">{{ _('Users') }}</th>
-                        {% if not request.in_contest %}<th></th>{% endif %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for contest in current_contests %}
-                        <tr>
-                            <td>
-                                {{ contest_head(contest) }}
-                                {% if contest.start_time %}
-                                    {% if contest.time_before_end %}
-                                        <div class="pn-contest-count">{{ _('Ends in %(countdown)s', countdown=as_countdown(contest.time_before_end)) }}</div>
-                                    {% endif %}
-                                    {{ time_line(contest) }}
-                                {% endif %}
-                            </td>
-                            <td class="pn-num">{{ user_count(contest, request.user) }}</td>
-                            {{ contest_join(contest, request) }}
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    {% endif %}
-
-    <section class="pn-contest-list">
-        <h2 class="pn-section-title">{{ _('Upcoming contests') }}</h2>
-        <div class="pn-card pn-table-wrap">
+            <h2 class="pn-section-title">{{ _('Upcoming') }}</h2>
             {% if future_contests %}
-                <table class="pn-table">
-                    <tbody>
+                <div class="pn-contest-cards">
                     {% for contest in future_contests %}
-                        <tr>
-                            <td>
-                                {{ contest_head(contest) }}
-                                {% if contest.start_time %}
-                                    {% if contest.time_before_start %}
-                                        <div class="pn-contest-count">{{ _('Starting in %(countdown)s', countdown=as_countdown(contest.time_before_start)) }}</div>
-                                    {% endif %}
-                                    {{ time_line(contest) }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="pn-empty">{{ _('There are no scheduled contests at this time.') }}</p>
-            {% endif %}
-        </div>
-    </section>
-
-    <section class="pn-contest-list">
-        <div class="pn-search-row">
-            <h2 id="past-contests" class="pn-section-title" style="margin: 0">{{ _('Past contests') }}</h2>
-            {% if page_obj or search_query %}
-                <form id="search-form" name="form" action="" method="get">
-                    <input id="search" class="pn-input" type="text" name="search" value="{{ search_query or '' }}"
-                           placeholder="{{ _('Search contests...') }}" aria-label="{{ _('Search contests') }}">
-                </form>
-            {% endif %}
-        </div>
-        <div class="pn-card pn-table-wrap">
-            {% if past_contests %}
-                <table class="pn-table">
-                    <thead>
-                    <tr>
-                        <th><a href="{{ sort_links.name }}">{{ _('Contest') }}{{ sort_order.name }}</a></th>
-                        <th class="pn-num"><a href="{{ sort_links.user_count }}">{{ _('Users') }}{{ sort_order.user_count }}</a></th>
-                        {% if not request.in_contest %}<th></th>{% endif %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for contest in past_contests %}
-                        <tr>
-                            <td>
-                                {{ contest_head(contest) }}
-                                {{ time_line(contest) }}
-                            </td>
-                            <td class="pn-num">{{ user_count(contest, request.user) }}</td>
-                            {% if not request.in_contest %}
-                                <td class="pn-join">
-                                    <form action="{{ url('contest_join', contest.key) }}" method="post">
-                                        {% csrf_token %}
-                                        <button type="submit" class="pn-btn pn-btn-soft">{{ _('Virtual join') }}</button>
-                                    </form>
-                                </td>
+                        <div class="pn-card pn-contest-card">
+                            <div>{{ contest_head(contest) }}</div>
+                            {% if contest.time_before_start %}
+                                <div class="pn-contest-count">{{ _('Starts in %(countdown)s', countdown=as_countdown(contest.time_before_start)) }}</div>
                             {% endif %}
-                        </tr>
+                            {{ time_line(contest) }}
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
+                </div>
             {% else %}
-                <p class="pn-empty">{{ _('There are no past contests.') }}</p>
+                <div class="pn-card"><p class="pn-empty">{{ _('There are no scheduled contests at this time.') }}</p></div>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    {% set filtering = rated_filter or format_filter or joined_filter %}
+    <section class="pn-contest-list">
+        <h2 id="past-contests" class="pn-section-title">{{ _('Past contests') }}</h2>
+        <div class="pn-subs-bar">
+            <button id="filter-toggle" type="button" class="pn-btn pn-btn-soft pn-btn-sm pn-subs-toggle"
+                    aria-controls="filter-panel" aria-expanded="{{ 'true' if filtering else 'false' }}">
+                <i class="fa fa-filter"></i> {{ _('Filters') }}
+            </button>
+            {% if filtering %}
+                <span class="pn-subs-active">
+                    {% if rated_filter %}
+                        <span class="pn-tag pn-tag-yellow">{{ _('Rated') if rated_filter == 'yes' else _('Unrated') }}</span>
+                    {% endif %}
+                    {% if format_filter %}<span class="pn-tag">{{ format_label }}</span>{% endif %}
+                    {% if joined_filter %}
+                        <span class="pn-tag">{{ _('Joined') if joined_filter == 'yes' else _('Skipped') }}</span>
+                    {% endif %}
+                    <a href="{{ url('contest_list') }}#past-contests">{{ _('Clear') }}</a>
+                </span>
             {% endif %}
         </div>
-        {% if page_obj and page_obj.has_other_pages() %}
-            <div class="pn-pages">{% include "list-pages.html" %}</div>
-        {% endif %}
+
+        <div id="contests-split" class="pn-split{% if filtering %} pn-subs-open{% endif %}">
+            <div>
+                <div class="pn-card">
+                    {% for contest in past_contests %}
+                        <div class="pn-contest-row">
+                            <div class="pn-contest-main">
+                                {{ contest_head(contest) }}
+                                {{ time_line(contest, true) }}
+                            </div>
+                            <span class="pn-contest-users">{{ user_count(contest, request.user) }}</span>
+                            {% if not request.in_contest %}
+                                <form action="{{ url('contest_join', contest.key) }}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="pn-btn pn-btn-soft pn-btn-sm">{{ _('Virtual join') }}</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <p class="pn-empty">
+                            {% if filtering %}{{ _('No past contests match these filters.') }}
+                            {% else %}{{ _('There are no past contests.') }}{% endif %}
+                        </p>
+                    {% endfor %}
+                </div>
+                {% if page_obj and page_obj.has_other_pages() %}
+                    <div class="pn-pages">{% include "list-pages.html" %}</div>
+                {% endif %}
+            </div>
+
+            <aside id="filter-panel" class="pn-card pn-subs-side">
+                <h2>{{ _('Filter past contests') }}</h2>
+                <form id="filter-form" action="{{ url('contest_list') }}#past-contests" method="get">
+                    <label for="contest-rated">{{ _('Rated') }}</label>
+                    <select id="contest-rated" class="pn-input" name="rated">
+                        <option value="">{{ _('Any') }}</option>
+                        <option value="yes"{% if rated_filter == 'yes' %} selected{% endif %}>{{ _('Rated') }}</option>
+                        <option value="no"{% if rated_filter == 'no' %} selected{% endif %}>{{ _('Unrated') }}</option>
+                    </select>
+                    <label for="contest-type">{{ _('Type') }}</label>
+                    <select id="contest-type" class="pn-input" name="type">
+                        <option value="">{{ _('Any') }}</option>
+                        {% for key, name in contest_formats %}
+                            <option value="{{ key }}"{% if key == format_filter %} selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if request.user.is_authenticated %}
+                        <label for="contest-joined">{{ _('Joined') }}</label>
+                        <select id="contest-joined" class="pn-input" name="joined">
+                            <option value="">{{ _('Any') }}</option>
+                            <option value="yes"{% if joined_filter == 'yes' %} selected{% endif %}>{{ _('Joined') }}</option>
+                            <option value="no"{% if joined_filter == 'no' %} selected{% endif %}>{{ _('Skipped') }}</option>
+                        </select>
+                    {% endif %}
+                    <div class="pn-subs-actions">
+                        <button type="submit" class="pn-btn pn-btn-block">{{ _('Apply') }}</button>
+                        {% if filtering %}
+                            <a class="pn-btn pn-btn-soft pn-btn-block" href="{{ url('contest_list') }}#past-contests">{{ _('Clear filters') }}</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </aside>
+        </div>
     </section>
 {% endblock %}
