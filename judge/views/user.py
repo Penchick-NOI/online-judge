@@ -56,6 +56,11 @@ def remap_keys(iterable, mapping):
     return [dict((mapping.get(k, k), v) for k, v in item.items()) for item in iterable]
 
 
+def listed_profiles():
+    # Staff accounts (organisers, admins) are not students, so they are left out of the users list and of ranks.
+    return Profile.objects.filter(is_unlisted=False, user__is_staff=False)
+
+
 class UserMixin(object):
     model = Profile
     slug_field = 'user__username'
@@ -114,20 +119,18 @@ class UserPage(TitleMixin, UserMixin, DetailView):
         rating = self.object.ratings.order_by('-contest__end_time')[:1]
         context['rating'] = rating[0] if rating else None
 
-        context['rank'] = Profile.objects.filter(
-            is_unlisted=False, performance_points__gt=self.object.performance_points,
+        context['rank'] = listed_profiles().filter(
+            performance_points__gt=self.object.performance_points,
         ).exclude(id=self.object.id).count() + 1
 
         if self.object.school and self.object.show_school and not self.object.is_unlisted:
-            context['school_rank'] = Profile.objects.filter(
-                is_unlisted=False, show_school=True, school=self.object.school,
+            context['school_rank'] = listed_profiles().filter(
+                show_school=True, school=self.object.school,
                 performance_points__gt=self.object.performance_points,
             ).exclude(id=self.object.id).count() + 1
 
         if rating:
-            context['rating_rank'] = Profile.objects.filter(
-                is_unlisted=False, rating__gt=self.object.rating,
-            ).count() + 1
+            context['rating_rank'] = listed_profiles().filter(rating__gt=self.object.rating).count() + 1
         context.update(self.object.ratings.aggregate(min_rating=Min('rating'), max_rating=Max('rating'),
                                                      contests=Count('contest')))
         return context
@@ -447,13 +450,8 @@ class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin
     default_desc = all_sorts
     default_sort = '-performance_points'
 
-    @staticmethod
-    def listed_profiles():
-        # Staff accounts (organisers, admins) are not students, so they are left out of the list.
-        return Profile.objects.filter(is_unlisted=False, user__is_staff=False)
-
     def get_queryset(self):
-        queryset = self.listed_profiles()
+        queryset = listed_profiles()
         self.school = ' '.join(self.request.GET.get('school', '').split())
         if self.school:
             queryset = queryset.filter(school=self.school, show_school=True)
@@ -518,7 +516,7 @@ def user_ranking_redirect(request):
     except KeyError:
         raise Http404()
     user = get_object_or_404(Profile, user__username=username)
-    listed = UserList.listed_profiles()
+    listed = listed_profiles()
     rank = listed.filter(performance_points__gt=user.performance_points).count()
     rank += listed.filter(performance_points__exact=user.performance_points, id__lt=user.id).count()
     page = rank // UserList.paginate_by
