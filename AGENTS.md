@@ -221,3 +221,5 @@ DMOJ's; new interface text has no translations.
   show a "rated" tag.
 - 2026-11-16, Devin: home page rebuilt as lists on the left and your card, Top users and News on the right; staff
   hidden from Top users and from your rank (PR 22). Tested locally without a judge.
+- 2026-11-16, Devin: About page fixed, same format: it no longer loads the old stylesheet and its text no longer
+  runs off the screen on phones (PR 23). Applies to every flat page that uses `flatpages/markdown.html`.
