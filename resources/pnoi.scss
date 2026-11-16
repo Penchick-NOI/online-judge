@@ -2031,10 +2031,16 @@ body[data-pn] {
         }
 
         a.pn-rail-link {
-            flex: 1 0 52px;
+            flex: 1 0 auto;
             width: auto;
-            padding: 6px 0 4px;
+            padding: 6px 4px 4px;
             font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .pn-rail-account a.pn-rail-link {
+            flex: 0 0 auto;
+            padding: 6px 6px 4px;
         }
     }
 

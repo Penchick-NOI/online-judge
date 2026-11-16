@@ -119,11 +119,14 @@ class UserPage(TitleMixin, UserMixin, DetailView):
         rating = self.object.ratings.order_by('-contest__end_time')[:1]
         context['rating'] = rating[0] if rating else None
 
+        # Staff and unlisted accounts are not ranked, so their profiles show no rank.
+        context['is_ranked'] = is_ranked = not (self.object.is_unlisted or self.object.user.is_staff)
+
         context['rank'] = listed_profiles().filter(
             performance_points__gt=self.object.performance_points,
         ).exclude(id=self.object.id).count() + 1
 
-        if self.object.school and self.object.show_school and not self.object.is_unlisted:
+        if self.object.school and self.object.show_school and is_ranked:
             context['school_rank'] = listed_profiles().filter(
                 show_school=True, school=self.object.school,
                 performance_points__gt=self.object.performance_points,

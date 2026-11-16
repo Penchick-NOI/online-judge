@@ -40,7 +40,7 @@
                     <b title="{{ user.performance_points|floatformat(2) }}">{{ user.performance_points|floatformat(0) }}</b>
                     <span>{{ _('Total points:')|replace(':', '') }}</span>
                 </div>
-                {% if not user.is_unlisted %}
+                {% if is_ranked %}
                     <div>
                         <b>#{{ rank }}</b>
                         <span>{{ _('Rank by points:')|replace(':', '') }}</span>
@@ -57,7 +57,7 @@
                         <b>{{ rating_number(rating) }}</b>
                         <span>{{ _('Rating:')|replace(':', '') }}</span>
                     </div>
-                    {% if not user.is_unlisted %}
+                    {% if is_ranked %}
                         <div>
                             <b>#{{ rating_rank }}</b>
                             <span>{{ _('Rank by rating:')|replace(':', '') }}</span>
