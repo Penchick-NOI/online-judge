@@ -108,7 +108,7 @@
                     {% endif %}
                     <dl>
                         <div><dt>{{ _('Rating') }}</dt><dd>{{ me.rating or '—' }}</dd></div>
-                        <div><dt>{{ _('Rank') }}</dt><dd>#{{ dash_rank }}</dd></div>
+                        <div><dt>{{ _('Rank') }}</dt><dd>{% if dash_rank %}#{{ dash_rank }}{% else %}—{% endif %}</dd></div>
                         <div><dt>{{ _('Solved') }}</dt><dd>{{ me.problem_count }}</dd></div>
                     </dl>
                 </section>

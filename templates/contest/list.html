@@ -97,7 +97,10 @@
 {% endmacro %}
 
 {% macro join_form(contest, request, size='') %}
-    {% if not request.in_contest %}
+    {% if not request.user.is_authenticated %}
+        <a class="pn-btn pn-btn-red {{ size }}"
+           href="{{ url('auth_login') }}?next={{ url('contest_view', contest.key)|urlencode }}">{{ _('Log in to join') }}</a>
+    {% elif not request.in_contest %}
         <form action="{{ url('contest_join', contest.key) }}" method="post">
             {% csrf_token %}
             {% if contest.is_live_joinable_by(request.user) %}

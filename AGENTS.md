@@ -223,3 +223,8 @@ DMOJ's; new interface text has no translations.
   hidden from Top users and from your rank (PR 22). Tested locally without a judge.
 - 2026-11-16, Devin: About page fixed, same format: it no longer loads the old stylesheet and its text no longer
   runs off the screen on phones (PR 23). Applies to every flat page that uses `flatpages/markdown.html`.
+- 2026-11-16, Claude: reviewed and tested PRs 20 to 23 on the full local site (filters, privacy of hidden schools,
+  staff hidden, phone width). Follow-up fixes: phone bottom bar no longer cuts off labels; visitors see "Log in to
+  join" instead of a greyed-out Join on the contests list; staff and unlisted accounts show no rank on their home
+  card or profile. The contest page has no "rated" tag, only a sentence saying who the contest is rated for, which
+  was kept. Not tried: pressing Join / Virtual join from the new list; widths below 375px.
