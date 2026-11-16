@@ -61,6 +61,20 @@ def listed_profiles():
     return Profile.objects.filter(is_unlisted=False, user__is_staff=False)
 
 
+def rating_rank_of(profile, queryset=None):
+    # PNOI ranks students by contest rating. A student who has not been rated yet has no rank.
+    if profile.rating is None:
+        return None
+    if queryset is None:
+        queryset = listed_profiles()
+    return queryset.filter(rating__gt=profile.rating).count() + 1
+
+
+def rating_rank_key(profile):
+    # Always a tuple: the ranker starts from None, so a bare None rating would be given rank 0.
+    return (profile.rating,)
+
+
 class UserMixin(object):
     model = Profile
     slug_field = 'user__username'
@@ -122,18 +136,13 @@ class UserPage(TitleMixin, UserMixin, DetailView):
         # Staff and unlisted accounts are not ranked, so their profiles show no rank.
         context['is_ranked'] = is_ranked = not (self.object.is_unlisted or self.object.user.is_staff)
 
-        context['rank'] = listed_profiles().filter(
-            performance_points__gt=self.object.performance_points,
-        ).exclude(id=self.object.id).count() + 1
+        if is_ranked:
+            context['rating_rank'] = rating_rank_of(self.object)
+            if self.object.school and self.object.show_school:
+                context['school_rank'] = rating_rank_of(
+                    self.object, listed_profiles().filter(show_school=True, school=self.object.school))
 
-        if self.object.school and self.object.show_school and is_ranked:
-            context['school_rank'] = listed_profiles().filter(
-                show_school=True, school=self.object.school,
-                performance_points__gt=self.object.performance_points,
-            ).exclude(id=self.object.id).count() + 1
-
-        if rating:
-            context['rating_rank'] = listed_profiles().filter(rating__gt=self.object.rating).count() + 1
+        context['verified_needed'] = settings.PNOI_VERIFIED_MIN_CONTESTS
         context.update(self.object.ratings.aggregate(min_rating=Min('rating'), max_rating=Max('rating'),
                                                      contests=Count('contest')))
         return context
@@ -451,7 +460,7 @@ class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin
     paginate_by = 100
     all_sorts = frozenset(('points', 'problem_count', 'rating', 'performance_points'))
     default_desc = all_sorts
-    default_sort = '-performance_points'
+    default_sort = '-rating'
 
     def get_queryset(self):
         queryset = listed_profiles()
@@ -468,15 +477,17 @@ class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin
             self.region = ''
         if self.region:
             queryset = queryset.filter(region=self.region, show_school=True)
-        return (queryset.order_by(self.order, 'id').select_related('user')
+        # Students who are not rated yet come after everyone who is, ordered by their practice points.
+        return (queryset.order_by(self.order, '-performance_points', 'id').select_related('user')
                 .only('display_rank', 'user__username', 'username_display_override', 'points', 'rating',
                       'performance_points', 'problem_count', 'school', 'show_school'))
 
     def get_context_data(self, **kwargs):
         context = super(UserList, self).get_context_data(**kwargs)
+        by_rating = self.order.lstrip('-') == 'rating'
         context['users'] = ranker(
             context['users'],
-            key=attrgetter('performance_points', 'problem_count'),
+            key=rating_rank_key if by_rating else attrgetter('performance_points', 'problem_count'),
             rank=self.paginate_by * (context['page_obj'].number - 1),
         )
         context['first_page_href'] = '.'
@@ -485,7 +496,8 @@ class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin
         context['region_filter'] = self.region
         context['region_label'] = dict(REGIONS).get(self.region)
         context['regions'] = REGIONS
-        context['sort_by_rating'] = self.order.lstrip('-') == 'rating'
+        context['sort_by_rating'] = by_rating
+        context['sort_by_points'] = not by_rating
         context['show_medals'] = self.order == self.default_sort
         context['show_school_column'] = True
         context['hide_problem_column'] = True
@@ -519,9 +531,13 @@ def user_ranking_redirect(request):
     except KeyError:
         raise Http404()
     user = get_object_or_404(Profile, user__username=username)
+    # Position in the users list, which is ordered by rating, with unrated students last.
     listed = listed_profiles()
-    rank = listed.filter(performance_points__gt=user.performance_points).count()
-    rank += listed.filter(performance_points__exact=user.performance_points, id__lt=user.id).count()
+    if user.rating is None:
+        rank = listed.filter(rating__isnull=False).count()
+        rank += listed.filter(rating__isnull=True, performance_points__gt=user.performance_points).count()
+    else:
+        rank = listed.filter(rating__gt=user.rating).count()
     page = rank // UserList.paginate_by
     return HttpResponseRedirect('%s%s#!%s' % (reverse('user_list'), '?page=%d' % (page + 1) if page else '', username))
 

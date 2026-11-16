@@ -129,10 +129,10 @@
                     <div class="pn-home-row">
                         <span class="pn-home-pos">{{ loop.index }}</span>
                         <span class="pn-home-grow">{{ link_user(user) }}</span>
-                        <span class="pn-list-meta">{{ user.performance_points|floatformat(0) }}</span>
+                        <span class="pn-home-rating">{{ rating_number(user) }}</span>
                     </div>
                 {% else %}
-                    <p class="pn-empty">{{ _('Nobody is ranked yet.') }}</p>
+                    <p class="pn-empty">{{ _('Nobody is rated yet. Ratings start with the first rated contest.') }}</p>
                 {% endfor %}
             </section>
 

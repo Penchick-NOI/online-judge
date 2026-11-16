@@ -46,6 +46,8 @@ DMOJ_SSL = 0
 # Refer to https://dmoj.ca/post/103-point-system-rework
 DMOJ_PP_STEP = 0.95
 DMOJ_PP_ENTRIES = 100
+# PNOI: rated contests a student needs, with a clean record, to get the Verified badge.
+PNOI_VERIFIED_MIN_CONTESTS = 5
 DMOJ_PP_BONUS_FUNCTION = lambda n: 300 * (1 - 0.997 ** n)  # noqa: E731
 
 ACE_URL = '//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3'

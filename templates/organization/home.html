@@ -46,7 +46,7 @@
 {% block title_row %}{% endblock %}
 
 {% block body %}
-    {% set filtering = search_filter or sort_by_rating %}
+    {% set filtering = search_filter or sort_by_points %}
 
     <div class="pn-card pn-org-head">
         <div class="pn-org-head-main">
@@ -144,8 +144,8 @@
                            placeholder="{{ _('Username or school') }}" value="{{ search_filter }}">
                     <label for="member-order">{{ _('Sort by') }}</label>
                     <select id="member-order" class="pn-input" name="order">
-                        <option value="">{{ _('Points') }}</option>
-                        <option value="-rating"{% if sort_by_rating %} selected{% endif %}>{{ _('Rating') }}</option>
+                        <option value="">{{ _('Rating') }}</option>
+                        <option value="-performance_points"{% if sort_by_points %} selected{% endif %}>{{ _('Practice points') }}</option>
                     </select>
                     <div class="pn-subs-actions">
                         <button type="submit" class="pn-btn pn-btn-block">{{ _('Apply') }}</button>

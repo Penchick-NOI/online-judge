@@ -423,6 +423,21 @@ class Profile(models.Model):
         return self.get_user_css_class(self.display_rank, self.rating)
 
     @cached_property
+    def rated_contest_count(self):
+        return self.ratings.count()
+
+    @cached_property
+    def has_clean_record(self):
+        # A disqualification (for example for cheating) in any contest costs the Verified badge.
+        return not self.contest_history.filter(is_disqualified=True).exists()
+
+    @cached_property
+    def is_verified(self):
+        """The PNOI Verified badge: enough rated contests, never disqualified, not banned."""
+        return (self.display_rank != 'banned' and self.user.is_active and
+                self.rated_contest_count >= settings.PNOI_VERIFIED_MIN_CONTESTS and self.has_clean_record)
+
+    @cached_property
     def webauthn_id(self):
         return hmac.new(force_bytes(settings.SECRET_KEY), msg=b'webauthn:%d' % (self.id,), digestmod='sha256').digest()
 
