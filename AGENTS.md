@@ -181,6 +181,7 @@ Newest last. Do not undo these without the owner's say-so.
 - Staff accounts must never appear in rankings anywhere (users list, profile ranks, home page).
 - On list pages the owner wants little-used filters tucked away, no sliders, and no verdict counts or statistics
   that could discourage students.
+- News posts keep their comment section and show who wrote them. No Facebook/Twitter share buttons.
 
 ## Current status
 
@@ -189,12 +190,13 @@ Newest last. Do not undo these without the owner's say-so.
 **Rebuilt in the PNOI design:** home dashboard, problem list, problem page, submit page, submissions list, submission
 result and source pages, contest list (upcoming list, past list with a filter panel), contest page, contest
 scoreboard, users list (with a right-hand filter panel: search, region, sort), profile, edit profile, log in, sign up,
-password and other account pages, About.
+password and other account pages, About, single news post (with its comment section).
 
-**Still in DMOJ's old layout (to rebuild):** single news post, organisation pages, tickets, contest statistics,
+**Still in DMOJ's old layout (to rebuild):** organisation pages, tickets, contest statistics,
 contest calendar (its tab is hidden; the page still exists at its address), status pages (judges, languages), two-
-factor setup, "download your data", problem test data editor, comment sections (currently left out of the rebuilt
-problem and contest pages).
+factor setup, "download your data", problem test data editor, problem editorial page. Comment sections are styled
+for PNOI only inside `.pn-comments` (used on the news post); they are still left out of the rebuilt problem and
+contest pages.
 
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
@@ -228,3 +230,7 @@ DMOJ's; new interface text has no translations.
   join" instead of a greyed-out Join on the contests list; staff and unlisted accounts show no rank on their home
   card or profile. The contest page has no "rated" tag, only a sentence saying who the contest is rated for, which
   was kept. Not tried: pressing Join / Virtual join from the new list; widths below 375px.
+- 2026-11-16, Devin: single news post rebuilt: article card with author and date, comments card (restyled, same
+  markup and scripts as before), "More news" and upcoming contests on the right; Facebook/Twitter share buttons
+  removed (PR 25). Tested locally: voting, replying, posting and editing a comment as a student, phone width. Not
+  tried: staff moderation links (hide, votes, admin), locked comments, maths in posts.

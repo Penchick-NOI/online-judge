@@ -139,7 +139,14 @@ class PostView(TitleMixin, CommentedDetailView):
         context['meta_description'] = metadata[0]
         context['og_image'] = self.object.og_image or metadata[1]
         context['enable_comments'] = settings.DMOJ_ENABLE_COMMENTS
-        context['enable_social'] = settings.DMOJ_ENABLE_SOCIAL
+
+        now = timezone.now()
+        context['more_posts'] = (BlogPost.objects.filter(visible=True, publish_on__lte=now)
+                                 .exclude(id=self.object.id).order_by('-sticky', '-publish_on')[:5])
+        upcoming = (Contest.get_visible_contests(self.request.user).filter(is_visible=True, end_time__gt=now)
+                    .order_by('start_time')[:3])
+        context['now'] = now
+        context['upcoming_contests'] = upcoming
 
         return context
 
