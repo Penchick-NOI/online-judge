@@ -21,6 +21,7 @@ from reversion import revisions
 
 from judge.forms import EditOrganizationForm
 from judge.models import Class, Organization, OrganizationRequest, Profile
+from judge.utils.diggpaginator import DiggPaginator
 from judge.utils.ranker import ranker
 from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, TitleMixin, generic_message
 
@@ -98,15 +99,52 @@ class OrganizationList(TitleMixin, ListView):
     title = gettext_lazy('Organizations')
 
     def get_queryset(self):
-        return super(OrganizationList, self).get_queryset().annotate(member_count=Count('member')).order_by('name')
+        # Count the same members the organization's own page lists: no hidden accounts and no staff.
+        listed = Q(member__is_unlisted=False, member__user__is_staff=False)
+        return (super(OrganizationList, self).get_queryset()
+                .annotate(member_count=Count('member', filter=listed)).order_by('name'))
 
 
-class OrganizationHome(OrganizationDetailView):
+class OrganizationHome(QueryStringSortMixin, OrganizationDetailView):
     template_name = 'organization/home.html'
+    all_sorts = frozenset(('rating', 'performance_points'))
+    default_desc = all_sorts
+    default_sort = '-performance_points'
+    paginate_by = 100
+
+    def get_members(self):
+        # Staff accounts (organisers, admins) are not students, so they are left out of the ranking.
+        members = self.object.members.filter(is_unlisted=False, user__is_staff=False)
+        self.search = ' '.join(self.request.GET.get('q', '').split())[:120]
+        if self.search:
+            # A school only matches for students who chose to show it.
+            members = members.filter(Q(user__username__icontains=self.search) |
+                                     Q(show_school=True, school__icontains=self.search))
+        return (members.order_by(self.order, 'id').select_related('user')
+                .only('display_rank', 'user__username', 'username_display_override', 'points', 'rating',
+                      'performance_points', 'problem_count', 'school', 'show_school'))
 
     def get_context_data(self, **kwargs):
         context = super(OrganizationHome, self).get_context_data(**kwargs)
         context['title'] = self.object.name
+
+        paginator = DiggPaginator(self.get_members(), self.paginate_by, body=6, padding=2)
+        page = paginator.get_page(self.request.GET.get('page'))
+        context['page_obj'] = page
+        context['users'] = ranker(page.object_list, key=attrgetter('performance_points', 'problem_count'),
+                                  rank=self.paginate_by * (page.number - 1))
+        context['member_count'] = self.object.members.filter(is_unlisted=False, user__is_staff=False).count()
+        context['search_filter'] = self.search
+        context['sort_by_rating'] = self.order.lstrip('-') == 'rating'
+        context['show_medals'] = self.order == self.default_sort and not self.search
+        context['show_school_column'] = True
+        context['hide_problem_column'] = True
+        context['is_member'] = self.request.user.is_authenticated and self.request.profile in self.object
+        context['has_pending_request'] = (
+            self.request.user.is_authenticated and not self.object.is_open and
+            self.object.requests.filter(user=self.request.profile, state='P').exists()
+        )
+        context.update(self.get_sort_paginate_context())
         context['can_edit'] = self.can_edit_organization()
         context['can_review_requests'] = not self.object.is_open and self.request.user.is_authenticated and (
             self.object.can_review_all_requests(self.request.profile) or

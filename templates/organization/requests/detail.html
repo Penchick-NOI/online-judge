@@ -1,35 +1,34 @@
 {% extends "base.html" %}
-{% block media %}
-    <style>
-        th {
-            text-align: left
-        }
-    </style>
-{% endblock %}
+
+{% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
 
 {% block body %}
-    <table>
-        <tr>
-            <th>{{ _('User:') }}</th>
-            <td>{{ link_user(object.user) }}</td>
-        </tr>
-        <tr>
-            <th>{{ _('Organization:') }}</th>
-            <td>
-                {% with org=object.organization %}
-                    <a href="{{ org.get_absolute_url() }}">{{ org.name }}</a>
-                {% endwith %}
-            </td>
-        </tr>
-        <tr>
-            <th>{{ _('Time:') }}</th>
-            <td>{{ object.time|date(_("N j, Y, g:i a")) }}</td>
-        </tr>
-        <tr>
-            <th colspan="2">{{ _('Reason:') }}</th>
-        </tr>
-        <tr>
-            <td colspan="2" style="padding-left: 2em">{{ object.reason }}</td>
-        </tr>
-    </table>
+    {% set org = object.organization %}
+    <div class="pn-auth pn-org-request">
+        <h1 class="pn-title">{{ title }}</h1>
+        <div class="pn-card pn-card-pad">
+            <dl class="pn-org-request-info">
+                <dt>{{ _('User') }}</dt>
+                <dd>{{ link_user(object.user) }}</dd>
+                <dt>{{ _('Organization') }}</dt>
+                <dd><a href="{{ org.get_absolute_url() }}">{{ org.name }}</a></dd>
+                {% if object.request_class %}
+                    <dt>{{ _('Class') }}</dt>
+                    <dd>{{ object.request_class.name }}</dd>
+                {% endif %}
+                <dt>{{ _('Sent') }}</dt>
+                <dd>{{ object.time|date(_("N j, Y, g:i a")) }}</dd>
+                <dt>{{ _('Status') }}</dt>
+                <dd>
+                    {% if object.state == 'A' %}<span class="pn-tag pn-tag-green">{{ _('Approved') }}</span>
+                    {% elif object.state == 'R' %}<span class="pn-tag pn-tag-red">{{ _('Rejected') }}</span>
+                    {% else %}<span class="pn-tag pn-tag-yellow">{{ _('Waiting for an answer') }}</span>{% endif %}
+                </dd>
+                <dt>{{ _('Reason') }}</dt>
+                <dd class="pn-org-request-reason">{{ object.reason }}</dd>
+            </dl>
+        </div>
+        <p class="pn-auth-links"><a href="{{ org.get_absolute_url() }}">{{ _('Back to %(name)s', name=org.name) }}</a></p>
+    </div>
 {% endblock %}

@@ -181,6 +181,9 @@ Newest last. Do not undo these without the owner's say-so.
 - Staff accounts must never appear in rankings anywhere (users list, profile ranks, home page).
 - On list pages the owner wants little-used filters tucked away, no sliders, and no verdict counts or statistics
   that could discourage students.
+- Organizations: the Organizations page is just a simple list. Each organization's own page is its member
+  leaderboard (chosen from ten options): name, a short description and the Join button on top, the ranked member
+  table below, and a "Find members" panel on the right. The name "Organizations" is kept.
 
 ## Current status
 
@@ -189,9 +192,10 @@ Newest last. Do not undo these without the owner's say-so.
 **Rebuilt in the PNOI design:** home dashboard, problem list, problem page, submit page, submissions list, submission
 result and source pages, contest list (upcoming list, past list with a filter panel), contest page, contest
 scoreboard, users list (with a right-hand filter panel: search, region, sort), profile, edit profile, log in, sign up,
-password and other account pages, About.
+password and other account pages, About, organizations (the list, an organization's page, asking to join).
 
-**Still in DMOJ's old layout (to rebuild):** single news post, organisation pages, tickets, contest statistics,
+**Still in DMOJ's old layout (to rebuild):** single news post, the organiser-only organisation pages (edit,
+manage members, review join requests, class pages), tickets, contest statistics,
 contest calendar (its tab is hidden; the page still exists at its address), status pages (judges, languages), two-
 factor setup, "download your data", problem test data editor, comment sections (currently left out of the rebuilt
 problem and contest pages).
@@ -199,7 +203,8 @@ problem and contest pages).
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
 **Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally; no
-real problems or contests yet; staff accounts can still appear in organisation member lists; the old `.pn-dash*` and
+real problems or contests yet; staff accounts can still appear on the organiser-only "Manage members" and class
+pages; the old `.pn-dash*` and
 `.pn-stat*` rules in `pnoi.scss` are no longer used; `502.html` and `logo.png` at the repository root are still
 DMOJ's; new interface text has no translations.
 
@@ -228,3 +233,7 @@ DMOJ's; new interface text has no translations.
   join" instead of a greyed-out Join on the contests list; staff and unlisted accounts show no rank on their home
   card or profile. The contest page has no "rated" tag, only a sentence saying who the contest is rated for, which
   was kept. Not tried: pressing Join / Virtual join from the new list; widths below 375px.
+- 2026-11-16, Devin: organizations rebuilt: a simple list, an organization page that is its member leaderboard with
+  a "Find members" panel (search, sort), and the "ask to join" form and its confirmation page (PR 27). Staff are
+  left out of the member ranking and the member counts. Tested locally: join, leave, ask to join, search, phone
+  width. Not tested: the organiser-only pages (left in the old layout), class requests, more than 100 members.

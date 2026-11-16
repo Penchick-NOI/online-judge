@@ -1,14 +1,6 @@
 {% extends "base.html" %}
-{% block js_media %}
-    <script src="{{ static('libs/tablesorter.js') }}" type="text/javascript"></script>
-    <script type="text/javascript">
-        $(function () {
-            $("#organization-table").tablesorter();
-        });
-    </script>
-{% endblock %}
 
-{% block title_ruler %}{% endblock %}
+{% block legacy_css %}{% endblock %}
 
 {% block title_row %}
     {% set tab = 'organizations' %}
@@ -16,20 +8,25 @@
 {% endblock %}
 
 {% block body %}
-    <table id="organization-table" class="table striped">
-        <thead>
-        <tr>
-            <th style="width:85%">{{ _('Name') }}</th>
-            <th>{{ _('Members') }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for org in organizations %}
-            <tr>
-                <td><a href="{{ org.get_absolute_url() }}">{{ org.name }}</a></td>
-                <td><a href="{{ org.get_users_url() }}">{{ org.member_count }}</a></td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% if organizations %}
+        <div class="pn-card pn-org-list">
+            {% for org in organizations %}
+                <a class="pn-org-row" href="{{ org.get_absolute_url() }}">
+                    <span class="pn-org-name">
+                        {{ org.name }}
+                        {% if not org.is_open %}<span class="pn-tag pn-tag-yellow">{{ _('Ask to join') }}</span>{% endif %}
+                    </span>
+                    <span class="pn-org-count">
+                        {% trans trimmed count=org.member_count %}
+                            {{ count }} member
+                        {% pluralize %}
+                            {{ count }} members
+                        {% endtrans %}
+                    </span>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="pn-empty">{{ _('There are no organizations yet.') }}</p>
+    {% endif %}
 {% endblock %}
