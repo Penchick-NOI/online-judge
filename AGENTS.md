@@ -175,6 +175,10 @@ Newest last. Do not undo these without the owner's say-so.
   contest, keeps **Virtual join**, and uses friendly dates ("Sat, Nov 21 · 12:09 PM"). The **Calendar tab is
   hidden** until the calendar page is rebuilt.
 - Contests are rated unless said otherwise: do not tag contests "rated"; tag the exceptions "unrated".
+- Home page: no big banner, stat boxes or rating chart (the owner found the page full of wasted space). Main
+  column: contests, Try next, your recent submissions. Right column: your own card (rating, rank, solved), or a
+  Log in / Sign up card for visitors, then Top users and News.
+- Staff accounts must never appear in rankings anywhere (users list, profile ranks, home page).
 - On list pages the owner wants little-used filters tucked away, no sliders, and no verdict counts or statistics
   that could discourage students.
 
@@ -195,9 +199,9 @@ problem and contest pages).
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
 **Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally; no
-real problems or contests yet; staff accounts are hidden from the users list but can still appear in the home page's
-top users and in organisation member lists; `502.html` and `logo.png` at the repository root are still DMOJ's; new
-interface text has no translations.
+real problems or contests yet; staff accounts can still appear in organisation member lists; the old `.pn-dash*` and
+`.pn-stat*` rules in `pnoi.scss` are no longer used; `502.html` and `logo.png` at the repository root are still
+DMOJ's; new interface text has no translations.
 
 ## Work log
 
@@ -215,3 +219,5 @@ interface text has no translations.
   past list with a Rated / Type / Joined panel; Calendar tab hidden; friendlier dates; "unrated" tag instead of "rated"
   (PR 21). Tested locally without a judge; pressing Join was not tried. The home page and the contest page still
   show a "rated" tag.
+- 2026-11-16, Devin: home page rebuilt as lists on the left and your card, Top users and News on the right; staff
+  hidden from Top users and from your rank (PR 22). Tested locally without a judge.

@@ -3637,6 +3637,169 @@ body[data-pn] {
     }
 }
 
+// ---------------------------------------------------------------- home page: lists on the left, your card on the right
+.pn-home {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 16px;
+    align-items: start;
+}
+
+.pn-home-main, .pn-home-side, .pn-home-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pn-home-extra {
+    margin-top: 16px;
+
+    &:empty {
+        display: none;
+    }
+}
+
+.pn-home-box {
+    overflow: hidden;
+
+    h2 {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 0;
+        padding: 12px 16px 8px;
+        font-size: 15px;
+        font-weight: 700;
+
+        a {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+    }
+
+    .pn-empty {
+        margin: 0;
+        padding: 4px 16px 14px;
+        text-align: left;
+    }
+
+    .pn-contest-row, .pn-home-row {
+        border-top: 1px solid var(--pn-line);
+        border-bottom: 0;
+    }
+
+    .pn-contest-row {
+        padding: 9px 16px;
+    }
+
+    .pn-pages {
+        padding: 0 16px 10px;
+    }
+}
+
+.pn-home-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+
+    .pn-problem-name, .pn-home-grow {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .pn-list-meta {
+        white-space: nowrap;
+    }
+
+    &.pn-home-news {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+}
+
+.pn-home .pn-list-meta {
+    color: var(--pn-muted);
+    font-size: 13px;
+}
+
+.pn-home-pos {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--pn-track);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pn-home-me {
+    padding: 16px;
+    text-align: center;
+
+    img {
+        display: block;
+        margin: 0 auto 8px;
+        border: 3px solid var(--pn-yellow);
+        border-radius: 50%;
+    }
+
+    .pn-home-name {
+        display: block;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    p {
+        margin: 6px 0 12px;
+        color: var(--pn-muted);
+    }
+
+    .pn-btn + .pn-btn {
+        margin-top: 8px;
+    }
+
+    dl {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin: 12px 0 0;
+        padding-top: 10px;
+        border-top: 1px solid var(--pn-line);
+    }
+
+    dt {
+        color: var(--pn-muted);
+        font-size: 12px;
+    }
+
+    dd {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+    }
+}
+
+@media (max-width: 860px) {
+    .pn-home {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    // On a phone your card (or the log in card) comes first, then the lists, then top users and news.
+    .pn-home-main, .pn-home-side {
+        display: contents;
+    }
+
+    .pn-home-me {
+        order: -1;
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.

@@ -15,6 +15,7 @@ from judge.utils.problems import user_completed_ids
 from judge.utils.opengraph import generate_opengraph
 from judge.utils.tickets import filter_visible_tickets
 from judge.utils.views import TitleMixin
+from judge.views.user import listed_profiles
 
 
 class PostList(ListView):
@@ -88,16 +89,12 @@ class PostList(ListView):
         context['past_contests'] = visible_contests.filter(end_time__lte=now).order_by('-end_time')[:5]
 
         # Dashboard panels.
-        context['top_users'] = (Profile.objects.filter(is_unlisted=False, user__is_active=True)
+        context['top_users'] = (listed_profiles().filter(user__is_active=True)
                                 .order_by('-performance_points', 'id').select_related('user')[:5])
         if self.request.user.is_authenticated:
             profile = self.request.profile
-            context['dash_rank'] = Profile.objects.filter(
-                is_unlisted=False, performance_points__gt=profile.performance_points).count() + 1
-            ratings = list(profile.ratings.order_by('contest__end_time').values_list('rating', flat=True))
-            context['dash_rating_count'] = len(ratings)
-            context['dash_rating_change'] = ratings[-1] - ratings[-2] if len(ratings) >= 2 else None
-            context['dash_rating_points'] = self.rating_polyline(ratings)
+            context['dash_rank'] = listed_profiles().filter(
+                performance_points__gt=profile.performance_points).count() + 1
             context['dash_recent'] = (Submission.objects.filter(user=profile).order_by('-id')
                                       .select_related('problem', 'language')[:5])
             context['dash_next'] = (Problem.get_public_problems().exclude(id__in=user_completed_ids(profile))
