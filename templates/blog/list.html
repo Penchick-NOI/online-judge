@@ -19,273 +19,141 @@
     </script>
 {% endblock %}
 
-{% macro contest_row(contest, state) %}
-    <tr>
-        <td>
+{% macro contest_line(contest, live) %}
+    <div class="pn-contest-row{% if live %} pn-contest-live{% endif %}">
+        <div class="pn-contest-main">
+            {% if live %}<span class="pn-contest-status">{{ _('Ongoing') }}</span>{% endif %}
             <a class="pn-problem-name" href="{{ url('contest_view', contest.key) }}">{{ contest.name }}</a>
-            {% if contest.is_rated %}<span class="pn-tag pn-tag-yellow">{{ _('Rated') }}</span>{% endif %}
-        </td>
-        <td class="pn-hide-sm">{{ contest.start_time|date(_("M j, Y, G:i")) }}</td>
-        <td class="pn-hide-sm">
-            {% if contest.time_limit %}
-                {{ contest.time_limit|timedelta('localized-no-seconds') }}
-            {% else %}
-                {{ contest.contest_window_length|timedelta('localized-no-seconds') }}
-            {% endif %}
-        </td>
-        <td>
-            {% if state == 'live' %}
-                <span class="pn-state-live">{{ _('Running') }}</span>
-            {% elif state == 'upcoming' %}
-                <span class="pn-tag">{{ _('Upcoming') }}</span>
-            {% else %}
-                <span class="pn-muted">{{ _('Finished') }}</span>
-            {% endif %}
-        </td>
-    </tr>
+            {% if not contest.is_rated %}<span class="pn-tag pn-tag-yellow">{{ _('unrated') }}</span>{% endif %}
+            <div class="pn-list-meta">
+                {% if live %}
+                    {{ _('Ends in %(countdown)s', countdown=as_countdown(contest.time_before_end)) }}
+                {% else %}
+                    {{ contest.start_time|date(_("D, M j")) }} &middot; {{ contest.start_time|date(_("g:i A")) }}
+                    &middot; {{ _('starts in %(countdown)s', countdown=as_countdown(contest.time_before_start)) }}
+                {% endif %}
+            </div>
+        </div>
+        {% if live %}
+            <a class="pn-btn pn-btn-red pn-btn-sm" href="{{ url('contest_view', contest.key) }}">{{ _('Go to contest') }}</a>
+        {% endif %}
+    </div>
 {% endmacro %}
 
 {% block body %}
     {% block before_posts %}{% endblock %}
-    {% set live_contest = current_contests|first %}
-    {% set next_contest = future_contests|first %}
     {% set authed = request.user.is_authenticated %}
-    <div class="pn-dash">
-        {# ---- row 1: the next contest, and three numbers ---- #}
-        <section class="pn-dash-hero pn-dash-8">
-            {% if live_contest %}
-                <span class="pn-dash-kicker">{{ _('Happening now') }}</span>
-                <h1><a href="{{ url('contest_view', live_contest.key) }}">{{ live_contest.name }}</a></h1>
-                <div>{{ _('Ends in') }}</div>
-                <div class="pn-dash-count">{{ as_countdown(live_contest.time_before_end) }}</div>
-                <a class="pn-btn pn-btn-red" href="{{ url('contest_view', live_contest.key) }}">{{ _('Go to contest') }}</a>
-            {% elif next_contest %}
-                <span class="pn-dash-kicker">{{ _('Next contest') }}</span>
-                <h1><a href="{{ url('contest_view', next_contest.key) }}">{{ next_contest.name }}</a></h1>
-                <div>{{ _('Starts in') }} &middot; {{ next_contest.start_time|date(_("M j, Y, G:i")) }}</div>
-                <div class="pn-dash-count">{{ as_countdown(next_contest.time_before_start) }}</div>
-                <a class="pn-btn pn-btn-red" href="{{ url('contest_view', next_contest.key) }}">{{ _('View contest') }}</a>
-            {% else %}
-                <span class="pn-dash-kicker">{{ SITE_LONG_NAME }}</span>
-                <h1>
-                    {% if authed %}
-                        {{ _('Welcome back, %(name)s', name=request.profile.display_name) }}
-                    {% else %}
-                        {{ _('Competitive programming for the Philippines') }}
-                    {% endif %}
-                </h1>
-                <div>{{ _('No contest is scheduled yet. Until then, practise on the problem set.') }}</div>
-                <a class="pn-btn pn-btn-red" href="{{ url('problem_list') }}">{{ _('Browse problems') }}</a>
-            {% endif %}
-        </section>
+    <div class="pn-home">
+        <div class="pn-home-main">
+            <section class="pn-card pn-home-box">
+                <h2>{{ _('Contests') }} <a href="{{ url('contest_list') }}">{{ _('All contests') }} &rarr;</a></h2>
+                {% for contest in current_contests %}{{ contest_line(contest, true) }}{% endfor %}
+                {% for contest in future_contests %}{{ contest_line(contest, false) }}{% endfor %}
+                {% if not current_contests and not future_contests %}
+                    <p class="pn-empty">{{ _('No contest is scheduled yet. Until then, practise on the problem set.') }}</p>
+                {% endif %}
+            </section>
 
-        <div class="pn-dash-stats pn-dash-4">
-            {% if authed %}
-                <div class="pn-card pn-stat">
-                    <span class="pn-stat-icon"><i class="fa fa-check" aria-hidden="true"></i></span>
-                    <div>
-                        <div class="pn-stat-label">{{ _('Problems solved') }}</div>
-                        <div class="pn-stat-value">{{ request.profile.problem_count }}</div>
-                    </div>
-                </div>
-                <div class="pn-card pn-stat pn-stat-yellow">
-                    <span class="pn-stat-icon"><i class="fa fa-line-chart" aria-hidden="true"></i></span>
-                    <div>
-                        <div class="pn-stat-label">{{ _('Rating') }}</div>
-                        <div class="pn-stat-value">
-                            {% if request.profile.rating %}
-                                {{ request.profile.rating }}
-                                {% if dash_rating_change %}
-                                    <span class="pn-stat-delta{% if dash_rating_change < 0 %} pn-down{% endif %}">
-                                        {{- '%+d'|format(dash_rating_change) -}}
-                                    </span>
-                                {% endif %}
-                            {% else %}
-                                &mdash;
-                            {% endif %}
+            <section class="pn-card pn-home-box">
+                {% if authed %}
+                    <h2>{{ _('Try next') }} <a href="{{ url('problem_list') }}">{{ _('All problems') }} &rarr;</a></h2>
+                    {% for problem in dash_next %}
+                        <div class="pn-home-row">
+                            <a class="pn-problem-name" href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a>
+                            <span class="pn-tag">{{ problem.points|floatformat }}</span>
                         </div>
-                    </div>
-                </div>
-                <div class="pn-card pn-stat pn-stat-red">
-                    <span class="pn-stat-icon"><i class="fa fa-trophy" aria-hidden="true"></i></span>
-                    <div>
-                        <div class="pn-stat-label">{{ _('Rank') }}</div>
-                        <div class="pn-stat-value">#{{ dash_rank }}</div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="pn-card pn-stat">
-                    <span class="pn-stat-icon"><i class="fa fa-code" aria-hidden="true"></i></span>
-                    <div>
-                        <div class="pn-stat-label">{{ _('Problems') }}</div>
-                        <div class="pn-stat-value">{{ problem_count() }}</div>
-                    </div>
-                </div>
-                <div class="pn-card pn-stat pn-stat-yellow">
-                    <span class="pn-stat-icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-                    <div>
-                        <div class="pn-stat-label">{{ _('Users') }}</div>
-                        <div class="pn-stat-value">{{ user_count() }}</div>
-                    </div>
-                </div>
-                <div class="pn-card pn-stat pn-stat-red">
-                    <span class="pn-stat-icon"><i class="fa fa-paper-plane" aria-hidden="true"></i></span>
-                    <div>
-                        <div class="pn-stat-label">{{ _('Submissions') }}</div>
-                        <div class="pn-stat-value">{{ submission_count() }}</div>
-                    </div>
-                </div>
+                    {% else %}
+                        <p class="pn-empty">{{ _('You have solved every public problem. Well done!') }}</p>
+                    {% endfor %}
+                {% else %}
+                    <h2>{{ _('New problems') }} <a href="{{ url('problem_list') }}">{{ _('All problems') }} &rarr;</a></h2>
+                    {% for problem in new_problems %}
+                        <div class="pn-home-row">
+                            <a class="pn-problem-name" href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a>
+                        </div>
+                    {% else %}
+                        <p class="pn-empty">{{ _('No problems yet.') }}</p>
+                    {% endfor %}
+                {% endif %}
+            </section>
+
+            {% if authed %}
+                <section class="pn-card pn-home-box">
+                    <h2>{{ _('Your recent submissions') }}
+                        <a href="{{ url('all_user_submissions', request.user.username) }}">{{ _('All') }} &rarr;</a>
+                    </h2>
+                    {% for sub in dash_recent %}
+                        <div class="pn-home-row">
+                            <span class="pn-v pn-v-{{ sub.result_class }}">{{ sub.short_status }}</span>
+                            <a class="pn-problem-name" href="{{ url('submission_status', sub.id) }}">{{ sub.problem.name }}</a>
+                            <span class="pn-list-meta">{{ relative_time(sub.date) }}</span>
+                        </div>
+                    {% else %}
+                        <p class="pn-empty">{{ _('Nothing submitted yet. Pick a problem and send your first solution.') }}</p>
+                    {% endfor %}
+                </section>
             {% endif %}
         </div>
 
-        {# ---- row 2: rating history (or what to do next), and the top ranked ---- #}
-        <section class="pn-card pn-panel pn-dash-8">
+        <div class="pn-home-side">
             {% if authed %}
-                <h2>{{ _('Rating history') }}</h2>
-                {% if dash_rating_points %}
-                    <svg class="pn-chart" viewBox="0 0 300 80" preserveAspectRatio="none" role="img"
-                         aria-label="{{ _('Your rating after each rated contest') }}">
-                        <polyline points="{{ dash_rating_points }}" fill="none" stroke="#1d3a8a" stroke-width="2"
-                                  stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-                    </svg>
-                    <div class="pn-muted">
-                        {{ _('%(count)d rated contests', count=dash_rating_count) }}
+                {% set me = request.profile %}
+                <section class="pn-card pn-home-me">
+                    <img src="{{ gravatar(me, 128) }}" alt="" width="64" height="64">
+                    <a class="pn-home-name" href="{{ url('user_page') }}">{{ me.display_name }}</a>
+                    {% if me.school or me.grade_label %}
+                        <div class="pn-list-meta">
+                            {{ me.school }}{% if me.school and me.grade_label %} &middot; {% endif %}{{ me.grade_label or '' }}
+                        </div>
+                    {% endif %}
+                    <dl>
+                        <div><dt>{{ _('Rating') }}</dt><dd>{{ me.rating or '—' }}</dd></div>
+                        <div><dt>{{ _('Rank') }}</dt><dd>#{{ dash_rank }}</dd></div>
+                        <div><dt>{{ _('Solved') }}</dt><dd>{{ me.problem_count }}</dd></div>
+                    </dl>
+                </section>
+            {% else %}
+                <section class="pn-card pn-home-me">
+                    <div class="pn-home-name">{{ _('Welcome to PNOI') }}</div>
+                    <p>{{ _('Solve problems, join timed contests, and watch your rating grow.') }}</p>
+                    <a class="pn-btn pn-btn-block" href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}">{{ _('Log in') }}</a>
+                    {% if REGISTRATION_OPEN %}
+                        <a class="pn-btn pn-btn-soft pn-btn-block" href="{{ url('registration_register') }}">{{ _('Sign up') }}</a>
+                    {% endif %}
+                </section>
+            {% endif %}
+
+            <section class="pn-card pn-home-box">
+                <h2>{{ _('Top users') }} <a href="{{ url('user_list') }}">{{ _('All') }} &rarr;</a></h2>
+                {% for user in top_users %}
+                    <div class="pn-home-row">
+                        <span class="pn-home-pos">{{ loop.index }}</span>
+                        <span class="pn-home-grow">{{ link_user(user) }}</span>
+                        <span class="pn-list-meta">{{ user.performance_points|floatformat(0) }}</span>
                     </div>
                 {% else %}
-                    <p class="pn-empty">{{ _('You have no rating yet. Take part in a rated contest and your rating history will appear here.') }}</p>
-                {% endif %}
-            {% else %}
-                <h2>{{ _('Start here') }}</h2>
-                <p style="margin: 0 0 14px">
-                    {{ _('Solve problems, join timed contests, and watch your rating grow. Create an account to keep track of what you have solved.') }}
-                </p>
-                <a class="pn-btn" href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}">{{ _('Log in') }}</a>
-                {% if REGISTRATION_OPEN %}
-                    <a class="pn-btn pn-btn-soft" href="{{ url('registration_register') }}">{{ _('Sign up') }}</a>
-                {% endif %}
-            {% endif %}
-        </section>
+                    <p class="pn-empty">{{ _('Nobody is ranked yet.') }}</p>
+                {% endfor %}
+            </section>
 
-        <section class="pn-card pn-panel pn-dash-4">
-            <h2>{{ _('Top ranked') }} <a href="{{ url('user_list') }}">{{ _('All') }} &rarr;</a></h2>
-            {% if top_users %}
-                <ol class="pn-rank-list">
-                    {% for user in top_users %}
-                        <li>
-                            <span class="pn-rank-pos">{{ loop.index }}</span>
-                            <span class="pn-rank-name">{{ link_user(user) }}</span>
-                            <span class="pn-rank-num">{{ user.performance_points|floatformat(0) }}</span>
-                        </li>
-                    {% endfor %}
-                </ol>
-            {% else %}
-                <p class="pn-empty">{{ _('Nobody is ranked yet.') }}</p>
-            {% endif %}
-        </section>
-
-        {# ---- row 3: contests and news ---- #}
-        <section class="pn-card pn-panel pn-panel-flush pn-dash-8">
-            <h2>{{ _('Contests') }} <a href="{{ url('contest_list') }}">{{ _('All contests') }} &rarr;</a></h2>
-            {% if current_contests or future_contests or past_contests %}
-                <div class="pn-table-wrap">
-                    <table class="pn-table">
-                        <thead>
-                            <tr>
-                                <th>{{ _('Contest') }}</th>
-                                <th class="pn-hide-sm">{{ _('Start') }}</th>
-                                <th class="pn-hide-sm">{{ _('Length') }}</th>
-                                <th>{{ _('Status') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for contest in current_contests %}{{ contest_row(contest, 'live') }}{% endfor %}
-                            {% for contest in future_contests %}{{ contest_row(contest, 'upcoming') }}{% endfor %}
-                            {% for contest in past_contests %}{{ contest_row(contest, 'past') }}{% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <p class="pn-empty" style="padding: 10px 20px 14px">{{ _('No contests yet. Upcoming rounds will be listed here.') }}</p>
-            {% endif %}
-        </section>
-
-        <section class="pn-card pn-panel pn-dash-4">
-            <h2>{{ _('News') }}</h2>
-            {% if posts %}
-                <ul class="pn-list" style="margin: 0 -20px">
-                    {% for post in posts %}
-                        <li>
-                            <a class="pn-list-title" href="{{ url('blog_post', post.id, post.slug) }}">{{ post.title }}</a>
-                            <span class="pn-list-meta">
-                                {% with abs=_('posted on {time}'), rel=_('posted {time}') %}
-                                    {{ relative_time(post.publish_on, abs=abs, rel=rel) }}
-                                {% endwith %}
-                            </span>
-                        </li>
-                    {% endfor %}
-                </ul>
-                {% if page_obj.has_other_pages() %}
+            <section class="pn-card pn-home-box">
+                <h2>{{ _('News') }}</h2>
+                {% for post in posts %}
+                    <div class="pn-home-row pn-home-news">
+                        <a class="pn-problem-name" href="{{ url('blog_post', post.id, post.slug) }}">{{ post.title }}</a>
+                        <span class="pn-list-meta">{{ post.publish_on|date(_("M j, Y")) }}</span>
+                    </div>
+                {% else %}
+                    <p class="pn-empty">{{ _('No news yet.') }}</p>
+                {% endfor %}
+                {% if posts and page_obj.has_other_pages() %}
                     <div class="pn-pages">{% include "list-pages.html" %}</div>
                 {% endif %}
-            {% else %}
-                <p class="pn-empty">{{ _('No news yet.') }}</p>
-            {% endif %}
-        </section>
+            </section>
+        </div>
+    </div>
 
-        {# ---- row 4: what to solve, and what you did ---- #}
-        <section class="pn-card pn-panel pn-dash-6">
-            {% if authed %}
-                <h2>{{ _('Try next') }} <a href="{{ url('problem_list') }}">{{ _('All problems') }} &rarr;</a></h2>
-                {% if dash_next %}
-                    <ul class="pn-list" style="margin: 0 -20px">
-                        {% for problem in dash_next %}
-                            <li style="display: flex; align-items: center; gap: 10px">
-                                <a class="pn-list-title" style="flex: 1" href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a>
-                                <span class="pn-tag">{{ problem.points|floatformat }}</span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="pn-empty">{{ _('You have solved every public problem. Well done!') }}</p>
-                {% endif %}
-            {% else %}
-                <h2>{{ _('New problems') }} <a href="{{ url('problem_list') }}">{{ _('All problems') }} &rarr;</a></h2>
-                {% if new_problems %}
-                    <ul class="pn-list" style="margin: 0 -20px">
-                        {% for problem in new_problems %}
-                            <li><a class="pn-list-title" href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="pn-empty">{{ _('No problems yet.') }}</p>
-                {% endif %}
-            {% endif %}
-        </section>
-
-        <section class="pn-card pn-panel pn-dash-6">
-            {% if authed %}
-                <h2>{{ _('Your recent submissions') }}
-                    <a href="{{ url('all_user_submissions', request.user.username) }}">{{ _('All') }} &rarr;</a>
-                </h2>
-                {% if dash_recent %}
-                    <ul class="pn-list" style="margin: 0 -20px">
-                        {% for sub in dash_recent %}
-                            <li style="display: flex; align-items: center; gap: 10px">
-                                <span class="pn-v pn-v-{{ sub.result_class }}">{{ sub.short_status }}</span>
-                                <a class="pn-list-title" style="flex: 1" href="{{ url('submission_status', sub.id) }}">{{ sub.problem.name }}</a>
-                                <span class="pn-list-meta">{{ relative_time(sub.date) }}</span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="pn-empty">{{ _('Nothing submitted yet. Pick a problem and send your first solution.') }}</p>
-                {% endif %}
-            {% else %}
-                <h2>{{ _('Languages') }}</h2>
-                <p style="margin: 0">{{ _('Submit your solutions in C++ or Python.') }}</p>
-            {% endif %}
-        </section>
-
+    <div class="pn-home-extra">
         {% if request.in_contest and request.participation.contest.use_clarifications %}
             <section class="pn-card pn-panel">
                 <h2>{{ _('Clarifications') }}</h2>
