@@ -3590,36 +3590,8 @@ body[data-pn] {
     }
 }
 
-// ---------------------------------------------------------------- contests list: banner, cards, rows
+// ---------------------------------------------------------------- contests list: cards and rows
 // The filter panel reuses the submissions list's .pn-subs-* panel rules.
-.pn-contest-hero {
-    .pn-hero-title {
-        font-size: 30px;
-    }
-
-    .pn-contest-hero-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 8px;
-    }
-
-    .pn-hero-meta + .pn-hero-meta {
-        margin-top: 4px;
-        font-size: 14px;
-    }
-
-    .time-remaining {
-        color: var(--pn-yellow);
-        font-family: var(--pn-mono);
-        font-weight: 700;
-    }
-
-    form {
-        margin: 0;
-    }
-}
-
 .pn-contest-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -3628,6 +3600,35 @@ body[data-pn] {
 
 .pn-contest-card {
     padding: 14px 16px;
+
+    &.pn-contest-live {
+        border-color: var(--pn-red);
+    }
+
+    .pn-contest-status {
+        display: inline-block;
+        margin-right: 6px;
+        padding: 2px 10px;
+        border-radius: 999px;
+        background: var(--pn-red);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .pn-contest-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 10px;
+    }
+}
+
+.pn-contest-users {
+    color: var(--pn-muted);
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 .pn-contest-row {
@@ -3645,12 +3646,6 @@ body[data-pn] {
     .pn-contest-main {
         flex: 1 1 200px;
         min-width: 0;
-    }
-
-    .pn-contest-users {
-        color: var(--pn-muted);
-        font-size: 13px;
-        white-space: nowrap;
     }
 }
 

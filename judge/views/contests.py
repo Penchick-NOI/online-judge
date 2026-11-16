@@ -159,18 +159,6 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         active.sort(key=attrgetter('end_time', 'key'))
         present.sort(key=attrgetter('end_time', 'key'))
         future.sort(key=attrgetter('start_time'))
-
-        # One contest gets the banner: the one the user is in, else one that is running, else the next one.
-        featured = None
-        if active:
-            participation = active.pop(0)
-            featured = {'contest': participation.contest, 'participation': participation, 'state': 'active'}
-        elif present:
-            featured = {'contest': present.pop(0), 'participation': None, 'state': 'ongoing'}
-        elif future:
-            featured = {'contest': future.pop(0), 'participation': None, 'state': 'upcoming'}
-        context['featured'] = featured
-
         context['active_participations'] = active
         context['current_contests'] = present
         context['future_contests'] = future
