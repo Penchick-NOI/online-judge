@@ -82,6 +82,13 @@ A problem stays hidden from students until you tick **Publicly visible**, so you
      test cases (or batches). If it is unticked, only a full solve counts.
    - **Short circuit** — if ticked, the judge stops at the first failed test case instead of running the rest.
      Leave it unticked if you want partial points.
+   Under **Difficulty**, just below:
+   - **Difficulty estimate** — your own guess of how hard the problem is, on the same scale as ratings: `800` is
+     the easiest, `1200` is a typical beginner problem, `2000` and above is hard. The problem list shows it with
+     a `~` in front (for example `~1200`) so students know it is a guess. You may leave it empty.
+   - **Calculated difficulty** — you cannot type here. After the problem has been used in a rated contest and
+     you click **Rate**, the site works out the difficulty by itself and shows it here and on the problem list,
+     replacing your estimate. It needs at least 10 rated contestants in that contest.
 6. Under **Limits**:
    - **Time limit** — in **seconds**. Fractional values work, for example `1` or `1.5`.
    - **Memory limit** — in **kilobytes**, not megabytes. Multiply megabytes by 1024. For example 256 MB is

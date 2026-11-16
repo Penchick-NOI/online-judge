@@ -130,6 +130,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         (_('Social Media'), {'classes': ('collapse',), 'fields': ('og_image', 'summary')}),
         (_('Taxonomy'), {'fields': ('types', 'group')}),
         (_('Points'), {'fields': (('points', 'partial'), 'short_circuit')}),
+        (_('Difficulty'), {'fields': ('difficulty_estimate', 'difficulty_calculated')}),
         (_('Limits'), {'fields': ('time_limit', 'memory_limit')}),
         (_('Language'), {'fields': ('allowed_languages',)}),
         (_('Justice'), {'fields': ('banned_users',)}),
@@ -163,7 +164,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         return actions
 
     def get_readonly_fields(self, request, obj=None):
-        fields = self.readonly_fields
+        fields = tuple(self.readonly_fields) + ('difficulty_calculated',)
         if not request.user.has_perm('judge.create_private_problem'):
             fields += ('organizations',)
             if not request.user.has_perm('judge.change_public_visibility'):

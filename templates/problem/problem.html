@@ -230,6 +230,13 @@
         <span class="pn-fact-chips">
             <span class="pn-tag"><i class="fa fa-clock-o"></i> {{ problem.time_limit }}s</span>
             <span class="pn-tag"><i class="fa fa-server"></i> {{ problem.memory_limit|kbsimpleformat }}</span>
+            {% if not contest_problem and problem.difficulty is not none %}
+                <span class="pn-tag pn-difficulty-chip"
+                      title="{% if problem.difficulty_is_estimate %}{{ _('Estimated by the problem setter. It will be calculated after a rated contest.') }}{% else %}{{ _('Calculated from a rated contest.') }}{% endif %}">
+                    {{ _('Difficulty') }}
+                    <b class="{{ problem.difficulty_class }}">{% if problem.difficulty_is_estimate %}~{% endif %}{{ problem.difficulty }}</b>
+                </span>
+            {% endif %}
             <span class="pn-tag pn-tag-yellow">
                 {% if contest_problem %}
                     {{ contest_problem.points }}{% if contest_problem.partial %}p{% endif %}

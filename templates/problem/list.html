@@ -121,7 +121,8 @@
                 {% if show_types %}
                     {{ sort_th('type', _('Types'), 'pn-hide-sm') }}
                 {% endif %}
-                {{ sort_th('points', _('Points'), 'pn-num') }}
+                {{ sort_th('difficulty', _('Difficulty'), 'pn-num') }}
+                {{ sort_th('points', _('Points'), 'pn-num pn-hide-sm') }}
                 {{ sort_th('ac_rate', _('Accepted'), 'pn-num pn-hide-sm') }}
                 {{ sort_th('editorial', _('Editorial'), 'pn-center pn-hide-sm') }}
                 {{ sort_th('user_count', _('Solved by'), 'pn-num pn-hide-sm') }}
@@ -173,7 +174,20 @@
                         {% endfor %}
                     </td>
                 {% endif %}
-                <td class="pn-num p">
+                {% if not request.in_contest %}
+                    <td class="pn-num pn-difficulty">
+                        {% if problem.difficulty is none %}
+                            <span class="pn-muted" title="{{ _('No difficulty yet') }}">&ndash;</span>
+                        {% elif problem.difficulty_is_estimate %}
+                            <span class="{{ problem.difficulty_class }}"
+                                  title="{{ _('Estimated by the problem setter. It will be calculated after a rated contest.') }}">~{{ problem.difficulty }}</span>
+                        {% else %}
+                            <span class="{{ problem.difficulty_class }}"
+                                  title="{{ _('Calculated from a rated contest.') }}">{{ problem.difficulty }}</span>
+                        {% endif %}
+                    </td>
+                {% endif %}
+                <td class="pn-num p{% if not request.in_contest %} pn-hide-sm{% endif %}">
                     <span class="pn-tag">{{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}</span>
                 </td>
                 {% if not request.in_contest %}
@@ -230,17 +244,16 @@
                                title="{{ _('Remove this filter') }}">{{ cat.name }} <span>&times;</span></a>
                         {% endfor %}
                         {% for tier in filter_tiers if tier.active %}
-                            <a class="pn-tag pn-tag-yellow pn-plist-remove" href="{{ clear_points_url }}"
+                            <a class="pn-tag pn-tag-yellow pn-plist-remove" href="{{ clear_difficulty_url }}"
                                title="{{ _('Remove this filter') }}">{{ tier.name }} <span>&times;</span></a>
-                        {% else %}
-                            {% if has_point_filter %}
-                                <a class="pn-tag pn-tag-yellow pn-plist-remove" href="{{ clear_points_url }}"
-                                   title="{{ _('Remove this filter') }}">
-                                    {{ _('%(start)s–%(end)s points', start='%g' % point_start, end='%g' % point_end) }}
-                                    <span>&times;</span>
-                                </a>
-                            {% endif %}
                         {% endfor %}
+                        {% if has_point_filter %}
+                            <a class="pn-tag pn-tag-yellow pn-plist-remove" href="{{ clear_points_url }}"
+                               title="{{ _('Remove this filter') }}">
+                                {{ _('%(start)s–%(end)s points', start='%g' % point_start, end='%g' % point_end) }}
+                                <span>&times;</span>
+                            </a>
+                        {% endif %}
                         {% if search_query %}
                             <span class="pn-tag pn-tag-green">“{{ search_query }}”</span>
                         {% endif %}
@@ -262,7 +275,7 @@
                         <a class="pn-tier{% if tier.active %} pn-active{% endif %}" href="{{ tier.url }}">
                             <span class="pn-tag {% if loop.first %}pn-tag-green{% elif loop.last %}pn-tag-red{% else %}pn-tag-yellow{% endif %}">{{ tier.name }}</span>
                             <span class="pn-muted">
-                                {%- if tier.low is none %}≤ {{ tier.high }}{% elif tier.high is none %}{{ tier.low }}+{% else %}{{ tier.low }}–{{ tier.high }}{% endif %} {{ _('pts') }}
+                                {%- if tier.low is none %}{{ _('below %(value)s', value=tier.high + 1) }}{% elif tier.high is none %}{{ tier.low }}+{% else %}{{ tier.low }}–{{ tier.high }}{% endif %}
                                 · {{ tier.count }}
                             </span>
                         </a>

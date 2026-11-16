@@ -196,7 +196,8 @@ Newest last. Do not undo these without the owner's say-so.
   contests with a clean record. Any disqualification removes it. No manual approval.
 - **Problem difficulty is calculated automatically**: the rating at which a contestant had a 50% chance of
   solving the problem in its contest (as Codeforces and AtCoder do). Until there is enough data, the setter's own
-  estimate is shown, marked as an estimate. (Not built yet.)
+  estimate is shown, marked as an estimate (`~1200`). Built: `judge/utils/difficulty.py`, run when a contest
+  is rated. Problem points are a separate, older number and are still entered by hand.
 - **Organizations are groups of students** (clubs, training groups), not official schools. Any student can ask to
   start one; it appears only after the owner's team approves it. (The request form is not built yet.)
 
@@ -272,3 +273,10 @@ DMOJ's; new interface text has no translations.
   Verified badge added to profiles (`Profile.is_verified`), with "2 of 5 rated contests" progress on your own
   profile. Tested with temporary rated accounts. Not checked: phone width for the badge; the badge is on the
   profile page only, not next to names in lists.
+- 2026-11-17, Claude: automatic problem difficulty. New `Problem` fields `difficulty_estimate` (setter's guess),
+  `difficulty_calculated` and `difficulty` (what is shown; migration 0154). Rating a contest recalculates the
+  difficulty of its problems when it had at least `PNOI_DIFFICULTY_MIN_CONTESTANTS` (10) rated contestants.
+  Problem list: a sortable Difficulty column, and the Beginner / Intermediate / Advanced shortcuts now go by
+  difficulty (below 1200, 1200 to 1799, 1800+) instead of points. Difficulty is hidden while inside a contest.
+  Tested with two simulated rated contests. Not checked: phone width; a problem used in several contests simply
+  keeps the result of the one rated last.

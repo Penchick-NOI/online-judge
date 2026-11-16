@@ -165,7 +165,8 @@ Your account needs the permission to rate contests (**Rate contests**).
 2. Scroll to the bar at the bottom of the form, where the **Save** buttons are. A **Rate** button sits there too.
    (The **Rejudge** buttons are somewhere else: one on each row of the **Problems** table.) **Rate** only appears when
    **Contest rated** is ticked, the **End time** has passed, and your account has the rating permission.
-3. Click **Rate**. The page reloads when the ratings have been calculated.
+3. Click **Rate**. The page reloads when the ratings have been calculated. The same click also works out the
+   difficulty of each problem in the contest (see "Difficulty" in the problem guide).
 4. Check the **Rankings** tab or participants' profiles to see the new ratings.
 
 What the rating includes:

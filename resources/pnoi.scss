@@ -4461,6 +4461,21 @@ body[data-pn] {
     font-weight: 700;
 }
 
+// ---------------------------------------------------------------- problem difficulty
+.pn-difficulty span {
+    font-weight: 700;
+}
+
+.pn-difficulty-chip {
+    background: var(--pn-surface);
+    border: 1px solid var(--pn-line-strong);
+    color: var(--pn-muted);
+
+    b {
+        margin-left: 3px;
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.

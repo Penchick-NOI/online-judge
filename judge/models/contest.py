@@ -16,6 +16,7 @@ from judge.models.problem import Problem
 from judge.models.profile import Class, Organization, Profile
 from judge.models.submission import Submission
 from judge.ratings import rate_contest
+from judge.utils.difficulty import update_contest_difficulties
 
 __all__ = ['Contest', 'ContestTag', 'ContestParticipation', 'ContestProblem', 'ContestSubmission', 'Rating']
 
@@ -490,6 +491,7 @@ class Contest(models.Model):
                 is_rated=True, end_time__range=(self.end_time, self._now),
             ).order_by('end_time'):
                 rate_contest(contest)
+                update_contest_difficulties(contest)
 
     class Meta:
         permissions = (
