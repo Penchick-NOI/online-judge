@@ -186,10 +186,10 @@ editor, comment sections (currently left out of the rebuilt problem and contest 
 
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
-**Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally;
-no real problems or contests yet; staff accounts are hidden from the users list but can still appear in the home
-page's top users and in organisation member lists; `502.html` and `logo.png` at the repository root are still DMOJ's; new interface
-text has no translations.
+**Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally; no
+real problems or contests yet; staff accounts are hidden from the users list but can still appear in the home page's
+top users and in organisation member lists; `502.html` and `logo.png` at the repository root are still DMOJ's; new
+interface text has no translations.
 
 ## Work log
 
