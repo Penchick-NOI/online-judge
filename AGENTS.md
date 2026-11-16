@@ -1,0 +1,196 @@
+# PNOI shared notes for AI assistants
+
+This file is the shared memory between the AI assistants working on PNOI (currently **Claude** and **Devin**) and the
+project owner (**@lrnnz**). The assistants cannot see each other's chats, so anything the other one needs to know
+goes here.
+
+**Every assistant, every session:**
+
+1. Read this whole file before doing anything.
+2. Follow it. If the owner tells you something that contradicts it, do what the owner says and update this file in
+   the same pull request.
+3. When you finish a piece of work, update [Current status](#current-status) and add a line to the
+   [Work log](#work-log). When the owner tells you a lasting preference or decision, add it to
+   [Decisions the owner has made](#decisions-the-owner-has-made).
+4. Keep this file factual and short. No secrets, passwords, email addresses or personal details, ever.
+
+---
+
+## What PNOI is
+
+**PNOI (Penchick National Olympiad in Informatics)** is a competitive programming website for the Philippines: a
+place where students solve programming problems, join timed rated contests and climb a leaderboard.
+
+- **Inspiration:** Codeforces and AtCoder. Like them, PNOI runs regular rated rounds, has a problem archive, ratings
+  and rating colours. AtCoder's cleanliness is the standard for clarity. Kattis and AtCoder are the reference for
+  list pages with a filter panel at the side.
+- **But it must not look like any of them, and above all not like DMOJ.** PNOI is built on DMOJ's code, and the owner
+  has rejected every design that still resembled DMOJ. PNOI has its own identity.
+- **Audience:** Filipino students, mostly in elementary and high school (Grade 4 to Grade 12), plus some college
+  students, and the teachers and organisers who run contests for them. Many are beginners and many are minors.
+  Many will use a phone. Design and write for them:
+  - plain, friendly English; no jargon without explanation;
+  - Philippine context by default: Philippine time (`Asia/Manila`), schools, grade levels and regions on profiles,
+    school rankings;
+  - ask for as little personal information as possible, keep it optional, and let students hide it.
+- **Contest style:** rated Codeforces/AtCoder-style rounds first. IOI-style subtasks and partial scoring are
+  supported (the judge has them) and matter for olympiad training.
+- **Languages students can submit in:** C++17, C++20 and Python 3 only.
+- **Stage:** not launched. It runs only on the owner's computer. There is no launch date. The eventual hosting budget
+  is about $5 to $15 a month. The repository is public.
+
+## The owner
+
+- Knows competitive programming well. Is a **beginner** at GitHub, web development and running a website.
+- Explain what you did and why in plain words. Give exact steps when the owner has to do something.
+- Likes to **choose from options**: for any new look or layout, show two or three mock-ups or screenshots and let the
+  owner pick. Do not pick a new design direction yourself.
+- Reviews and merges every pull request personally.
+
+## Roles
+
+- **Claude** is the main assistant. It works on the owner's computer, where the full site runs with a real judge, so
+  it can test things end to end. It reviews and tests what Devin has done, keeps the overall direction consistent,
+  and handles anything touching the local setup, the judge, data or settings.
+- **Devin** helps when the owner hands it a task, usually while Claude is unavailable. Typical tasks: rebuilding a
+  page in the PNOI design, writing documentation. Devin works from the repository only and cannot see the owner's
+  local site, so it must say clearly in each pull request what it could not test.
+- **Taking turns:** only one assistant works at a time. Never work on a page or file that has an open pull request
+  from the other assistant. Start every task from the latest `master`.
+- **The owner** decides everything about direction and design.
+
+## Rules
+
+1. Work on a branch and open a pull request against **`Penchick-NOI/online-judge`, branch `master`**. Never open a
+   pull request against `DMOJ/online-judge` (GitHub suggests it by default because this is a fork). Never push to
+   `master`.
+2. One pull request per task. The description says what changed, what was tested, and what was **not** tested.
+   Include screenshots for anything visual, at desktop and phone width.
+3. Never commit secrets, passwords, or `dmoj/local_settings.py`, `uwsgi.ini`, `websocket/config.js`. Never commit
+   problem test data.
+4. Keep the visible **Source code** link in the footer. The licence (AGPL-3.0) requires it.
+5. Do not delete branches, files or data you did not create, unless the owner says so.
+6. Do not upgrade Django or other dependencies, merge from `DMOJ/online-judge`, or change how contestant code is run,
+   unless the owner asks. Contestant code is untrusted; it must only ever run inside DMOJ's own judge sandbox.
+7. Hosting, domain, email and deployment are for later and only when the owner asks.
+8. If something is unclear, ask the owner.
+
+## The design: "Araw"
+
+*Araw* is Tagalog for "sun" (and "day"). The look is warm, bright and proudly Filipino: the blue, red and sun-yellow
+of the Philippine flag on a warm cream page.
+
+### What the owner wants it to feel like
+
+- **Unique to PNOI.** Not a recoloured DMOJ. When a page still has DMOJ's structure, rebuild its markup; do not just
+  restyle it.
+- **Rich and impressive, not plain.** The owner's words: the site should be "less underwhelming". Use the colours
+  boldly; give pages real structure (cards, panels, stats, side panels). An empty-looking page is a failure.
+- **Still clear.** AtCoder-level readability. Students must find the problem, the submit button and their result
+  immediately.
+
+### Colours, type and shapes
+
+All of these are CSS variables at the top of `resources/pnoi.scss`. Use the variables, never raw colour codes.
+
+| Role | Variable | Value |
+| --- | --- | --- |
+| Page background (warm cream) | `--pn-bg` | `#fffbf2` |
+| Cards and panels | `--pn-surface` | `#ffffff` |
+| Text | `--pn-text` | `#1b2440` |
+| Muted text | `--pn-muted` | `#6b6f80` |
+| Blue: links, headings, primary identity | `--pn-blue` | `#1d3a8a` |
+| Red: the main action button, errors | `--pn-red` | `#d7263d` |
+| Sun yellow: highlights, avatar ring | `--pn-yellow` | `#f9b916` |
+| Green: accepted / success | `--pn-green` | `#1e8e5a` |
+| Lines | `--pn-line`, `--pn-line-strong` | `#f0e6d2`, `#e2d5b8` |
+
+- **Type:** serif display font for page titles (`--pn-display`), system sans for everything else (`--pn-sans`),
+  monospace for code and problem codes (`--pn-mono`). No web fonts are loaded.
+- **Shapes:** rounded cards (`--pn-radius`, 14px), pill-shaped tabs, buttons and verdict labels.
+- **Light theme only** for now. There is no dark mode; do not add one unless asked.
+
+### Layout
+
+- **Slim dark icon rail** on the left (`.pn-rail`, dark navy): icon plus small label for each section, the user's
+  picture and account menu at the bottom. On phones it becomes a bar along the bottom.
+- **Home page is a dashboard:** next contest, the student's own rating and recent submissions, top users, past
+  contests.
+- **Problem page is a split workspace:** statement, submissions and details in tabs on the left; language choice,
+  code editor, submit button and the live result on the right. Students submit without leaving the page.
+- **List pages have a filter panel on the right** (problem list, submissions list), which folds behind a
+  **Filters** button on phones. Use this pattern for any other long list.
+- **Profile** has a card on the left (picture, name, school, grade, region, stats) and content on the right.
+- Every page must work at phone width (about 375px) with no sideways scrolling.
+
+## How the front end is built
+
+- **`templates/base.html`** is the page skeleton, written for PNOI. Do not change it without the owner's say-so.
+  The styling hook is `body[data-pn]` (the body's class attribute is overwritten by a script, so do not rely on it).
+- **`resources/pnoi.scss`** holds the entire PNOI design. Classes start with `pn-`. Add new rules just above the
+  line `// ---------------------------------------------------------------- legacy`. It is compiled by
+  `make_style.sh`.
+- **Rebuilt or not?** A rebuilt template contains `{% block legacy_css %}{% endblock %}`, which stops DMOJ's old
+  stylesheet from loading on that page. A template without it still has the old layout. To rebuild a page: add that
+  line, rewrite the markup with `pn-` classes, and check nothing on the page still depended on the old stylesheet.
+- **Building blocks to reuse:** `.pn-card`, `.pn-panel`, `.pn-table`, `.pn-btn` (`pn-btn-red` for the one main
+  action, `pn-btn-soft`, `pn-btn-sm`, `pn-btn-block`), `.pn-form`, `.pn-auth` (centred card for account pages),
+  verdict pills `.pn-v pn-v-<result>`, pill tabs via `templates/tabs-base.html`, rating colours `.rate-*`.
+  Dropdowns use select2 with `theme: 'default'`.
+- **Avoid `<nav>` and `<footer>` elements** in templates; the old stylesheet styles them and breaks pages that are
+  not rebuilt yet.
+- **Good examples to copy from:** `templates/user/edit-profile.html`, `templates/contest/list.html`,
+  `templates/problem/list.html`, `templates/registration/login.html`.
+- **Back end:** Django 4.2 with Jinja2 templates. It must run on **Python 3.12**; the admin pages crash on
+  Python 3.14. `django-admin-sortable2` is pinned below 2.3 for the same reason.
+- **Site content that lives in the database** (languages, the About page) is saved as fixtures in
+  `judge/fixtures/` so a new server can load it.
+- **PNOI's own profile fields:** `school`, `grade_class_year` (the year the student finishes Grade 12, so the grade
+  moves up each June), `student_status`, `region`, `show_school`, in `judge/models/profile.py`.
+
+## Decisions the owner has made
+
+Newest last. Do not undo these without the owner's say-so.
+
+- Build on a fork of DMOJ instead of writing a site from scratch.
+- Rated rounds first; C++ and Python only.
+- Finish the site's own design first, then guides, then content.
+- Rejected, in order: a recoloured DMOJ ("Dagat" teal palette), a monospace grid restyle. Reason both times: still
+  looked like DMOJ.
+- Chose the **Araw** palette and look from three full concepts.
+- Asked for the layout to be richer ("less underwhelming"), then chose: **dashboard layout with a slim dark icon
+  rail**, and a split problem page.
+- PNOI is for Filipino students, so profiles carry **school, grade level and region**. The organisations box and the
+  default-language dropdown were removed from sign-up and edit profile.
+- Sign-up asks for school details (optional); the leaderboard has a school column and per-school rankings.
+- List pages (problems, submissions) use a **right-hand filter panel**; the statistics pie chart was removed from the
+  submissions list.
+- The site-theme choice and the time-zone map picker are hidden or removed; new accounts default to `Asia/Manila`.
+
+## Current status
+
+*Update this section when you finish work.*
+
+**Rebuilt in the PNOI design:** home dashboard, problem list, problem page, submit page, submissions list, submission
+result and source pages, contest list, contest page, contest scoreboard, users leaderboard, profile, edit profile,
+log in, sign up, password and other account pages, About.
+
+**Still in DMOJ's old layout (to rebuild):** single news post, organisation pages, tickets, contest statistics,
+contest calendar, status pages (judges, languages), two-factor setup, "download your data", problem test data
+editor, comment sections (currently left out of the rebuilt problem and contest pages).
+
+**Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
+
+**Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally;
+no real problems or contests yet; `502.html` and `logo.png` at the repository root are still DMOJ's; new interface
+text has no translations.
+
+## Work log
+
+*One line per finished piece of work: date, who, what, pull request.*
+
+- 2026-11-14 to 15, Claude: Araw design, page skeleton and all student-facing pages (PRs 6 to 14).
+- 2026-11-15, Devin: organiser guides (PR 15); problem list with right-hand filter panel (PR 16); submissions list
+  with filter panel and day groups (PR 17).
+- 2026-11-16, Claude: tested the guides end to end and corrected them; fixed the admin "Add contest" crash; default
+  time zone set to Asia/Manila (PR 18). Added this file.
