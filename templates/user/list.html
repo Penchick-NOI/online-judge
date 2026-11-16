@@ -2,21 +2,93 @@
 
 {% block legacy_css %}{% endblock %}
 
+{% block users_js_media %}
+    <script>
+        $(function () {
+            var $form = $('#filter-form');
+
+            // Empty fields are left out of the address bar.
+            $form.on('submit', function () {
+                $form.find('input, select').each(function () {
+                    $(this).prop('disabled', !$(this).val());
+                });
+            });
+
+            // On phones the filter panel is folded away behind a button.
+            var $split = $('#users-split');
+            $('#filter-toggle').click(function () {
+                var open = $split.toggleClass('pn-subs-open').hasClass('pn-subs-open');
+                $(this).attr('aria-expanded', open);
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block title_row %}
     {% set tab = 'list' %}
     {% include "user/user-list-tabs.html" %}
 {% endblock %}
 
-{% block before_users_table %}
-    {% if school_filter %}
-        <div class="pn-school-filter">
-            <i class="fa fa-university" aria-hidden="true"></i>
-            <span>{{ _('Showing students of %(school)s', school=school_filter) }}</span>
-            <a class="pn-btn pn-btn-soft pn-btn-sm" href="{{ url('user_list') }}">{{ _('Show everyone') }}</a>
-        </div>
-    {% endif %}
-{% endblock %}
+{% block body %}
+    {% set filtering = school_filter or search_filter or region_filter %}
 
-{% block users_table %}
-    {% include "user/users-table.html" %}
+    <div class="pn-subs-bar">
+        <button id="filter-toggle" type="button" class="pn-btn pn-btn-soft pn-btn-sm pn-subs-toggle"
+                aria-controls="filter-panel" aria-expanded="{{ 'true' if filtering else 'false' }}">
+            <i class="fa fa-filter"></i> {{ _('Filters') }}
+        </button>
+        {% if filtering %}
+            <span class="pn-subs-active">
+                {% if search_filter %}<span class="pn-tag">{{ _('Search: %(text)s', text=search_filter) }}</span>{% endif %}
+                {% if school_filter %}<span class="pn-tag pn-tag-yellow">{{ school_filter }}</span>{% endif %}
+                {% if region_filter %}<span class="pn-tag">{{ region_label }}</span>{% endif %}
+                <a href="{{ url('user_list') }}">{{ _('Show everyone') }}</a>
+            </span>
+        {% endif %}
+    </div>
+
+    <div id="users-split" class="pn-split{% if filtering %} pn-subs-open{% endif %}">
+        <div>
+            {% if page_obj.object_list %}
+                <div class="pn-card pn-table-wrap">
+                    {% include "user/users-table.html" %}
+                </div>
+            {% else %}
+                <p class="pn-empty">{{ _('No users match these filters.') }}</p>
+            {% endif %}
+            {% if page_obj and page_obj.has_other_pages() %}
+                <div class="pn-pages">{% include "list-pages.html" %}</div>
+            {% endif %}
+        </div>
+
+        <aside id="filter-panel" class="pn-card pn-subs-side">
+            <h2>{{ _('Find users') }}</h2>
+            <form id="filter-form" action="{{ url('user_list') }}" method="get">
+                <label for="user-search">{{ _('Search') }}</label>
+                <input id="user-search" class="pn-input" type="search" name="q" maxlength="120"
+                       placeholder="{{ _('Username or school') }}" value="{{ search_filter }}">
+                <label for="user-region">{{ _('Region') }}</label>
+                <select id="user-region" class="pn-input" name="region">
+                    <option value="">{{ _('All regions') }}</option>
+                    {% for code, name in regions %}
+                        <option value="{{ code }}"{% if code == region_filter %} selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="user-order">{{ _('Sort by') }}</label>
+                <select id="user-order" class="pn-input" name="order">
+                    <option value="">{{ _('Points') }}</option>
+                    <option value="-rating"{% if sort_by_rating %} selected{% endif %}>{{ _('Rating') }}</option>
+                </select>
+                {% if school_filter %}
+                    <input type="hidden" name="school" value="{{ school_filter }}">
+                {% endif %}
+                <div class="pn-subs-actions">
+                    <button type="submit" class="pn-btn pn-btn-block">{{ _('Apply') }}</button>
+                    {% if filtering %}
+                        <a class="pn-btn pn-btn-soft pn-btn-block" href="{{ url('user_list') }}">{{ _('Show everyone') }}</a>
+                    {% endif %}
+                </div>
+            </form>
+        </aside>
+    </div>
 {% endblock %}

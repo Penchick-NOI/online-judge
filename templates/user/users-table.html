@@ -32,13 +32,15 @@
 {% endblock %}
 
 {% block after_point_head %}
+    {% if not hide_problem_column %}
     <th class="problems">
         {% if sort_links %}<a href="{{ sort_links.problem_count }}">{% endif %}
         {{ _('Problems') }}
         {%- if sort_links %}{{ sort_order.problem_count }}</a>{% endif %}
     </th>
+    {% endif %}
 {% endblock %}
 
 {% block after_point %}
-    <td>{{ user.problem_count }}</td>
+    {% if not hide_problem_column %}<td>{{ user.problem_count }}</td>{% endif %}
 {% endblock %}

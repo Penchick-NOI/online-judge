@@ -17,7 +17,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core import signing
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db.models import Count, Max, Min
+from django.db.models import Count, Max, Min, Q
 from django.db.models.functions import ExtractYear, TruncDate
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -33,6 +33,7 @@ from reversion import revisions
 
 from judge.forms import CustomAuthenticationForm, DownloadDataForm, EmailChangeForm, ProfileForm, newsletter_id
 from judge.models import Profile, Submission
+from judge.models.profile import REGIONS
 from judge.performance_points import get_pp_breakdown
 from judge.ratings import rating_class, rating_progress
 from judge.tasks import prepare_user_data
@@ -438,7 +439,7 @@ def generate_scratch_codes(request):
 
 class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin, TitleMixin, ListView):
     model = Profile
-    title = gettext_lazy('Leaderboard')
+    title = gettext_lazy('Users')
     context_object_name = 'users'
     template_name = 'user/list.html'
     paginate_by = 100
@@ -446,11 +447,26 @@ class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin
     default_desc = all_sorts
     default_sort = '-performance_points'
 
+    @staticmethod
+    def listed_profiles():
+        # Staff accounts (organisers, admins) are not students, so they are left out of the list.
+        return Profile.objects.filter(is_unlisted=False, user__is_staff=False)
+
     def get_queryset(self):
-        queryset = Profile.objects.filter(is_unlisted=False)
+        queryset = self.listed_profiles()
         self.school = ' '.join(self.request.GET.get('school', '').split())
         if self.school:
             queryset = queryset.filter(school=self.school, show_school=True)
+        self.search = ' '.join(self.request.GET.get('q', '').split())[:120]
+        if self.search:
+            # A school only matches for students who chose to show it.
+            queryset = queryset.filter(Q(user__username__icontains=self.search) |
+                                       Q(show_school=True, school__icontains=self.search))
+        self.region = self.request.GET.get('region', '')
+        if self.region not in dict(REGIONS):
+            self.region = ''
+        if self.region:
+            queryset = queryset.filter(region=self.region, show_school=True)
         return (queryset.order_by(self.order, 'id').select_related('user')
                 .only('display_rank', 'user__username', 'username_display_override', 'points', 'rating',
                       'performance_points', 'problem_count', 'school', 'show_school'))
@@ -464,7 +480,14 @@ class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin
         )
         context['first_page_href'] = '.'
         context['school_filter'] = self.school
+        context['search_filter'] = self.search
+        context['region_filter'] = self.region
+        context['region_label'] = dict(REGIONS).get(self.region)
+        context['regions'] = REGIONS
+        context['sort_by_rating'] = self.order.lstrip('-') == 'rating'
+        context['show_medals'] = self.order == self.default_sort
         context['show_school_column'] = True
+        context['hide_problem_column'] = True
         context.update(self.get_sort_context())
         context.update(self.get_sort_paginate_context())
         return context
@@ -495,10 +518,9 @@ def user_ranking_redirect(request):
     except KeyError:
         raise Http404()
     user = get_object_or_404(Profile, user__username=username)
-    rank = Profile.objects.filter(is_unlisted=False, performance_points__gt=user.performance_points).count()
-    rank += Profile.objects.filter(
-        is_unlisted=False, performance_points__exact=user.performance_points, id__lt=user.id,
-    ).count()
+    listed = UserList.listed_profiles()
+    rank = listed.filter(performance_points__gt=user.performance_points).count()
+    rank += listed.filter(performance_points__exact=user.performance_points, id__lt=user.id).count()
     page = rank // UserList.paginate_by
     return HttpResponseRedirect('%s%s#!%s' % (reverse('user_list'), '?page=%d' % (page + 1) if page else '', username))
 
