@@ -3816,6 +3816,389 @@ body[data-pn] {
     font-size: 13px;
 }
 
+// ---------------------------------------------------------------- single news post
+.pn-post-back {
+    display: inline-block;
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pn-post-article {
+    padding: 24px 28px;
+    min-width: 0;
+}
+
+.pn-post-title {
+    margin: 0 0 4px;
+    color: var(--pn-blue);
+    font-family: var(--pn-display);
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.pn-post-meta {
+    margin: 0 0 16px;
+    padding: 0 0 14px;
+    border-bottom: 1px solid var(--pn-line);
+    color: var(--pn-muted);
+    font-size: 13px;
+}
+
+// ---------------------------------------------------------------- comments
+// The markup comes from templates/comments/list.html, which the old-layout editorial page shares,
+// so its class names are DMOJ's. Everything here is scoped to .pn-comments.
+.pn-comments {
+    padding: 18px 28px 22px;
+    min-width: 0;
+
+    .comment-area > h2 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        font-weight: 700;
+
+        .fa {
+            display: none;
+        }
+    }
+
+    .pn-comments-login {
+        margin: 0;
+        padding-top: 10px;
+        border-top: 1px solid var(--pn-line);
+        color: var(--pn-muted);
+        font-size: 14px;
+    }
+
+    .no-comments-message, .comment-lock {
+        margin: 0 0 12px;
+        color: var(--pn-muted);
+    }
+
+    ul.comments, ul.reply-comment {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    // Replies sit under their parent, set in with a line down the side.
+    ul.comments ul.comments, ul.comments ul.reply-comment {
+        margin-left: 18px;
+        padding-left: 14px;
+        border-left: 2px solid var(--pn-line-strong);
+    }
+
+    .comment {
+        margin: 0;
+        border-top: 1px solid var(--pn-line);
+        scroll-margin-top: 16px;
+
+        &:target > .comment-display {
+            background: var(--pn-blue-tint);
+            border-radius: 10px;
+        }
+    }
+
+    .comment-display {
+        display: flex;
+        gap: 10px;
+        padding: 10px 6px;
+    }
+
+    .bad-comment {
+        opacity: .45;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    .info {
+        display: flex;
+        flex: none;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .vote {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 12px;
+        line-height: 1.1;
+
+        br {
+            display: none;
+        }
+
+        a {
+            color: var(--pn-muted);
+
+            &:hover, &.voted {
+                color: var(--pn-blue);
+                text-decoration: none;
+            }
+        }
+    }
+
+    .comment-score {
+        font-weight: 700;
+    }
+
+    .gravatar-mobile {
+        display: none;
+    }
+
+    .user-gravatar {
+        display: block;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+
+    .detail {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 2px 6px;
+        color: var(--pn-muted);
+        font-size: 13px;
+    }
+
+    .comment-spacer {
+        flex: 1;
+    }
+
+    .comment-operation {
+        white-space: nowrap;
+
+        a {
+            margin-left: 4px;
+            color: var(--pn-muted);
+
+            &:hover {
+                color: var(--pn-blue);
+                text-decoration: none;
+            }
+        }
+    }
+
+    .comment-body {
+        margin-top: 2px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+
+        p {
+            margin: 0 0 6px;
+        }
+
+        pre {
+            overflow-x: auto;
+            padding: 10px 12px;
+            border: 1px solid var(--pn-line);
+            border-radius: 10px;
+            background: var(--pn-bg);
+            font-family: var(--pn-mono);
+            font-size: 13px;
+        }
+
+        img {
+            max-width: 100%;
+        }
+    }
+
+    // The box for writing a comment or a reply.
+    .comment-submit {
+        position: relative;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--pn-line);
+
+        h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        hr {
+            display: none;
+        }
+
+        a.close {
+            position: absolute;
+            top: 10px;
+            right: 0;
+            padding: 0 6px;
+            color: var(--pn-muted);
+            font-weight: 700;
+            cursor: pointer;
+        }
+    }
+
+    .reply-comment .comment-submit {
+        margin: 0 0 10px;
+    }
+
+    #form-errors, .alert {
+        margin: 0 0 10px;
+        padding: 10px 14px;
+        border: 1px solid var(--pn-line-strong);
+        border-radius: 10px;
+        background: var(--pn-bg);
+        font-size: 14px;
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+    }
+}
+
+.pn-comments .main-martor, .featherlight .comment-edit-form .main-martor {
+    .ui.tab.segment {
+        padding: 0;
+        border: 0;
+    }
+
+    .martor-field {
+        min-height: 120px;
+        height: 120px;
+    }
+
+    .tab-martor-menu {
+        flex-wrap: wrap;
+        max-width: 100%;
+        min-height: 0;
+    }
+
+    .martor-toolbar {
+        max-width: 100%;
+        margin-left: auto !important;
+        padding: 0 0 4px !important;
+
+        .ui.buttons {
+            flex-wrap: wrap;
+        }
+    }
+
+    .expand-editor {
+        display: none;
+    }
+
+    .section-martor > .show-on-editor.active, .section-martor > .show-on-preview.active {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .section-martor > .ui.tab p {
+        flex: 1;
+        margin: 8px 0 0;
+        color: var(--pn-muted);
+        font-size: 13px;
+    }
+}
+
+.pn-comments .comment-submit input[type=submit], .featherlight .comment-edit-form input[type=submit] {
+    float: none !important;
+    margin-top: 10px;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--pn-blue);
+    color: var(--pn-surface);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &[disabled] {
+        opacity: .45;
+        cursor: default;
+    }
+}
+
+// Pop-up used for editing a comment (Featherlight, a third-party script).
+// Martor's Full Screen mode is positioned by DMOJ's old stylesheet, which pages
+// using these comment styles do not load, so the button is hidden there.
+.pn-comments, .featherlight {
+    .markdown-toggle-maximize {
+        display: none !important;
+    }
+}
+
+.featherlight {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    padding: 12px;
+    background: color-mix(in srgb, var(--pn-text) 60%, transparent);
+    overflow: auto;
+
+    .featherlight-content {
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 720px;
+        margin: 6vh auto 0;
+        padding: 20px;
+        border: 1px solid var(--pn-line-strong);
+        border-radius: var(--pn-radius);
+        background: var(--pn-surface);
+    }
+
+    .featherlight-close-icon {
+        position: absolute;
+        top: 4px;
+        right: 6px;
+        padding: 4px 8px;
+        border: 0;
+        background: none;
+        color: var(--pn-muted);
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .comment-edit-form {
+        min-width: 0;
+
+        hr {
+            display: none;
+        }
+    }
+}
+
+@media (max-width: 860px) {
+    .pn-post-article {
+        padding: 16px;
+    }
+
+    .pn-post-title {
+        font-size: 24px;
+    }
+
+    .pn-comments {
+        padding: 14px 16px 18px;
+
+        ul.comments ul.comments, ul.comments ul.reply-comment {
+            margin-left: 4px;
+            padding-left: 8px;
+        }
+
+        .user-gravatar {
+            width: 24px;
+            height: 24px;
+        }
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.
