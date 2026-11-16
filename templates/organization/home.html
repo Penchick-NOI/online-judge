@@ -1,28 +1,9 @@
-{% extends "common-content.html" %}
+{% extends "base.html" %}
 
-{% block content_media %}
-    <style>
-        .class-list td {
-            vertical-align: middle;
-        }
+{% block legacy_css %}{% endblock %}
 
-        .class-list td:first-child {
-            text-align: left;
-            padding: 0.5em 0.5em 0.5em 1em;
-        }
-
-        .class-list td:last-child {
-            width: 8em;
-        }
-
-        .class-description {
-            color: #777;
-        }
-    </style>
-{% endblock %}
-
-{% block content_js_media %}
-    <script type="text/javascript">
+{% block js_media %}
+    <script>
         $(function () {
             $('.leave-organization').click(function () {
                 return confirm({{ _('Are you sure you want to leave this organization?')|htmltojs }} + '\n' +
@@ -33,74 +14,166 @@
                     {% endif %}
                 );
             });
+
+            // A long description is cut short until "Read more" is pressed.
+            var $about = $('#org-about'), $more = $('#org-about-more');
+            if ($about.length && $about[0].scrollHeight > $about[0].clientHeight + 4) {
+                $more.prop('hidden', false).click(function () {
+                    var open = $about.toggleClass('pn-org-about-open').hasClass('pn-org-about-open');
+                    $more.text(open ? {{ _('Show less')|htmltojs }} : {{ _('Read more')|htmltojs }})
+                        .attr('aria-expanded', open);
+                });
+            }
+
+            // Empty fields are left out of the address bar.
+            var $form = $('#filter-form');
+            $form.on('submit', function () {
+                $form.find('input, select').each(function () {
+                    $(this).prop('disabled', !$(this).val());
+                });
+            });
+
+            // On phones the filter panel is folded away behind a button.
+            var $split = $('#org-split');
+            $('#filter-toggle').click(function () {
+                var open = $split.toggleClass('pn-subs-open').hasClass('pn-subs-open');
+                $(this).attr('aria-expanded', open);
+            });
         });
     </script>
 {% endblock %}
 
-{% block info_float %}
-    {% if request.user.is_authenticated %}
-        {% if request.profile in organization %}
-            <form method="post" action="{{ url('leave_organization', organization.id, organization.slug) }}">
-                {% csrf_token %}
-                <input type="submit" class="unselectable button full leave-organization" value="{{ _('Leave organization') }}">
-            </form>
-        {% elif organization.is_open %}
-            <form method="post" action="{{ url('join_organization', organization.id, organization.slug) }}">
-                {% csrf_token %}
-                <input type="submit" class="unselectable button full" value="{{ _('Join organization') }}">
-            </form>
-        {% else %}
-            <a href="{{ url('request_organization', organization.id, organization.slug) }}"
-               class="unselectable button full">{{ _('Request membership') }}</a>
-        {% endif %}
-        <hr>
-    {% endif %}
+{% block title_row %}{% endblock %}
 
-    {% if can_edit %}
-        <div><a href="{{ url('edit_organization', organization.id, organization.slug) }}">{{ _('Edit organization') }}</a></div>
-    {% endif %}
+{% block body %}
+    {% set filtering = search_filter or sort_by_rating %}
 
-    {% if can_review_requests %}
-        <div>
-            <a href="{{ url('organization_requests_pending', organization.id, organization.slug) }}">{{ _('View requests') }}</a>
+    <div class="pn-card pn-org-head">
+        <div class="pn-org-head-main">
+            <h1 class="pn-title">{{ organization.name }}</h1>
+            <p class="pn-org-meta">
+                {% trans trimmed count=member_count %}
+                    {{ count }} member
+                {% pluralize %}
+                    {{ count }} members
+                {% endtrans %}
+                &middot;
+                {% if organization.is_open %}{{ _('Open to join') }}{% else %}{{ _('Ask to join') }}{% endif %}
+                {% if is_member %}<span class="pn-tag pn-tag-green">{{ _('You are a member') }}</span>{% endif %}
+            </p>
+            {% if organization.about %}
+                <div id="org-about" class="pn-prose pn-org-about">
+                    {% cache 3600 'organization_html' organization.id MATH_ENGINE %}
+                        {{ organization.about|markdown('organization-about', MATH_ENGINE)|reference|str|safe }}
+                    {% endcache %}
+                </div>
+                <button id="org-about-more" type="button" class="pn-org-more" aria-controls="org-about"
+                        aria-expanded="false" hidden>{{ _('Read more') }}</button>
+            {% endif %}
+            {% if can_edit or can_review_requests or perms.judge.change_organization %}
+                <p class="pn-org-links">
+                    {% if can_edit %}
+                        <a href="{{ url('edit_organization', organization.id, organization.slug) }}">{{ _('Edit organization') }}</a>
+                        <a href="{{ organization.get_users_url() }}">{{ _('Manage members') }}</a>
+                    {% endif %}
+                    {% if can_review_requests %}
+                        <a href="{{ url('organization_requests_pending', organization.id, organization.slug) }}">{{ _('View requests') }}</a>
+                    {% endif %}
+                    {% if perms.judge.change_organization %}
+                        <a href="{{ url('admin:judge_organization_change', organization.id) }}">{{ _('Admin organization') }}</a>
+                    {% endif %}
+                </p>
+            {% endif %}
         </div>
-    {% endif %}
-
-    {% if perms.judge.change_organization %}
-        <div>
-            <a href="{{ url('admin:judge_organization_change', organization.id) }}">{{ _('Admin organization') }}</a>
+        <div class="pn-org-head-action">
+            {% if not request.user.is_authenticated %}
+                <a class="pn-btn pn-btn-red" href="{{ url('auth_login') }}?next={{ request.path|urlencode }}">{{ _('Log in to join') }}</a>
+            {% elif is_member %}
+                <form method="post" action="{{ url('leave_organization', organization.id, organization.slug) }}">
+                    {% csrf_token %}
+                    <button type="submit" class="pn-btn pn-btn-soft leave-organization">{{ _('Leave') }}</button>
+                </form>
+            {% elif organization.is_open %}
+                <form method="post" action="{{ url('join_organization', organization.id, organization.slug) }}">
+                    {% csrf_token %}
+                    <button type="submit" class="pn-btn pn-btn-red">{{ _('Join') }}</button>
+                </form>
+            {% elif has_pending_request %}
+                <span class="pn-tag pn-tag-yellow">{{ _('Request sent') }}</span>
+            {% else %}
+                <a class="pn-btn pn-btn-red" href="{{ url('request_organization', organization.id, organization.slug) }}">{{ _('Ask to join') }}</a>
+            {% endif %}
         </div>
-    {% endif %}
-
-    <div>
-        <a href="{{ organization.get_users_url() }}">{{ _('View members') }}</a>
     </div>
-{% endblock %}
 
-{% block description %}
-    {% cache 3600 'organization_html' organization.id MATH_ENGINE %}
-        {{ organization.about|markdown('organization-about', MATH_ENGINE)|reference|str|safe }}
-    {% endcache %}
+    <div class="pn-subs-bar">
+        <button id="filter-toggle" type="button" class="pn-btn pn-btn-soft pn-btn-sm pn-subs-toggle"
+                aria-controls="filter-panel" aria-expanded="{{ 'true' if filtering else 'false' }}">
+            <i class="fa fa-filter"></i> {{ _('Filters') }}
+        </button>
+        {% if search_filter %}
+            <span class="pn-subs-active">
+                <span class="pn-tag">{{ _('Search: %(text)s', text=search_filter) }}</span>
+                <a href="{{ organization.get_absolute_url() }}">{{ _('Show everyone') }}</a>
+            </span>
+        {% endif %}
+    </div>
 
-    {% if classes %}
-        <hr>
-        <table class="table striped class-list">
-            <thead><tr><th>{{ _('Class') }}</th><th></th></tr></thead>
-            <tbody>
-                {% for class in classes %}
-                    <tr>
-                        <td>
-                            <a href="{{ class.get_absolute_url() }}">{{ class.name }}</a>
-                            <div class="class-description">{{ class.description }}</div>
-                        </td>
-                        <td>{% if class.joined %}
-                            {{ _('Joined') }}
-                        {% else -%}
-                            <a class="button" href="{{ class.get_join_url() }}">{{ _('Request to join') }}</a>
-                        {%- endif %}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+    <div id="org-split" class="pn-split{% if filtering %} pn-subs-open{% endif %}">
+        <div>
+            {% if page_obj.object_list %}
+                <div class="pn-card pn-table-wrap">
+                    {% include "user/users-table.html" %}
+                </div>
+            {% elif search_filter %}
+                <p class="pn-empty">{{ _('No members match this search.') }}</p>
+            {% else %}
+                <p class="pn-empty">{{ _('Nobody has joined yet.') }}</p>
+            {% endif %}
+            {% if page_obj.has_other_pages() %}
+                <div class="pn-pages">{% include "list-pages.html" %}</div>
+            {% endif %}
+        </div>
+
+        <div class="pn-org-side">
+            <aside id="filter-panel" class="pn-card pn-subs-side">
+                <h2>{{ _('Find members') }}</h2>
+                <form id="filter-form" action="{{ organization.get_absolute_url() }}" method="get">
+                    <label for="member-search">{{ _('Search') }}</label>
+                    <input id="member-search" class="pn-input" type="search" name="q" maxlength="120"
+                           placeholder="{{ _('Username or school') }}" value="{{ search_filter }}">
+                    <label for="member-order">{{ _('Sort by') }}</label>
+                    <select id="member-order" class="pn-input" name="order">
+                        <option value="">{{ _('Points') }}</option>
+                        <option value="-rating"{% if sort_by_rating %} selected{% endif %}>{{ _('Rating') }}</option>
+                    </select>
+                    <div class="pn-subs-actions">
+                        <button type="submit" class="pn-btn pn-btn-block">{{ _('Apply') }}</button>
+                        {% if filtering %}
+                            <a class="pn-btn pn-btn-soft pn-btn-block" href="{{ organization.get_absolute_url() }}">{{ _('Show everyone') }}</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </aside>
+
+            {% if classes %}
+                <div class="pn-card pn-org-classes">
+                    <h2>{{ _('Classes') }}</h2>
+                    {% for class in classes %}
+                        <div class="pn-org-class">
+                            <div>
+                                <a href="{{ class.get_absolute_url() }}">{{ class.name }}</a>
+                                {% if class.description %}<p>{{ class.description }}</p>{% endif %}
+                            </div>
+                            {% if class.joined %}
+                                <span class="pn-tag pn-tag-green">{{ _('Joined') }}</span>
+                            {% elif request.user.is_authenticated %}
+                                <a class="pn-btn pn-btn-soft pn-btn-sm" href="{{ class.get_join_url() }}">{{ _('Ask to join') }}</a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

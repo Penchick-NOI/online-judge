@@ -103,10 +103,12 @@ All of these are CSS variables at the top of `resources/pnoi.scss`. Use the vari
 | Red: the main action button, errors | `--pn-red` | `#d7263d` |
 | Sun yellow: highlights, avatar ring | `--pn-yellow` | `#f9b916` |
 | Green: accepted / success | `--pn-green` | `#1e8e5a` |
-| Lines | `--pn-line`, `--pn-line-strong` | `#f0e6d2`, `#e2d5b8` |
+| Lines | `--pn-line`, `--pn-line-strong` | `#e6dabd`, `#cdbb8f` |
 
 - **Type:** serif display font for page titles (`--pn-display`), system sans for everything else (`--pn-sans`),
   monospace for code and problem codes (`--pn-mono`). No web fonts are loaded.
+- **Outlines:** every card (`.pn-card`) has a tan outline (`--pn-line-strong`) and a soft shadow (`--pn-shadow`),
+  and box titles sit on a cream strip, so the parts of a page are easy to tell apart.
 - **Shapes:** rounded cards (`--pn-radius`, 14px), pill-shaped tabs, buttons and verdict labels.
 - **Light theme only** for now. There is no dark mode; do not add one unless asked.
 
@@ -182,6 +184,11 @@ Newest last. Do not undo these without the owner's say-so.
 - On list pages the owner wants little-used filters tucked away, no sliders, and no verdict counts or statistics
   that could discourage students.
 - News posts keep their comment section and show who wrote them. No Facebook/Twitter share buttons.
+- The parts of a page must be obviously separate: cards have a darker tan outline, a soft shadow and a cream strip
+  behind box titles (chosen from three options). The left rail and the footer were left as they are.
+- Organizations: the Organizations page is just a simple list. Each organization's own page is its member
+  leaderboard (chosen from ten options): name, a short description and the Join button on top, the ranked member
+  table below, and a "Find members" panel on the right. The name "Organizations" is kept.
 
 ## Current status
 
@@ -190,9 +197,11 @@ Newest last. Do not undo these without the owner's say-so.
 **Rebuilt in the PNOI design:** home dashboard, problem list, problem page, submit page, submissions list, submission
 result and source pages, contest list (upcoming list, past list with a filter panel), contest page, contest
 scoreboard, users list (with a right-hand filter panel: search, region, sort), profile, edit profile, log in, sign up,
-password and other account pages, About, single news post (with its comment section).
+password and other account pages, About, single news post (with its comment section), organizations (the list, an
+organization's page, asking to join).
 
-**Still in DMOJ's old layout (to rebuild):** organisation pages, tickets, contest statistics,
+**Still in DMOJ's old layout (to rebuild):** the organiser-only organisation pages (edit, manage members, review
+join requests, class pages), tickets, contest statistics,
 contest calendar (its tab is hidden; the page still exists at its address), status pages (judges, languages), two-
 factor setup, "download your data", problem test data editor, problem editorial page. Comment sections are styled
 for PNOI only inside `.pn-comments` (used on the news post); they are still left out of the rebuilt problem and
@@ -200,8 +209,9 @@ contest pages.
 
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
-**Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally; no
-real problems or contests yet; staff accounts can still appear in organisation member lists; the old `.pn-dash*` and
+**Known gaps:** the edit profile page scrolls sideways on phones; no dark mode; maths rendering (Mathoid) is
+switched off; live updates show "disconnected" locally; no real problems or contests yet; staff accounts can still
+appear on the organiser-only "Manage members" and class pages; the old `.pn-dash*` and
 `.pn-stat*` rules in `pnoi.scss` are no longer used; `502.html` and `logo.png` at the repository root are still
 DMOJ's; new interface text has no translations.
 
@@ -234,3 +244,10 @@ DMOJ's; new interface text has no translations.
   markup and scripts as before), "More news" and upcoming contests on the right; Facebook/Twitter share buttons
   removed (PR 25). Tested locally: voting, replying, posting and editing a comment as a student, phone width. Not
   tried: staff moderation links (hide, votes, admin), locked comments, maths in posts.
+- 2026-11-16, Devin: stronger outlines on every page: darker line colours, a soft shadow on cards, cream strips
+  behind box titles (PR 26). Only `pnoi.scss` changed. Checked on the rebuilt pages at desktop and phone width.
+  Noticed, not fixed: the edit profile page scrolls sideways on phones (the description editor's toolbar).
+- 2026-11-16, Devin: organizations rebuilt: a simple list, an organization page that is its member leaderboard with
+  a "Find members" panel (search, sort), and the "ask to join" form and its confirmation page (PR 27). Staff are
+  left out of the member ranking and the member counts. Tested locally: join, leave, ask to join, search, phone
+  width. Not tested: the organiser-only pages (left in the old layout), class requests, more than 100 members.

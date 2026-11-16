@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
+{% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
+
 {% block js_media %}
-    <script type="text/javascript">
+    <script>
         $(function () {
             $('#id_reason').keydown(function (e) {
                 if (e.ctrlKey && (e.keyCode === 13 || e.keyCode === 10)) {
@@ -13,19 +16,21 @@
 {% endblock %}
 
 {% block body %}
-    <form action="" method="post" class="form-area">
-        {% csrf_token %}
-        {% if form.show_classes %}
-            {% if form.class_.errors %}
-                <div class="alert alert-danger">
-                    {{ form.class_.errors }}
-                </div>
+    <div class="pn-auth pn-org-request">
+        <h1 class="pn-title">{{ title }}</h1>
+        <form action="" method="post" class="pn-card pn-card-pad pn-form">
+            {% csrf_token %}
+            {% if form.show_classes %}
+                <label for="{{ form.class_.id_for_label }}">{{ _('Select your class') }}</label>
+                {{ form.class_ }}
+                {{ form.class_.errors }}
             {% endif %}
-            <p><label for="{{ form.class_.id_for_label }}"><b>{{ _('Select your class:') }}</b></label></p>
-            <p>{{ form.class_ }}</p>
-        {% endif %}
-        <p><label for="{{ form.reason.id_for_label }}"><b>{{ _('Your reason for joining:') }}</b></label></p>
-        <p>{{ form.reason }}</p>
-        <button type="submit">{{ _('Request!') }}</button>
-    </form>
+            <label for="{{ form.reason.id_for_label }}">{{ _('Why do you want to join?') }}</label>
+            {{ form.reason }}
+            {{ form.reason.errors }}
+            <p class="pn-help">{{ _('The people who run this organization will read this and decide.') }}</p>
+            <button type="submit" class="pn-btn pn-btn-red pn-btn-block">{{ _('Send request') }}</button>
+        </form>
+        <p class="pn-auth-links"><a href="{{ object.get_absolute_url() }}">{{ _('Back to %(name)s', name=object.name) }}</a></p>
+    </div>
 {% endblock %}
