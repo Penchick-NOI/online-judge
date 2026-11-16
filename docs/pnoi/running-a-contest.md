@@ -9,10 +9,10 @@ test data. Contest problems do **not** have to be public: participants can open 
 ## Before you start: check your time zone
 
 All dates and times in the admin pages are read in **your own profile's time zone**, not Philippine time
-automatically. New accounts start with the site's default time zone (`America/Toronto` in the standard
-settings), so check this first:
+automatically. New accounts start in Philippine time (`Asia/Manila`), but an older account, such as the first
+administrator account, may still be set to another zone (for example `America/Toronto`), so check this first:
 
-1. Click your picture in the top right corner and choose **Edit profile**.
+1. Click your picture at the bottom of the menu on the left and choose **Edit profile**.
 2. Under **Preferences**, set **Time zone** to `Asia/Manila` (or the zone you want to type times in) and click
    **Update profile**.
 
@@ -20,7 +20,7 @@ Participants also see contest times in their own profile's time zone.
 
 ## Part 1: Create the contest
 
-1. Click your picture in the top right corner and choose **Admin**.
+1. Click your picture at the bottom of the menu on the left and choose **Admin**.
 2. On the admin home page, find **Contests** and click **Add** next to it. A form called *Add contest* opens.
 
 ### The basic details
@@ -162,7 +162,8 @@ Do this only after the contest has ended and you are happy with the results (for
 Your account needs the permission to rate contests (**Rate contests**).
 
 1. Open the contest in the admin pages (**Contests** → click the contest name).
-2. At the top right of the form there are buttons including **Rejudge** and **Rate**. **Rate** only appears when
+2. Scroll to the bar at the bottom of the form, where the **Save** buttons are. A **Rate** button sits there too.
+   (The **Rejudge** buttons are somewhere else: one on each row of the **Problems** table.) **Rate** only appears when
    **Contest rated** is ticked, the **End time** has passed, and your account has the rating permission.
 3. Click **Rate**. The page reloads when the ratings have been calculated.
 4. Check the **Rankings** tab or participants' profiles to see the new ratings.

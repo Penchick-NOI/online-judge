@@ -9,7 +9,7 @@ A problem stays hidden from students until you tick **Publicly visible**, so you
 
 ## Before you start
 
-- Log in to the site. Click your picture in the top right corner and choose **Admin**. This opens the admin pages
+- Log in to the site. Click your picture at the bottom of the menu on the left and choose **Admin**. This opens the admin pages
   (the address ends in `/admin/`).
 - Every problem must belong to a **problem group** and have at least one **problem type**. If the
   **Problem group** or **Problem types** list is empty (or has nothing suitable) when you create the problem, add
@@ -160,10 +160,11 @@ The comparison itself is done by the judge, which is a separate program from thi
 with a real submission (see [Test the problem](#test-the-problem)) to be sure the checker behaves as you expect.
 
 When you choose one of the **Floats** checkers, a small number box appears next to the list. It is the precision,
-in decimal digits (default `6`). Changing it fills in **Checker arguments** for you, for example
+in decimal digits (default `6`). Changing it fills in the checker arguments for you, for example
 `{"precision": 6}`.
 
-**Checker arguments** is for advanced settings, written as a JSON object (text in curly brackets). Leave it empty
+The checker arguments (the box right after the **Checker** list, which has no label of its own) are for advanced
+settings, written as a JSON object (text in curly brackets). Leave it empty
 if you are unsure. If the text is not a valid JSON object, the page shows an error.
 
 The other settings at the top (**Generator file**, **Enable unicode**, **Disable bigInteger / bigDecimal**,
@@ -223,7 +224,8 @@ The **Show columns** checkboxes (**Output prefix**, **Output limit**, **Checker*
 After a successful **Submit!**, a **View YAML** link appears at the top of the page. It shows the configuration the
 judge will use (a file called `init.yml`). Each case and batch should be listed there with the points you gave.
 
-If something is wrong, the page shows a message in red instead. Common messages:
+If something is wrong, the page still reloads, but a message appears at the top of it and no usable configuration
+is written, so read the top of the page after every **Submit!**. Common messages:
 
 - *Points must be defined for non-batch case #N.* — a normal case outside a batch has no points.
 - *Input file for case N does not exist* / *Output file for case N does not exist* — the file name is not in the
@@ -238,3 +240,10 @@ If something is wrong, the page shows a message in red instead. Common messages:
 
 Before making the problem public, submit a correct solution (and ideally a wrong one) yourself from the problem page
 and check that you get the result you expect.
+
+With the example above (one case worth 10 points and a batch worth 90), a correct solution scores 100 / 100. A
+solution that passes only the first case scores 10 / 100 when **Allows partial points** is ticked: the judge stops
+the batch at its first wrong answer and the remaining cases of that batch are shown as skipped.
+
+If you submit several times in a row very quickly, the site may refuse for a moment (it limits how fast one person
+can submit). Wait a few seconds and try again.
