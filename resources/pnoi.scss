@@ -3552,6 +3552,44 @@ body[data-pn] {
     }
 }
 
+// ---------------------------------------------------------------- users list
+// The filter panel reuses the submissions list's .pn-subs-* panel rules.
+.pn-medal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--pn-yellow);
+    color: var(--pn-text);
+    font-size: 13px;
+    font-weight: 700;
+
+    &.pn-medal-2 {
+        background: var(--pn-line-strong);
+    }
+
+    &.pn-medal-3 {
+        background: var(--pn-red-tint);
+    }
+}
+
+// Narrower cells so rank, rating, name and points all fit on a phone.
+@media (max-width: 700px) {
+    #users-split .users-table {
+        th, td {
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+
+        th.username, td.user-name {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.

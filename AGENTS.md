@@ -166,14 +166,19 @@ Newest last. Do not undo these without the owner's say-so.
 - List pages (problems, submissions) use a **right-hand filter panel**; the statistics pie chart was removed from the
   submissions list.
 - The site-theme choice and the time-zone map picker are hidden or removed; new accounts default to `Asia/Manila`.
+- The users list is titled **Users** (not "Leaderboard"). It shows rank, rating, username, school and points: no
+  profile pictures and no problems-solved count. Staff accounts (admins, organisers) are hidden from it; students
+  with zero points still appear.
+- On list pages the owner wants little-used filters tucked away, no sliders, and no verdict counts or statistics
+  that could discourage students.
 
 ## Current status
 
 *Update this section when you finish work.*
 
 **Rebuilt in the PNOI design:** home dashboard, problem list, problem page, submit page, submissions list, submission
-result and source pages, contest list, contest page, contest scoreboard, users leaderboard, profile, edit profile,
-log in, sign up, password and other account pages, About.
+result and source pages, contest list, contest page, contest scoreboard, users list (with a right-hand filter panel:
+search, region, sort), profile, edit profile, log in, sign up, password and other account pages, About.
 
 **Still in DMOJ's old layout (to rebuild):** single news post, organisation pages, tickets, contest statistics,
 contest calendar, status pages (judges, languages), two-factor setup, "download your data", problem test data
@@ -181,9 +186,10 @@ editor, comment sections (currently left out of the rebuilt problem and contest 
 
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
-**Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally;
-no real problems or contests yet; `502.html` and `logo.png` at the repository root are still DMOJ's; new interface
-text has no translations.
+**Known gaps:** no dark mode; maths rendering (Mathoid) is switched off; live updates show "disconnected" locally; no
+real problems or contests yet; staff accounts are hidden from the users list but can still appear in the home page's
+top users and in organisation member lists; `502.html` and `logo.png` at the repository root are still DMOJ's; new
+interface text has no translations.
 
 ## Work log
 
@@ -194,3 +200,6 @@ text has no translations.
   with filter panel and day groups (PR 17).
 - 2026-11-16, Claude: tested the guides end to end and corrected them; fixed the admin "Add contest" crash; default
   time zone set to Asia/Manila (PR 18). Added this file.
+- 2026-11-16, Devin: users list retitled "Users", with a right-hand panel (search by username or school, region,
+  sort), medals for the top three, staff accounts hidden, problems column removed (PR 20). Tested locally without
+  a judge; organisation member lists were not checked.
