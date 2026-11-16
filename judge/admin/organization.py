@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext, gettext_lazy as _
 from reversion.admin import VersionAdmin
 
-from judge.models import Organization
+from judge.models import Organization, OrganizationProposal
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget
 
 
@@ -110,3 +110,46 @@ class OrganizationRequestAdmin(admin.ModelAdmin):
     @admin.display(description=_('username'), ordering='user__user__username')
     def username(self, obj):
         return obj.user.user.username
+
+
+class OrganizationProposalAdmin(admin.ModelAdmin):
+    """PNOI: staff approve or reject students' requests to start an organization."""
+    list_display = ('name', 'user', 'time', 'state', 'is_open', 'show_organization')
+    list_filter = ('state',)
+    search_fields = ('name', 'user__user__username')
+    readonly_fields = ('user', 'time', 'state', 'organization')
+    fields = ('name', 'about', 'is_open', 'user', 'time', 'state', 'reply', 'organization')
+    actions = ('approve_proposals', 'reject_proposals')
+    actions_on_top = True
+    actions_on_bottom = True
+
+    def has_add_permission(self, request):
+        return False
+
+    @admin.display(description=_('organization created'))
+    def show_organization(self, obj):
+        if obj.organization is None:
+            return ''
+        return format_html('<a href="{0}">{1}</a>', obj.organization.get_absolute_url(), gettext('View on site'))
+
+    @admin.action(description=_('Approve: create the organization'))
+    def approve_proposals(self, request, queryset):
+        created = skipped = 0
+        for proposal in queryset.filter(state='P').select_related('user'):
+            if Organization.objects.filter(name__iexact=proposal.name).exists():
+                skipped += 1
+                continue
+            proposal.approve()
+            created += 1
+        self.message_user(request, gettext('%d organization(s) created.') % created)
+        if skipped:
+            self.message_user(request, gettext('%d request(s) skipped: an organization with that name already '
+                                               'exists.') % skipped, level='warning')
+
+    @admin.action(description=_('Reject'))
+    def reject_proposals(self, request, queryset):
+        count = 0
+        for proposal in queryset.filter(state='P'):
+            proposal.reject()
+            count += 1
+        self.message_user(request, gettext('%d request(s) rejected.') % count)

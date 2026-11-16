@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
+
+{% block body %}
+    <div class="pn-auth pn-org-request">
+        <h1 class="pn-title">{{ title }}</h1>
+        <p class="pn-org-start-intro">
+            {{ _('An organization is a group of students, such as a school club or a training group. Its page ranks its members.') }}
+            {{ _('The PNOI team reads every request before the organization appears on the site.') }}
+        </p>
+        <form action="" method="post" class="pn-card pn-card-pad pn-form">
+            {% csrf_token %}
+            {{ form.non_field_errors() }}
+            <label for="{{ form.name.id_for_label }}">{{ _('Name of the organization') }}</label>
+            {{ form.name }}
+            {{ form.name.errors }}
+            <label for="{{ form.about.id_for_label }}">{{ _('What is it for?') }}</label>
+            {{ form.about }}
+            {{ form.about.errors }}
+            <p class="pn-help">{{ _('One or two sentences. This is shown on the organization page.') }}</p>
+            <label class="pn-check" for="{{ form.is_open.id_for_label }}">
+                {{ form.is_open }} {{ _('Anyone can join') }}
+            </label>
+            <p class="pn-help">{{ _('If you untick this, students have to ask and you decide who gets in.') }}</p>
+            <button type="submit" class="pn-btn pn-btn-red pn-btn-block">{{ _('Send request') }}</button>
+        </form>
+        <p class="pn-auth-links"><a href="{{ url('organization_list') }}">{{ _('Back to organizations') }}</a></p>
+    </div>
+{% endblock %}

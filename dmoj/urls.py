@@ -226,6 +226,7 @@ urlpatterns = [
     ])),
 
     path('organizations/', organization.OrganizationList.as_view(), name='organization_list'),
+    path('organizations/new', organization.StartOrganization.as_view(), name='organization_start'),
     path('organization/<int:pk>-<slug:slug>', include([
         path('', organization.OrganizationHome.as_view(), name='organization_home'),
         path('/users', organization.OrganizationUsers.as_view(), name='organization_users'),

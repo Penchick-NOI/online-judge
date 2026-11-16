@@ -6,6 +6,8 @@ never used DMOJ (the software PNOI is built on) before.
 - [Adding a problem](adding-a-problem.md): create a problem in the admin pages and upload its test data.
 - [Running a contest](running-a-contest.md): create a contest, see what participants see, and rate the contest
   afterwards.
+- [Organizations: approving requests](organizations.md): approve or reject students' requests to start an
+  organization.
 
 You need an account with staff access to follow these guides. If you are logged in and click your picture at the
 bottom of the menu on the left, staff accounts see an **Admin** link. If you do not see it, ask a site administrator to give your
