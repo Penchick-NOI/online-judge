@@ -145,8 +145,12 @@
                 </div>
                 <div class="pn-hero-meta">
                     {{ contest.start_time|date(_("D, M j")) }} &middot; {{ contest.start_time|date(_("g:i A")) }}
-                    &middot; {{ contest.contest_window_length|timedelta }}
-                    {% if contest.is_rated %} &middot; {{ _('rated') }}{% endif %}
+                    &middot;
+                    {% if contest.time_limit %}
+                        {{ _('%(time_limit)s window', time_limit=contest.time_limit|timedelta) }}
+                    {% else %}
+                        {{ contest.contest_window_length|timedelta }}
+                    {% endif %}
                     {% if featured.state != 'upcoming' %} &middot; {{ _('%(count)s joined', count=contest.user_count) }}{% endif %}
                 </div>
             </div>
