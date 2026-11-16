@@ -109,7 +109,7 @@ class OrganizationHome(QueryStringSortMixin, OrganizationDetailView):
     template_name = 'organization/home.html'
     all_sorts = frozenset(('rating', 'performance_points'))
     default_desc = all_sorts
-    default_sort = '-performance_points'
+    default_sort = '-rating'
     paginate_by = 100
 
     def get_members(self):
@@ -120,7 +120,7 @@ class OrganizationHome(QueryStringSortMixin, OrganizationDetailView):
             # A school only matches for students who chose to show it.
             members = members.filter(Q(user__username__icontains=self.search) |
                                      Q(show_school=True, school__icontains=self.search))
-        return (members.order_by(self.order, 'id').select_related('user')
+        return (members.order_by(self.order, '-performance_points', 'id').select_related('user')
                 .only('display_rank', 'user__username', 'username_display_override', 'points', 'rating',
                       'performance_points', 'problem_count', 'school', 'show_school'))
 
@@ -138,6 +138,7 @@ class OrganizationHome(QueryStringSortMixin, OrganizationDetailView):
         context['member_count'] = self.object.members.filter(is_unlisted=False, user__is_staff=False).count()
         context['search_filter'] = self.search
         context['sort_by_rating'] = self.order.lstrip('-') == 'rating'
+        context['sort_by_points'] = not context['sort_by_rating']
         context['show_medals'] = self.order == self.default_sort and not self.search
         context['show_school_column'] = True
         context['hide_problem_column'] = True

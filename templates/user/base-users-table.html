@@ -18,7 +18,15 @@
     <tbody>
     {% for rank, user in users %}
         <tr id="user-{{ user.user.username }}" {% block row_extra scoped %}{% endblock %}>
-            <td>{% if show_medals and rank <= 3 %}<span class="pn-medal pn-medal-{{ rank }}">{{ rank }}</span>{% else %}{{ rank }}{% endif %}</td>
+            <td>
+                {%- if sort_by_rating and not user.rating -%}
+                    <span class="pn-muted" title="{{ _('Not rated yet. Join a rated contest to get a rank.') }}">&ndash;</span>
+                {%- elif show_medals and rank <= 3 -%}
+                    <span class="pn-medal pn-medal-{{ rank }}">{{ rank }}</span>
+                {%- else -%}
+                    {{ rank }}
+                {%- endif -%}
+            </td>
             {% block after_rank scoped %}{% endblock %}
             <td class="user-name">{{ link_user(user) }} {% block user_data scoped %}{% endblock %}</td>
             {% block before_point scoped %}{% endblock %}

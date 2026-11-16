@@ -14,6 +14,15 @@
         <aside class="pn-card pn-profile-card">
             <img src="{{ gravatar(user, 192) }}" class="pn-profile-avatar" alt="" width="96" height="96">
             <div class="pn-profile-name">{{ link_user(user) }}</div>
+            {% if user.is_verified %}
+                <div class="pn-verified" title="{{ _('Competed in %(count)d or more rated contests with a clean record.', count=verified_needed) }}">
+                    <i class="fa fa-check-circle" aria-hidden="true"></i> {{ _('Verified') }}
+                </div>
+            {% elif user.id == request.profile.id and is_ranked and user.has_clean_record %}
+                <div class="pn-verified-progress">
+                    {{ _('%(done)d of %(count)d rated contests to become Verified', done=user.rated_contest_count, count=verified_needed) }}
+                </div>
+            {% endif %}
             {% if user.show_school and (user.school or user.grade_label or user.region) %}
                 <ul class="pn-profile-school">
                     {% if user.grade_label %}
@@ -40,12 +49,6 @@
                     <b title="{{ user.performance_points|floatformat(2) }}">{{ user.performance_points|floatformat(0) }}</b>
                     <span>{{ _('Total points:')|replace(':', '') }}</span>
                 </div>
-                {% if is_ranked %}
-                    <div>
-                        <b>#{{ rank }}</b>
-                        <span>{{ _('Rank by points:')|replace(':', '') }}</span>
-                    </div>
-                {% endif %}
                 {% if school_rank %}
                     <div>
                         <b><a href="{{ url('user_list') }}?school={{ user.school|urlencode }}">#{{ school_rank }}</a></b>
@@ -57,10 +60,10 @@
                         <b>{{ rating_number(rating) }}</b>
                         <span>{{ _('Rating:')|replace(':', '') }}</span>
                     </div>
-                    {% if is_ranked %}
+                    {% if rating_rank %}
                         <div>
                             <b>#{{ rating_rank }}</b>
-                            <span>{{ _('Rank by rating:')|replace(':', '') }}</span>
+                            <span>{{ _('Rank') }}</span>
                         </div>
                     {% endif %}
                     <div>

@@ -189,6 +189,16 @@ Newest last. Do not undo these without the owner's say-so.
 - Organizations: the Organizations page is just a simple list. Each organization's own page is its member
   leaderboard (chosen from ten options): name, a short description and the Join button on top, the ranked member
   table below, and a "Find members" panel on the right. The name "Organizations" is kept.
+- **Students are ranked by contest rating**, like Codeforces and AtCoder, everywhere (users list, organization
+  pages, home page, profile, school rank). A student who has not been rated yet has no rank and is listed after
+  the rated ones. Practice points are still shown and can be sorted by, but do not rank anyone.
+- **Verified badge:** a student is "Verified" (credible) automatically after `PNOI_VERIFIED_MIN_CONTESTS` (5) rated
+  contests with a clean record. Any disqualification removes it. No manual approval.
+- **Problem difficulty is calculated automatically**: the rating at which a contestant had a 50% chance of
+  solving the problem in its contest (as Codeforces and AtCoder do). Until there is enough data, the setter's own
+  estimate is shown, marked as an estimate. (Not built yet.)
+- **Organizations are groups of students** (clubs, training groups), not official schools. Any student can ask to
+  start one; it appears only after the owner's team approves it. (The request form is not built yet.)
 
 ## Current status
 
@@ -257,3 +267,8 @@ DMOJ's; new interface text has no translations.
   as `judge/fixtures/pnoi_news.json`), and the demo comment and the demo "DMOJ" organization deleted locally. Not
   tried: posting a comment as a student who has solved a problem. Still open: edit profile scrolls sideways on
   phones.
+- 2026-11-17, Claude: users are now ranked by rating everywhere (users list, organization page, home "Top users"
+  and own card, profile, school rank; unrated students show no rank); "Practice points" is the other sort.
+  Verified badge added to profiles (`Profile.is_verified`), with "2 of 5 rated contests" progress on your own
+  profile. Tested with temporary rated accounts. Not checked: phone width for the badge; the badge is on the
+  profile page only, not next to names in lists.

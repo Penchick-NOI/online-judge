@@ -4436,6 +4436,31 @@ body[data-pn] {
     }
 }
 
+// ---------------------------------------------------------------- verified badge
+.pn-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--pn-green-tint);
+    color: var(--pn-green);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.pn-verified-progress {
+    margin-top: 6px;
+    color: var(--pn-muted);
+    font-size: 12.5px;
+}
+
+.pn-home-rating {
+    font-size: 13px;
+    font-weight: 700;
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.

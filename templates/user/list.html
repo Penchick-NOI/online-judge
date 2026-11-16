@@ -30,7 +30,7 @@
 {% endblock %}
 
 {% block body %}
-    {% set filtering = school_filter or search_filter or region_filter %}
+    {% set filtering = school_filter or search_filter or region_filter or sort_by_points %}
 
     <div class="pn-subs-bar">
         <button id="filter-toggle" type="button" class="pn-btn pn-btn-soft pn-btn-sm pn-subs-toggle"
@@ -76,8 +76,8 @@
                 </select>
                 <label for="user-order">{{ _('Sort by') }}</label>
                 <select id="user-order" class="pn-input" name="order">
-                    <option value="">{{ _('Points') }}</option>
-                    <option value="-rating"{% if sort_by_rating %} selected{% endif %}>{{ _('Rating') }}</option>
+                    <option value="">{{ _('Rating') }}</option>
+                    <option value="-performance_points"{% if sort_by_points %} selected{% endif %}>{{ _('Practice points') }}</option>
                 </select>
                 {% if school_filter %}
                     <input type="hidden" name="school" value="{{ school_filter }}">
