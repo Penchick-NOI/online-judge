@@ -131,8 +131,9 @@ class OrganizationHome(QueryStringSortMixin, OrganizationDetailView):
         paginator = DiggPaginator(self.get_members(), self.paginate_by, body=6, padding=2)
         page = paginator.get_page(self.request.GET.get('page'))
         context['page_obj'] = page
-        context['users'] = ranker(page.object_list, key=attrgetter('performance_points', 'problem_count'),
-                                  rank=self.paginate_by * (page.number - 1))
+        rank_key = attrgetter('rating') if self.order.lstrip('-') == 'rating' else \
+            attrgetter('performance_points', 'problem_count')
+        context['users'] = ranker(page.object_list, key=rank_key, rank=self.paginate_by * (page.number - 1))
         context['member_count'] = self.object.members.filter(is_unlisted=False, user__is_staff=False).count()
         context['search_filter'] = self.search
         context['sort_by_rating'] = self.order.lstrip('-') == 'rating'
