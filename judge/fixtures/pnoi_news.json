@@ -1,0 +1,17 @@
+[
+ {
+  "model": "judge.blogpost",
+  "pk": 1,
+  "fields": {
+   "title": "Welcome to PNOI",
+   "slug": "welcome-to-pnoi",
+   "visible": true,
+   "sticky": true,
+   "publish_on": "2026-11-16T18:43:47Z",
+   "content": "Welcome to **PNOI**, the Penchick National Olympiad in Informatics: a place for Filipino students to practise competitive programming and compete in online contests.\n\nHere is how to get started:\n\n1. **Solve a problem.** Open the [problem list](/problems/), pick a problem, write your solution in C++ or Python, and submit it. The judge tells you within seconds whether it is correct.\n2. **Join a contest.** Rated contests will be announced here and on the [contests page](/contests/). Your rating goes up or down depending on how you do.\n3. **Add your school.** Put your school and grade on [your profile](/edit/profile/) to appear in your school's ranking.\n\nNew here? Read the [About page](/about/) first. Good luck, and have fun!",
+   "summary": "",
+   "og_image": "",
+   "authors": []
+  }
+ }
+]

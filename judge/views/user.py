@@ -363,7 +363,7 @@ class UserDownloadData(LoginRequiredMixin, UserDataMixin, View):
 @login_required
 def edit_profile(request):
     if request.profile.mute:
-        return generic_message(request, _("Can't edit profile"), _('Your part is silent, little toad.'), status=403)
+        return generic_message(request, _("Can't edit profile"), _('Your account has been muted, so you cannot edit your profile.'), status=403)
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.profile, user=request.user)
         if form.is_valid():
