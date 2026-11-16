@@ -4125,13 +4125,21 @@ body[data-pn] {
 }
 
 // Pop-up used for editing a comment (Featherlight, a third-party script).
+// Martor's Full Screen mode is positioned by DMOJ's old stylesheet, which pages
+// using these comment styles do not load, so the button is hidden there.
+.pn-comments, .featherlight {
+    .markdown-toggle-maximize {
+        display: none !important;
+    }
+}
+
 .featherlight {
     display: none;
     position: fixed;
     inset: 0;
     z-index: 1000;
     padding: 12px;
-    background: rgba(27, 36, 64, .6);
+    background: color-mix(in srgb, var(--pn-text) 60%, transparent);
     overflow: auto;
 
     .featherlight-content {
