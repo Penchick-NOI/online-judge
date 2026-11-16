@@ -9,8 +9,8 @@
     --pn-bg: #fffbf2;
     --pn-surface: #ffffff;
     --pn-track: #f6eedc;
-    --pn-line: #f0e6d2;
-    --pn-line-strong: #e2d5b8;
+    --pn-line: #e6dabd;
+    --pn-line-strong: #cdbb8f;
     --pn-text: #1b2440;
     --pn-muted: #6b6f80;
     --pn-blue: #1d3a8a;
@@ -26,6 +26,7 @@
     --pn-green: #1e8e5a;
     --pn-green-tint: #ddf3e7;
     --pn-radius: 14px;
+    --pn-shadow: 0 2px 0 var(--pn-line-strong), 0 6px 16px color-mix(in srgb, var(--pn-text) 7%, transparent);
     --pn-sans: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
     --pn-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
     --pn-mono: "Cascadia Mono", "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", "Liberation Mono", monospace;
@@ -338,8 +339,9 @@ body[data-pn] {
 // ---------------------------------------------------------------- parts
 .pn-card {
     background: var(--pn-surface);
-    border: 1px solid var(--pn-line);
+    border: 1px solid var(--pn-line-strong);
     border-radius: var(--pn-radius);
+    box-shadow: var(--pn-shadow);
 }
 
 .pn-card-pad {
@@ -2204,7 +2206,11 @@ body[data-pn] {
         align-items: baseline;
         justify-content: space-between;
         gap: 10px;
-        margin: 0 0 12px;
+        margin: -18px -20px 14px;
+        padding: 12px 20px 10px;
+        border-bottom: 1px solid var(--pn-line-strong);
+        border-radius: var(--pn-radius) var(--pn-radius) 0 0;
+        background: var(--pn-bg);
         font-size: 16px;
         font-weight: 700;
 
@@ -2218,7 +2224,7 @@ body[data-pn] {
         padding: 18px 0 4px;
 
         > h2 {
-            padding: 0 20px;
+            margin: -18px 0 0;
         }
     }
 
@@ -3433,7 +3439,11 @@ body[data-pn] {
     padding: 16px;
 
     h2 {
-        margin: 0 0 4px;
+        margin: -16px -16px 12px;
+        padding: 11px 16px 10px;
+        border-bottom: 1px solid var(--pn-line-strong);
+        border-radius: var(--pn-radius) var(--pn-radius) 0 0;
+        background: var(--pn-bg);
         font-size: 15px;
         font-weight: 700;
     }
@@ -3674,7 +3684,9 @@ body[data-pn] {
         justify-content: space-between;
         gap: 10px;
         margin: 0;
-        padding: 12px 16px 8px;
+        padding: 11px 16px 10px;
+        border-bottom: 1px solid var(--pn-line-strong);
+        background: var(--pn-bg);
         font-size: 15px;
         font-weight: 700;
 
@@ -3694,6 +3706,10 @@ body[data-pn] {
     .pn-contest-row, .pn-home-row {
         border-top: 1px solid var(--pn-line);
         border-bottom: 0;
+    }
+
+    h2 + .pn-contest-row, h2 + .pn-home-row {
+        border-top: 0;
     }
 
     .pn-contest-row {
