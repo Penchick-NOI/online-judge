@@ -146,6 +146,7 @@
                     function poll(id) {
                         $.get('{{ url('submission_testcases_query') }}', {id: id}).done(function (html) {
                             $result.find('.pn-live-body').html(html);
+                            $(window).resize();
                             var busy = $result.find('#grading-label, .pn-status-msg').length > 0;
                             if (busy) {
                                 polling = setTimeout(function () { poll(id); }, 1500);
@@ -185,6 +186,8 @@
                             $result.find('.pn-live-body').html(
                                 '<div class="pn-card pn-status-msg"><i class="fa fa-spinner fa-pulse"></i> ' +
                                 {{ _('Your submission is being processed...')|htmltojs }} + '</div>');
+                            // The result strip takes room from the editor, so the editor must measure itself again.
+                            $(window).resize();
                             poll(id);
                         }).catch(function () {
                             // Let the ordinary submit page explain what went wrong.
