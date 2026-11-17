@@ -3,7 +3,10 @@
 These guides are for PNOI organisers who need to set up problems and contests on the site. They assume you have
 never used DMOJ (the software PNOI is built on) before.
 
-- [Adding a problem](adding-a-problem.md): create a problem in the admin pages and upload its test data.
+- [Problem files](problem-files.md): how the team writes problems as folders in the `pnoi-problems` repository,
+  and how the owner loads them into the site.
+- [Adding a problem](adding-a-problem.md): create a problem in the admin pages and upload its test data, and give
+  a teammate the Problem setters role.
 - [Running a contest](running-a-contest.md): create a contest, see what participants see, and rate the contest
   afterwards.
 - [Organizations: approving requests](organizations.md): approve or reject students' requests to start an
