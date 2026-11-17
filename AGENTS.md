@@ -226,6 +226,10 @@ Newest last. Do not undo these without the owner's say-so.
   the simple total of the best points they earned on each problem, partial points included (stored in
   `Profile.performance_points`, the field DMOJ sorts by; DMOJ's weighted best-100 formula is no longer used).
   "Allows partial points" is ticked by default for new problems.
+- **Rating bands:** no titles, only colours (like AtCoder), in the classic colours: gray (below 1000), green (1000),
+  cyan (1300), blue (1600), violet (1900), orange (2400), red (3000+). Same thresholds and rating formula as DMOJ.
+  The colour name is only a tooltip. **No divisions for now**: every rated round is rated for everyone (the
+  contest's rating floor / ceiling stay unused until the owner decides otherwise).
 
 ## Current status
 
@@ -344,3 +348,6 @@ DMOJ's; new interface text has no translations.
   problem" without DMOJ's weighting. Migration 0156 (help text only). Tested with real judged submissions
   (partial 3.4 of 17, full 17) and a rated contest that moved a problem from 9 to 17 points. After deploying,
   restart `bridged` too: it calculates scores when a submission is judged.
+- 2026-11-17, Claude: rating bands are colour-only (DMOJ's titles such as "Expert" replaced by colour names in the
+  tooltip) and use the classic seven colours, also used by problem difficulty. No divisions. All six systems the
+  owner listed are now decided and built.
