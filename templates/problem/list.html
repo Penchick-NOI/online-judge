@@ -81,11 +81,14 @@
     {% endif %}
 {% endblock %}
 
-{% block title_row %}
-    <h1 class="pn-title">{{ title }}</h1>
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
+    {% set head_icon = 'fa-code' %}
     {% if not request.in_contest %}
-        <p class="pn-subtitle">{{ _('Pick one and start solving.') }}</p>
+        {% set head_sub = _('Pick one and start solving.') %}
     {% endif %}
+    {% include "page-head.html" %}
 {% endblock %}
 
 {% macro sort_th(key, label, cls='') %}

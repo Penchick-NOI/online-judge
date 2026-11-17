@@ -24,9 +24,14 @@
     </script>
 {% endblock %}
 
-{% block title_row %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
     {% set tab = 'list' %}
-    {% include "user/user-list-tabs.html" %}
+    {% set head_icon = 'fa-bar-chart' %}
+    {% set head_sub = _('Everyone on PNOI, ranked.') %}
+    {% set head_tabs = 'user/user-list-tabs.html' %}
+    {% include "page-head.html" %}
 {% endblock %}
 
 {% block body %}

@@ -6,7 +6,13 @@
     <meta property="og:title" content="{{ flatpage.title }} - {{ SITE_LONG_NAME }}">
 {% endblock %}
 
-{% block content_title %}{{ flatpage.title }}{% endblock %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
+    {% set head_icon = 'fa-info-circle' %}
+    {% set head_title = flatpage.title %}
+    {% include "page-head.html" %}
+{% endblock %}
 
 {% block header %}{% include "flatpages/admin_link.html" %}{% endblock %}
 

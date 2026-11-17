@@ -35,13 +35,16 @@
 {% endblock %}
 
 {# The calendar tab is hidden for now, so only staff (who get an Admin tab) have tabs to show. #}
-{% block title_row %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
+    {% set head_icon = 'fa-trophy' %}
+    {% set head_sub = _('Timed rounds: solve as many problems as you can.') %}
     {% if perms.judge.edit_all_contest or perms.judge.edit_own_contest %}
         {% set tab = 'list' %}
-        {% include "contest/contest-list-tabs.html" %}
-    {% else %}
-        {{ super() }}
+        {% set head_tabs = 'contest/contest-list-tabs.html' %}
     {% endif %}
+    {% include "page-head.html" %}
 {% endblock %}
 
 {% macro contest_head(contest) %}

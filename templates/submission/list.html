@@ -202,8 +202,13 @@
     {% endif %}
 {% endblock %}
 
-{% block title_row %}
-    {% include "submission/submission-list-tabs.html" %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
+    {% set head_icon = 'fa-list' %}
+    {% set head_sub = _('Every solution sent to the judge, newest first.') %}
+    {% set head_tabs = 'submission/submission-list-tabs.html' %}
+    {% include "page-head.html" %}
 {% endblock %}
 
 {% block body %}
