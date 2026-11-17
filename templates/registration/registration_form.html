@@ -33,6 +33,14 @@
 {% block body %}
     <div class="pn-auth">
         <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
+        {% if has_google_auth %}
+            <div class="pn-auth-social pn-card pn-card-pad">
+                <a class="pn-btn pn-btn-soft pn-btn-block" href="{{ url('social:begin', 'google-oauth2') }}">
+                    <i class="fa fa-google"></i> {{ _('Continue with Google') }}
+                </a>
+                <p class="pn-help" style="text-align: center; margin-bottom: 0">{{ _('or sign up with a username and password:') }}</p>
+            </div>
+        {% endif %}
         <form id="edit-form" action="" method="post" class="pn-card pn-card-pad pn-form">
             {% csrf_token %}
             {{ form.non_field_errors() }}
@@ -95,17 +103,15 @@
                 </label>
             {% endif %}
 
+            {% include "registration/agreement-fields.html" %}
+
             {% if form.captcha %}
                 <div style="margin-top: 14px">{{ form.captcha }}</div>
                 {{ form.captcha.errors }}
             {% endif %}
 
             <button type="submit" class="pn-btn pn-btn-red pn-btn-block">{{ _('Sign up') }}</button>
-            {% if tos_url %}
-                <p class="pn-help" style="text-align: center">
-                    {{ (_('By registering, you agree to our [Terms & Conditions][0].') + '\n\n  [0]: ' + tos_url)|markdown('default', strip_paragraphs=True) }}
-                </p>
-            {% endif %}
+            <p class="pn-help" style="text-align: center">{{ _('We will email you a link to confirm your address.') }}</p>
         </form>
         <p class="pn-auth-links">
             <a href="{{ url('auth_login') }}">{{ _('Log in') }}</a>

@@ -16,7 +16,7 @@ from judge.views import TitledTemplateView, api, blog, comment, contests, langua
     two_factor, user, widgets
 from judge.views.problem_data import ProblemDataView, ProblemSubmissionDiff, \
     problem_data_file, problem_init_view
-from judge.views.register import ActivationView, RegistrationView
+from judge.views.register import ActivationView, RegistrationView, ResendActivationView
 from judge.views.select2 import AssigneeSelect2View, ClassSelect2View, CommentSelect2View, ContestSelect2View, \
     ContestUserSearchSelect2View, OrganizationSelect2View, ProblemSelect2View, TicketUserSelect2View, \
     UserSearchSelect2View, UserSelect2View
@@ -32,6 +32,7 @@ register_patterns = [
          name='registration_activation_complete'),
     # Let's use <str:activation_key>, because a bad activation key should still get to the view;
     # that way, it can return a sensible "invalid key" message instead of a confusing 404.
+    path('activate/resend/', ResendActivationView.as_view(), name='registration_resend_activation'),
     path('activate/<str:activation_key>/', ActivationView.as_view(), name='registration_activate'),
     path('register/', RegistrationView.as_view(), name='registration_register'),
     path('register/complete/',

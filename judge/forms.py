@@ -14,6 +14,8 @@ from django.urls import reverse_lazy
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
+from registration.models import RegistrationProfile
+
 from judge.models import Contest, Language, Organization, Problem, ProblemPointsVote, Profile, Submission, \
     WebAuthnCredential
 from judge.models.profile import GRADE_CHOICES
@@ -86,6 +88,19 @@ class ProfileForm(ModelForm):
         if 'grade' in self.changed_data:
             self.instance.set_grade_choice(self.cleaned_data.get('grade', ''))
         return super(ProfileForm, self).save(commit)
+
+
+def agreement_fields():
+    """PNOI: the two required tick boxes on sign-up, with a password or with Google: (age_ok, agree_rules)."""
+    return (
+        forms.BooleanField(
+            label=_('I am 18 or older, or my parent or guardian agrees to me using PNOI.'),
+            error_messages={'required': _("You need to be 18 or older, or have your parent's or guardian's "
+                                          "agreement, to use PNOI.")}),
+        forms.BooleanField(
+            label=_('I agree to the PNOI rules and privacy notice.'),
+            error_messages={'required': _('Please read the rules and tick this box to continue.')}),
+    )
 
 
 class EmailChangeForm(Form):
@@ -180,6 +195,18 @@ class CustomAuthenticationForm(AuthenticationForm):
     def _has_social_auth(self, key):
         return (getattr(settings, 'SOCIAL_AUTH_%s_KEY' % key, None) and
                 getattr(settings, 'SOCIAL_AUTH_%s_SECRET' % key, None))
+
+    def clean(self):
+        try:
+            return super(CustomAuthenticationForm, self).clean()
+        except ValidationError:
+            # Only when the password is right, so this does not reveal which usernames exist.
+            username, password = self.cleaned_data.get('username'), self.cleaned_data.get('password')
+            user = User.objects.filter(username=username, is_active=False).first() if username else None
+            if user is not None and password and user.check_password(password) and \
+                    RegistrationProfile.objects.filter(user=user, activated=False).exists():
+                raise ValidationError(_('Your email address is not confirmed yet.'), code='pn_unconfirmed')
+            raise
 
 
 class NoAutoCompleteCharField(forms.CharField):

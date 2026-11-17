@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
+    {% set head_icon = 'fa-user' %}
+    {% set head_section = _('Your account') %}
+    {% include "page-head.html" %}
+{% endblock %}
+
+{% block body %}
+    <div class="pn-auth">
+        <h1 class="pn-title">{{ title }}</h1>
+        {% if sent %}
+            <div class="pn-card pn-card-pad">
+                <p style="margin: 0 0 10px">{{ _('If an account with that email address is waiting to be confirmed, we have sent it a new link.') }}</p>
+                <p class="pn-help" style="margin: 0">{{ _('Look in your spam or promotions folder too. The new link replaces the old one.') }}</p>
+            </div>
+        {% else %}
+            <form action="" method="post" class="pn-card pn-card-pad pn-form">
+                {% csrf_token %}
+                <p style="margin: 0 0 12px">{{ _('Type the email address you signed up with and we will send you a new confirmation link.') }}</p>
+                <label for="{{ form.email.id_for_label }}">{{ _('Email') }}</label>
+                {{ form.email }}
+                {{ form.email.errors }}
+                <button type="submit" class="pn-btn pn-btn-red pn-btn-block">{{ _('Send a new link') }}</button>
+            </form>
+        {% endif %}
+        <p class="pn-auth-links"><a href="{{ url('auth_login') }}">{{ _('Log in') }}</a></p>
+    </div>
+{% endblock %}

@@ -167,7 +167,7 @@ NOFOLLOW_EXCLUDED = set()
 
 TIMEZONE_MAP = 'https://static.dmoj.ca/assets/earth.jpg'
 
-TERMS_OF_SERVICE_URL = None
+TERMS_OF_SERVICE_URL = '/rules/'
 DEFAULT_USER_LANGUAGE = 'PY3'
 
 INLINE_JQUERY = True

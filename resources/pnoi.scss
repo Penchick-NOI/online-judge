@@ -4673,6 +4673,28 @@ body[data-pn] .pn-phead + main#content.pn-main {
     }
 }
 
+// ---------------------------------------------------------------- sign-up agreement
+.pn-agree {
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+
+    .pn-check {
+        align-items: flex-start;
+        font-weight: 500;
+        line-height: 1.4;
+
+        input {
+            margin-top: 3px;
+            flex: none;
+        }
+    }
+}
+
+.pn-auth-social {
+    margin-bottom: 14px;
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.
