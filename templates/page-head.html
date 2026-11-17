@@ -1,0 +1,26 @@
+{#
+    The header bar across the top of a page: the section's icon, the page title, a one-line description and,
+    if the page has them, its tabs. Use it from a page like this:
+
+        {% block page_head %}
+            {% set head_icon = 'fa-code' %}
+            {% set head_sub = _('Pick one and start solving.') %}
+            {% include "page-head.html" %}
+        {% endblock %}
+
+    Optional: head_title (defaults to the page title), head_tabs (a template that extends tabs-base.html).
+    A page that uses this must empty its title_row block, or the title shows twice.
+#}
+<div class="pn-head">
+    <div class="pn-head-inner">
+        <span class="pn-head-icon" aria-hidden="true"><i class="fa {{ head_icon or 'fa-circle-o' }}"></i></span>
+        <div class="pn-head-text">
+            <h1 class="pn-title">{{ head_title or content_title or title }}</h1>
+            {% if head_sub %}<p class="pn-head-sub">{{ head_sub }}</p>{% endif %}
+        </div>
+        {% if head_tabs %}
+            {% set tabs_only = true %}
+            {% include head_tabs %}
+        {% endif %}
+    </div>
+</div>

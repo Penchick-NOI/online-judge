@@ -114,6 +114,9 @@ All of these are CSS variables at the top of `resources/pnoi.scss`. Use the vari
 
 ### Layout
 
+- **Every page starts with a header bar** (`.pn-head`, from `templates/page-head.html`): a white bar across the top
+  with the section's icon, the page title, a one-line description and the page's tabs. It makes each section feel
+  like its own place. The content below sits in cards as before.
 - **Slim dark icon rail** on the left (`.pn-rail`, dark navy): icon plus small label for each section, the user's
   picture and account menu at the bottom. On phones it becomes a bar along the bottom.
 - **Home page is a dashboard:** next contest, the student's own rating and recent submissions, top users, past
@@ -128,6 +131,8 @@ All of these are CSS variables at the top of `resources/pnoi.scss`. Use the vari
 ## How the front end is built
 
 - **`templates/base.html`** is the page skeleton, written for PNOI. Do not change it without the owner's say-so.
+  It has a `page_head` block just above `<main>` for the header bar; see the comment in `templates/page-head.html`
+  for how a page fills it (and empties its `title_row` block).
   The styling hook is `body[data-pn]` (the body's class attribute is overwritten by a script, so do not rely on it).
 - **`resources/pnoi.scss`** holds the entire PNOI design. Classes start with `pn-`. Add new rules just above the
   line `// ---------------------------------------------------------------- legacy`. It is compiled by
@@ -189,6 +194,9 @@ Newest last. Do not undo these without the owner's say-so.
 - Organizations: the Organizations page is just a simple list. Each organization's own page is its member
   leaderboard (chosen from ten options): name, a short description and the Join button on top, the ranked member
   table below, and a "Find members" panel on the right. The name "Organizations" is kept.
+- Pages felt like "popups": the same white boxes on the same cream page everywhere. Chosen fix (from three
+  options): a header bar on every page, with the boxes below kept. The owner approved changing `base.html` for
+  this. The rail and footer stay as they are; the owner is open to seeing suggestions for them.
 - **Students are ranked by contest rating**, like Codeforces and AtCoder, everywhere (users list, organization
   pages, home page, profile, school rank). A student who has not been rated yet has no rank and is listed after
   the rated ones. Practice points are still shown and can be sorted by, but do not rank anyone.
@@ -211,6 +219,10 @@ result and source pages, contest list (upcoming list, past list with a filter pa
 scoreboard, users list (with a right-hand filter panel: search, region, sort), profile, edit profile, log in, sign up,
 password and other account pages, About, single news post (with its comment section), organizations (the list, an
 organization's page, asking to join).
+
+**Header bar (`page-head.html`):** on home, problem list, submissions list, users, organizations list, contests list
+and About. Still to get it: problem page, contest page and scoreboard, profile, organization page, news post,
+account pages.
 
 **Still in DMOJ's old layout (to rebuild):** the organiser-only organisation pages (edit, manage members, review
 join requests, class pages), tickets, contest statistics,
@@ -287,3 +299,6 @@ DMOJ's; new interface text has no translations.
   the state of their request and shows staff how many are waiting. New guide `docs/pnoi/organizations.md`.
   Tested end to end locally, including phone width. The page skeleton does not show Django flash messages, so
   feedback is shown on the Organizations page instead.
+- 2026-11-17, Devin: header bar on every main page (home, problems, submissions, users, organizations, contests,
+  About) so each section has its own place (PR 32). `base.html` gained one `page_head` block. Checked at desktop
+  and phone width. Not checked: staff tabs, lists inside a contest. The remaining pages follow in another PR.

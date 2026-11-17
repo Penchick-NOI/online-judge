@@ -2,9 +2,14 @@
 
 {% block legacy_css %}{% endblock %}
 
-{% block title_row %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
     {% set tab = 'organizations' %}
-    {% include "user/user-list-tabs.html" %}
+    {% set head_icon = 'fa-university' %}
+    {% set head_sub = _('Clubs, schools and training groups you can join.') %}
+    {% set head_tabs = 'user/user-list-tabs.html' %}
+    {% include "page-head.html" %}
 {% endblock %}
 
 {% block body %}

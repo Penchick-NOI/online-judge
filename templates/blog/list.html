@@ -2,6 +2,13 @@
 {% block legacy_css %}{% endblock %}
 {% block title_row %}{% endblock %}
 
+{% block page_head %}
+    {% set head_icon = 'fa-home' %}
+    {% set head_title = _('Home') %}
+    {% set head_sub = _('Contests coming up, problems to try and the latest news.') %}
+    {% include "page-head.html" %}
+{% endblock %}
+
 {% block media %}
     <link rel="alternate" type="application/atom+xml" href="{{ url('blog_atom') }}" title="Atom Blog Feed">
     <link rel="alternate" type="application/rss+xml" href="{{ url('blog_rss') }}" title="RSS Blog Feed">

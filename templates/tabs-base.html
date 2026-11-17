@@ -6,11 +6,16 @@
     </li>
 {% endmacro %}
 
+{# Inside the page header bar (page-head.html) only the tabs are wanted: the bar shows the title itself. #}
+{% if not tabs_only %}
 <div class="pn-tabs-head">
     <h1 class="pn-title">{{ content_title or title }}</h1>
     {% block post_tab_spacer %}{% endblock %}
+{% endif %}
     <ul class="pn-tabs">
         {% block tabs %}{% endblock %}
     </ul>
     <div class="pn-tab-actions">{% block tab_actions %}{% endblock %}</div>
+{% if not tabs_only %}
 </div>
+{% endif %}

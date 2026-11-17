@@ -4506,6 +4506,83 @@ body[data-pn] {
     text-align: center;
 }
 
+
+// ---------------------------------------------------------------- page header bar
+// A white bar across the top of a page (templates/page-head.html), so each section has its own place.
+.pn-head {
+    border-bottom: 1px solid var(--pn-line-strong);
+    background: var(--pn-surface);
+    box-shadow: 0 2px 0 var(--pn-line);
+}
+
+.pn-head-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 14px 20px;
+
+    .pn-tabs {
+        margin: 0;
+    }
+}
+
+.pn-head-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--pn-blue);
+    color: var(--pn-surface);
+    font-size: 20px;
+}
+
+.pn-head-text {
+    flex: 1 1 200px;
+    min-width: 0;
+
+    .pn-title {
+        margin: 0;
+        font-size: 28px;
+        overflow-wrap: anywhere;
+    }
+}
+
+.pn-head-sub {
+    margin: 3px 0 0;
+    color: var(--pn-muted);
+    font-size: 14px;
+}
+
+.pn-head + .pn-main {
+    padding-top: 22px;
+}
+
+@media (max-width: 560px) {
+    .pn-head-inner {
+        padding: 10px 14px;
+    }
+
+    .pn-head-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        font-size: 16px;
+    }
+
+    .pn-head-text .pn-title {
+        font-size: 22px;
+    }
+
+    .pn-head-sub {
+        display: none;
+    }
+}
+
 // ---------------------------------------------------------------- legacy
 // Pages not rebuilt yet still load DMOJ's old stylesheet. These rules stop it
 // from bending the new frame.
