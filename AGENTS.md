@@ -317,3 +317,7 @@ DMOJ's; new interface text has no translations.
   the centred name, limits and tabs, dark editor pane filling the right half (PR 34). Checked at desktop and phone
   width, logged in and out; submitting shows the result strip under the editor. Not checked: a real judge's
   verdict (only a fake local judge), inside a contest, organization-private problems.
+- 2026-11-17, Claude: reviewed PRs 32 to 34; sent real submissions through the new problem page to the real judge
+  (Python AC, C++17 AC, wrong answer WA, the live result strip gets the full verdict) and checked it inside a
+  running contest. Follow-up: header bar added to "Start an organization" and to the standalone submit page; the
+  problem page facts read "100 points (partial)" instead of "100p points".

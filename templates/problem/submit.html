@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block legacy_css %}{% endblock %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
+    {% set head_icon = 'fa-code' %}
+    {% set head_sub = _('Paste or type your solution, choose a language and submit.') %}
+    {% include "page-head.html" %}
+{% endblock %}
 
 {% block js_media %}
     <script type="text/javascript" src="{{ ACE_URL }}/ace.js"></script>
