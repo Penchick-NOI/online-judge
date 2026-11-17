@@ -45,6 +45,14 @@
 
 {% block title_row %}{% endblock %}
 
+{% block page_head %}
+    {% set tab = 'organizations' %}
+    {% set head_icon = 'fa-university' %}
+    {% set head_section = _('Organizations') %}
+    {% set head_tabs = 'user/user-list-tabs.html' %}
+    {% include "page-head.html" %}
+{% endblock %}
+
 {% block body %}
     {% set filtering = search_filter or sort_by_points %}
 

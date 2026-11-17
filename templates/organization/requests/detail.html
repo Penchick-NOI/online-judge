@@ -3,6 +3,14 @@
 {% block legacy_css %}{% endblock %}
 {% block title_row %}{% endblock %}
 
+{% block page_head %}
+    {% set tab = 'organizations' %}
+    {% set head_icon = 'fa-university' %}
+    {% set head_section = _('Organizations') %}
+    {% set head_tabs = 'user/user-list-tabs.html' %}
+    {% include "page-head.html" %}
+{% endblock %}
+
 {% block body %}
     {% set org = object.organization %}
     <div class="pn-auth pn-org-request">

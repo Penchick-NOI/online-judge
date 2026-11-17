@@ -9,13 +9,19 @@
         {% endblock %}
 
     Optional: head_title (defaults to the page title), head_tabs (a template that extends tabs-base.html).
+    On a page that keeps its own <h1> lower down (a news post, a log-in card), set head_section instead: the
+    bar then shows that section name as plain text, so the page still has one <h1>.
     A page that uses this must empty its title_row block, or the title shows twice.
 #}
 <div class="pn-head">
     <div class="pn-head-inner">
         <span class="pn-head-icon" aria-hidden="true"><i class="fa {{ head_icon or 'fa-circle-o' }}"></i></span>
         <div class="pn-head-text">
-            <h1 class="pn-title">{{ head_title or content_title or title }}</h1>
+            {% if head_section %}
+                <div class="pn-title">{{ head_section }}</div>
+            {% else %}
+                <h1 class="pn-title">{{ head_title or content_title or title }}</h1>
+            {% endif %}
             {% if head_sub %}<p class="pn-head-sub">{{ head_sub }}</p>{% endif %}
         </div>
         {% if head_tabs %}

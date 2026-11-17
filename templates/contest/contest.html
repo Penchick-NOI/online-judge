@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 {% block legacy_css %}{% endblock %}
 
-{% block title_row %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
     {% set tab = 'detail' %}
-    {% set title = contest.name %}
-    {% include "contest/contest-tabs.html" %}
+    {% set head_title = contest.name %}
+    {% set head_icon = 'fa-trophy' %}
+    {% set head_tabs = 'contest/contest-tabs.html' %}
+    {% include "page-head.html" %}
 {% endblock %}
 
 {% block js_media %}
