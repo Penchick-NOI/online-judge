@@ -147,8 +147,8 @@ class Problem(models.Model):
                                                            MaxValueValidator(settings.DMOJ_PROBLEM_MAX_MEMORY_LIMIT)])
     short_circuit = models.BooleanField(verbose_name=_('short circuit'), default=False)
     points = models.FloatField(verbose_name=_('points'),
-                               help_text=_('Points awarded for problem completion. '
-                                           "Points are displayed with a 'p' suffix if partial."),
+                               help_text=_('Set automatically from the difficulty (difficulty divided by 100). '
+                                           'Only type points for a problem with no difficulty estimate.'),
                                validators=[MinValueValidator(settings.DMOJ_PROBLEM_MIN_PROBLEM_POINTS)])
     partial = models.BooleanField(verbose_name=_('allows partial points'), default=False)
     difficulty_estimate = models.PositiveIntegerField(
@@ -473,9 +473,19 @@ class Problem(models.Model):
         # Difficulty uses the rating scale, so it borrows the rating colours.
         return rating_class(self.difficulty) if self.difficulty is not None else 'rate-none'
 
+    @staticmethod
+    def points_for_difficulty(difficulty):
+        # PNOI: a problem is worth its difficulty divided by 100, so an 800 problem is worth 8 points.
+        return round(difficulty / 100.0, 1)
+
     def save(self, *args, **kwargs):
         self.difficulty = (self.difficulty_calculated if self.difficulty_calculated is not None
                            else self.difficulty_estimate)
+        if self.difficulty is not None:
+            self.points = self.points_for_difficulty(self.difficulty)
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None and 'difficulty' in update_fields:
+                kwargs['update_fields'] = list(set(update_fields) | {'points'})
         super(Problem, self).save(*args, **kwargs)
         if self.code != self.__original_code:
             try:

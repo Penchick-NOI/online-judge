@@ -221,6 +221,11 @@ Newest last. Do not undo these without the owner's say-so.
   parent or guardian agrees" (no birth date is stored) and agreement to the **Rules and privacy** page
   (`/rules/`, a flat page saved in `judge/fixtures/pnoi_pages.json`). The rules text was drafted by Claude and is
   not legal advice; the owner reviews it.
+- **Point system:** a problem's points are its difficulty divided by 100 (`Problem.points_for_difficulty`), set
+  automatically; setters only type points for a problem with no difficulty at all. A student's practice score is
+  the simple total of the best points they earned on each problem, partial points included (stored in
+  `Profile.performance_points`, the field DMOJ sorts by; DMOJ's weighted best-100 formula is no longer used).
+  "Allows partial points" is ticked by default for new problems.
 
 ## Current status
 
@@ -332,3 +337,10 @@ DMOJ's; new interface text has no translations.
   links to a new "Send me a new link" page (`/accounts/activate/resend/`, three per hour per address). New guide
   `docs/pnoi/accounts-setup.md` for the email service and Google keys on a real server. Not tried: real email
   delivery and a real Google sign-in (both need hosting). `registration/profile_creation.html` is no longer used.
+- 2026-11-17, Claude: point system. Problem points follow difficulty (difficulty / 100); rating a contest that
+  changes a problem's difficulty rescores its submissions in the background. Practice score is a simple total
+  (partial points count). Admin: points field read-only once a problem has a difficulty; a new problem needs a
+  difficulty estimate or points; partial ticked by default. Profile shows "Practice points" and "Points by
+  problem" without DMOJ's weighting. Migration 0156 (help text only). Tested with real judged submissions
+  (partial 3.4 of 17, full 17) and a rated contest that moved a problem from 9 to 17 points. After deploying,
+  restart `bridged` too: it calculates scores when a submission is judged.
