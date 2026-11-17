@@ -4476,6 +4476,37 @@ body[data-pn] {
     }
 }
 
+// ---------------------------------------------------------------- start an organization
+.pn-org-start {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+    color: var(--pn-muted);
+}
+
+.pn-org-notice {
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--pn-line-strong);
+    border-radius: 12px;
+    background: var(--pn-surface);
+
+    &.pn-org-notice-staff {
+        border-color: var(--pn-yellow);
+        font-weight: 600;
+    }
+}
+
+.pn-org-start-intro {
+    margin: 0 0 14px;
+    color: var(--pn-muted);
+    text-align: center;
+}
+
+
 // ---------------------------------------------------------------- page header bar
 // A white bar across the top of a page (templates/page-head.html), so each section has its own place.
 .pn-head {

@@ -510,3 +510,61 @@ class OrganizationRequest(models.Model):
     class Meta:
         verbose_name = _('organization join request')
         verbose_name_plural = _('organization join requests')
+
+
+class OrganizationProposal(models.Model):
+    """PNOI: a student's request to start an organization. It becomes a real one when staff approve it."""
+    user = models.ForeignKey(Profile, verbose_name=_('requested by'), related_name='organization_proposals',
+                             on_delete=models.CASCADE)
+    name = models.CharField(max_length=128, verbose_name=_('organization name'))
+    about = models.TextField(verbose_name=_('what the organization is for'))
+    is_open = models.BooleanField(verbose_name=_('anyone can join'), default=True,
+                                  help_text=_('If unticked, students have to ask to join.'))
+    time = models.DateTimeField(verbose_name=_('request time'), auto_now_add=True)
+    state = models.CharField(max_length=1, verbose_name=_('state'), default='P', db_index=True, choices=(
+        ('P', _('Pending')),
+        ('A', _('Approved')),
+        ('R', _('Rejected')),
+    ))
+    reply = models.CharField(max_length=300, verbose_name=_('reply to the student'), blank=True, default='',
+                             help_text=_('Optional. Shown to the student, for example why the request was '
+                                         'rejected.'))
+    organization = models.ForeignKey(Organization, verbose_name=_('organization created'), null=True, blank=True,
+                                     related_name='+', on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def name_taken(name, exclude_id=None):
+        pending = OrganizationProposal.objects.filter(state='P', name__iexact=name)
+        if exclude_id is not None:
+            pending = pending.exclude(id=exclude_id)
+        return Organization.objects.filter(name__iexact=name).exists() or pending.exists()
+
+    def approve(self):
+        """Create the organization, with the student who asked as its administrator and first member."""
+        from django.utils.text import slugify
+
+        if self.state == 'A' and self.organization_id:
+            return self.organization
+        organization = Organization.objects.create(
+            name=self.name, slug=slugify(self.name)[:128] or 'organization', short_name=self.name[:20],
+            about=self.about, is_open=self.is_open,
+        )
+        organization.admins.add(self.user)
+        self.user.organizations.add(organization)
+        self.organization = organization
+        self.state = 'A'
+        self.save()
+        return organization
+
+    def reject(self):
+        if self.state == 'P':
+            self.state = 'R'
+            self.save()
+
+    class Meta:
+        ordering = ['-time']
+        verbose_name = _('request to start an organization')
+        verbose_name_plural = _('requests to start an organization')

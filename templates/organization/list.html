@@ -13,6 +13,37 @@
 {% endblock %}
 
 {% block body %}
+    <div class="pn-org-start">
+        <span>{{ _('An organization is a group of students, such as a school club or a training group.') }}</span>
+        {% if request.user.is_authenticated %}
+            <a class="pn-btn pn-btn-sm" href="{{ url('organization_start') }}">{{ _('Start an organization') }}</a>
+        {% else %}
+            <a class="pn-btn pn-btn-soft pn-btn-sm" href="{{ url('auth_login') }}?next={{ url('organization_start')|urlencode }}">{{ _('Log in to start one') }}</a>
+        {% endif %}
+    </div>
+
+    {% if pending_proposals %}
+        <p class="pn-org-notice pn-org-notice-staff">
+            <a href="{{ url('admin:judge_organizationproposal_changelist') }}?state__exact=P">
+                {% trans trimmed count=pending_proposals %}
+                    {{ count }} request to start an organization is waiting for you
+                {% pluralize %}
+                    {{ count }} requests to start an organization are waiting for you
+                {% endtrans %}
+            </a>
+        </p>
+    {% endif %}
+
+    {% for proposal in my_proposals %}
+        <p class="pn-org-notice">
+            {% if proposal.state == 'P' %}
+                {{ _('Your request to start "%(name)s" is waiting for the PNOI team.', name=proposal.name) }}
+            {% else %}
+                {{ _('Your request to start "%(name)s" was not approved:', name=proposal.name) }} {{ proposal.reply }}
+            {% endif %}
+        </p>
+    {% endfor %}
+
     {% if organizations %}
         <div class="pn-card pn-org-list">
             {% for org in organizations %}
