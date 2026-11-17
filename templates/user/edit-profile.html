@@ -164,10 +164,14 @@
     </script>
 {% endblock %}
 
-{% block title_row %}
+{% block title_row %}{% endblock %}
+
+{% block page_head %}
     {% set tab = 'edit' %}
     {% set user = request.profile %}
-    {% include "user/user-tabs.html" %}
+    {% set head_icon = 'fa-user' %}
+    {% set head_tabs = 'user/user-tabs.html' %}
+    {% include "page-head.html" %}
 {% endblock %}
 
 {% block body %}
