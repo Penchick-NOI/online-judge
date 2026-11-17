@@ -293,5 +293,5 @@ DMOJ's; new interface text has no translations.
   Tested with two simulated rated contests. Not checked: phone width; a problem used in several contests simply
   keeps the result of the one rated last.
 - 2026-11-17, Devin: header bar on every main page (home, problems, submissions, users, organizations, contests,
-  About) so each section has its own place (PR 31). `base.html` gained one `page_head` block. Checked at desktop
+  About) so each section has its own place (PR 32). `base.html` gained one `page_head` block. Checked at desktop
   and phone width. Not checked: staff tabs, lists inside a contest. The remaining pages follow in another PR.
