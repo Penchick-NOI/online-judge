@@ -4,6 +4,7 @@ from operator import itemgetter
 from urllib.parse import quote
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -15,7 +16,6 @@ from social_core.exceptions import InvalidEmail, SocialAuthBaseException
 from social_core.pipeline.partial import partial
 from social_django.middleware import SocialAuthExceptionMiddleware as OldSocialAuthExceptionMiddleware
 
-from django.conf import settings
 
 from judge.forms import agreement_fields
 from judge.models import Language, Profile

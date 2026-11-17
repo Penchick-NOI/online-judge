@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext, gettext_lazy as _
 from reversion.admin import VersionAdmin
 
-from judge.models import Organization, OrganizationProposal
+from judge.models import Organization
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget
 
 

@@ -13,7 +13,6 @@ from django.forms import BooleanField, CharField, ChoiceField, Form, ModelForm, 
 from django.urls import reverse_lazy
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _, ngettext_lazy
-
 from registration.models import RegistrationProfile
 
 from judge.models import Contest, Language, Organization, Problem, ProblemPointsVote, Profile, Submission, \
@@ -96,7 +95,7 @@ def agreement_fields():
         forms.BooleanField(
             label=_('I am 18 or older, or my parent or guardian agrees to me using PNOI.'),
             error_messages={'required': _("You need to be 18 or older, or have your parent's or guardian's "
-                                          "agreement, to use PNOI.")}),
+                                          'agreement, to use PNOI.')}),
         forms.BooleanField(
             label=_('I agree to the PNOI rules and privacy notice.'),
             error_messages={'required': _('Please read the rules and tick this box to continue.')}),

@@ -11,8 +11,8 @@ from judge.models import BlogPost, Comment, Contest, Language, Problem, ProblemC
     Ticket
 from judge.utils.cachedict import CacheDict
 from judge.utils.diggpaginator import DiggPaginator
-from judge.utils.problems import user_completed_ids
 from judge.utils.opengraph import generate_opengraph
+from judge.utils.problems import user_completed_ids
 from judge.utils.tickets import filter_visible_tickets
 from judge.utils.views import TitleMixin
 from judge.views.user import listed_profiles, rating_rank_of

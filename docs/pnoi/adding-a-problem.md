@@ -7,6 +7,20 @@ This guide walks you through creating a new problem on PNOI and uploading its te
 
 A problem stays hidden from students until you tick **Publicly visible**, so you can work on it safely.
 
+## Giving a teammate setter access
+
+The usual way for the team to add problems is [problem files](problem-files.md) in the `pnoi-problems`
+repository. Once a teammate has an account on the site, they can also edit their own problems here. To allow that,
+as an administrator:
+
+1. In the admin pages, open **Users** and click the teammate's username.
+2. Tick **Staff status** (this lets them open the admin pages).
+3. Under **Groups**, move **Problem setters** to the chosen side, then click **Save**.
+
+A problem setter can create problems, edit the problems they are an author or curator of (including test data),
+and make those problems public. They cannot edit other setters' problems, see other hidden problems or run
+contests.
+
 ## Before you start
 
 - Log in to the site. Click your picture at the bottom of the menu on the left and choose **Admin**. This opens the admin pages

@@ -234,6 +234,12 @@ Newest last. Do not undo these without the owner's say-so.
   judge server (VPS-1), joined by Tailscale, behind Cloudflare; about US$14–15 a month. Plan and phases in
   `docs/pnoi/hosting.md`. Accounts and payments are the owner's; secrets are generated on the servers and never
   shared in chat or committed. Hosting work is Claude's (it needs the owner's computer and servers).
+- **Team problem setting** (decided 2026-11-17): until PNOI is hosted, the team writes problems as folders
+  (`problem.yml`, `statement.md`, `tests/`) in the private repository `Penchick-NOI/pnoi-problems`; the owner loads
+  them with `manage.py pnoi_import_problems`. Format: `docs/pnoi/problem-files.md`; checker:
+  `judge/utils/pnoi_problem_files.py` (no Django imports, so the problems repository's GitHub check can run it on
+  its own; keep it that way). A **Problem setters** group (migration 0157) can create problems, edit their own and
+  make them public, but not edit others' problems or run contests.
 
 ## Current status
 
@@ -258,7 +264,9 @@ contest pages.
 
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
 
-**Hosting:** planned, not started (`docs/pnoi/hosting.md`). Next: Phase 0, the owner's accounts and domain name.
+**Hosting:** planned, not started (`docs/pnoi/hosting.md`). On hold: the owner chose to set up team problem setting first. Next: Phase 0, the owner's accounts and domain name.
+
+**Team problem setting:** problem folders and the import command are built and tested with the real judge (subtasks, partial points, updating a problem); the `Penchick-NOI/pnoi-problems` repository holds the team's problems.
 
 **Known gaps:** the edit profile page scrolls sideways on phones; no dark mode; maths rendering (Mathoid) is
 switched off; live updates show "disconnected" locally; no real problems or contests yet; staff accounts can still
@@ -359,3 +367,6 @@ DMOJ's; new interface text has no translations.
   owner listed are now decided and built.
 - 2026-11-17, Claude: fresh local backup (`backups/2026-11-17`, outside the repository). Hosting plan written
   (`docs/pnoi/hosting.md`) after the owner chose two servers.
+- 2026-11-17, Claude: team problem setting. Problem folders in `Penchick-NOI/pnoi-problems`, checked by
+  `judge/utils/pnoi_problem_files.py` and loaded by `manage.py pnoi_import_problems`; Problem setters group
+  (migration 0157); guide `docs/pnoi/problem-files.md`.
