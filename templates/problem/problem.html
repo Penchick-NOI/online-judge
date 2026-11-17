@@ -133,8 +133,11 @@
                         editor.setShowPrintMargin(false);
                     });
 
+                    // On a wide screen the editor fills its pane (see .pn-editor); on a phone it gets a fixed height.
+                    var wide = window.matchMedia('(min-width: 1001px)');
                     $(window).resize(function () {
-                        $('#ace_source').height(Math.max($(window).height() - 360, 260));
+                        $('#ace_source').css('height', wide.matches ? '100%' : Math.max($(window).height() - 360, 260) + 'px');
+                        if (window.ace_source && window.ace_source.resize) window.ace_source.resize();
                     }).resize();
 
                     // ---- submit without leaving the page, then show the verdict under the editor
@@ -202,76 +205,77 @@
 
 {% block title_row %}{% endblock %}
 
-{# The header bar, Codeforces-style: the problem's name centred with its limits under it, then the page's tabs. #}
+{# A general bar, the same on every problem. The problem's own name sits at the top of the statement. #}
 {% block page_head %}
     <div class="pn-head pn-phead">
-        <div class="pn-phead-top">
-            <span class="pn-head-icon" aria-hidden="true"><i class="fa fa-code"></i></span>
-            <div class="pn-phead-main">
-                <div class="pn-phead-title">
-                    <h1 class="pn-title">{{ title }}</h1>
-                    {% if request.user.is_authenticated %}
-                        {% set locked = not (problem.is_public or request.in_contest) %}
-                        {% if problem.id in completed_problem_ids %}
-                            <a href="{{ url('user_submissions', problem.code, request.user.username) }}" title="{{ _('Solved') }}">
-                                <span class="pn-status pn-solved">
-                                    <i class="fa {% if locked %}fa-lock{% else %}fa-check{% endif %}"></i>
-                                </span>
-                            </a>
-                        {% elif problem.id in attempted_problems %}
-                            <a href="{{ url('user_submissions', problem.code, request.user.username) }}" title="{{ _('Attempted') }}">
-                                <span class="pn-status pn-tried">
-                                    <i class="fa {% if locked %}fa-lock{% else %}fa-ellipsis-h{% endif %}"></i>
-                                </span>
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                    {% if problem.is_organization_private %}
-                        {% for org in problem.organizations.all() %}
-                            <a class="pn-tag pn-tag-yellow" href="{{ org.get_absolute_url() }}">
-                                <i class="fa fa-lock"></i> {{ org.name }}
-                            </a>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="pn-phead-facts">
-                    <span>
-                        {% if problem.time_limit == 1 %}
-                            {{ _('Time limit: 1 second') }}
-                        {% else %}
-                            {{ _('Time limit: %(time)s seconds', time='%g'|format(problem.time_limit)) }}
-                        {% endif %}
-                    </span>
-                    <span>{{ _('Memory limit: %(memory)s', memory=problem.memory_limit|kbsimpleformat) }}</span>
-                    <span>
-                        {% if contest_problem %}
-                            {{ contest_problem.points }}{% if contest_problem.partial %}p{% endif %}
-                        {% else %}
-                            {{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}
-                        {% endif %}
-                        {{ _('points') }}
-                    </span>
-                    {% if not contest_problem and problem.difficulty is not none %}
-                        <span title="{% if problem.difficulty_is_estimate %}{{ _('Estimated by the problem setter. It will be calculated after a rated contest.') }}{% else %}{{ _('Calculated from a rated contest.') }}{% endif %}">
-                            {{ _('Difficulty') }}
-                            <b class="{{ problem.difficulty_class }}">{% if problem.difficulty_is_estimate %}~{% endif %}{{ problem.difficulty }}</b>
-                        </span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="pn-ptabs" role="tablist">
-            <button type="button" class="active" data-tab="statement" role="tab" aria-selected="true">{{ _('Statement') }}</button>
-            <button type="button" data-tab="submissions" role="tab" aria-selected="false">{{ _('Submissions') }}</button>
-            <button type="button" data-tab="details" role="tab" aria-selected="false">{{ _('Details') }}</button>
-        </div>
+        <span class="pn-head-icon" aria-hidden="true"><i class="fa fa-code"></i></span>
+        <a class="pn-title" href="{{ url('problem_list') }}">{{ _('Problems') }}</a>
     </div>
 {% endblock %}
 
 {% block body %}
     <div class="pn-workspace">
         {# ================= left: statement, submissions, details ================= #}
-        <div class="pn-card pn-pane">
+        <div class="pn-pane pn-pane-read">
+            {# Codeforces-style: the name centred on top, the limits under it, then the tabs. #}
+            <div class="pn-pane-top">
+            <div class="pn-phead-title">
+                <h1 class="pn-title">{{ title }}</h1>
+                {% if request.user.is_authenticated %}
+                    {% set locked = not (problem.is_public or request.in_contest) %}
+                    {% if problem.id in completed_problem_ids %}
+                        <a href="{{ url('user_submissions', problem.code, request.user.username) }}" title="{{ _('Solved') }}">
+                            <span class="pn-status pn-solved">
+                                <i class="fa {% if locked %}fa-lock{% else %}fa-check{% endif %}"></i>
+                            </span>
+                        </a>
+                    {% elif problem.id in attempted_problems %}
+                        <a href="{{ url('user_submissions', problem.code, request.user.username) }}" title="{{ _('Attempted') }}">
+                            <span class="pn-status pn-tried">
+                                <i class="fa {% if locked %}fa-lock{% else %}fa-ellipsis-h{% endif %}"></i>
+                            </span>
+                        </a>
+                    {% endif %}
+                {% endif %}
+                {% if problem.is_organization_private %}
+                    {% for org in problem.organizations.all() %}
+                        <a class="pn-tag pn-tag-yellow" href="{{ org.get_absolute_url() }}">
+                            <i class="fa fa-lock"></i> {{ org.name }}
+                        </a>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="pn-phead-facts">
+                <span>
+                    {% if problem.time_limit == 1 %}
+                        {{ _('Time limit: 1 second') }}
+                    {% else %}
+                        {{ _('Time limit: %(time)s seconds', time='%g'|format(problem.time_limit)) }}
+                    {% endif %}
+                </span>
+                <span>{{ _('Memory limit: %(memory)s', memory=problem.memory_limit|kbsimpleformat) }}</span>
+                <span>
+                    {% if contest_problem %}
+                        {{ contest_problem.points }}{% if contest_problem.partial %}p{% endif %}
+                    {% else %}
+                        {{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}
+                    {% endif %}
+                    {{ _('points') }}
+                </span>
+                {% if not contest_problem and problem.difficulty is not none %}
+                    <span title="{% if problem.difficulty_is_estimate %}{{ _('Estimated by the problem setter. It will be calculated after a rated contest.') }}{% else %}{{ _('Calculated from a rated contest.') }}{% endif %}">
+                        {{ _('Difficulty') }}
+                        <b class="{{ problem.difficulty_class }}">{% if problem.difficulty_is_estimate %}~{% endif %}{{ problem.difficulty }}</b>
+                    </span>
+                {% endif %}
+            </div>
+                <div class="pn-ptabs" role="tablist">
+                    <button type="button" class="active" data-tab="statement" role="tab" aria-selected="true">{{ _('Statement') }}</button>
+                    <button type="button" data-tab="submissions" role="tab" aria-selected="false">{{ _('Submissions') }}</button>
+                    <button type="button" data-tab="details" role="tab" aria-selected="false">{{ _('Details') }}</button>
+                </div>
+            </div>
+
             <div id="pn-tab-statement" class="pn-ptab">
                 <div class="pn-prose">
                     {% cache 86400 'problem_html' problem.id MATH_ENGINE LANGUAGE_CODE %}
@@ -481,7 +485,7 @@
 
         {# ================= right: code and verdict ================= #}
         <div class="pn-pane-right">
-            <div class="pn-card pn-pane pn-coder">
+            <div class="pn-coder">
                 {% if not request.user.is_authenticated %}
                     <div class="pn-coder-gate">
                         <i class="fa fa-code" aria-hidden="true"></i>
@@ -491,7 +495,10 @@
                         </a>
                     </div>
                 {% elif not submit_languages %}
-                    <p class="pn-note pn-note-red" style="margin: 0">{{ _('No judge is available for this problem.') }}</p>
+                    <div class="pn-coder-gate">
+                        <i class="fa fa-plug" aria-hidden="true"></i>
+                        <p>{{ _('No judge is available for this problem.') }}</p>
+                    </div>
                 {% else %}
                     {% set no_subs_left = request.in_contest and submission_limit and submissions_left <= 0 %}
                     <form id="pn-submit-form" action="{{ url('problem_submit', problem.code) }}" method="post">

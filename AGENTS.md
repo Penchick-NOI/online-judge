@@ -121,8 +121,9 @@ All of these are CSS variables at the top of `resources/pnoi.scss`. Use the vari
   picture and account menu at the bottom. On phones it becomes a bar along the bottom.
 - **Home page is a dashboard:** next contest, the student's own rating and recent submissions, top users, past
   contests.
-- **Problem page is a split workspace:** statement, submissions and details in tabs on the left; language choice,
-  code editor, submit button and the live result on the right. Students submit without leaving the page.
+- **Problem page is a full-screen split workspace:** statement, submissions and details in tabs on the left (white
+  pane, scrolls on its own); language choice, dark code editor, submit button and the live result on the right.
+  The panes fill the screen below a slim "Problems" bar. Students submit without leaving the page.
 - **List pages have a filter panel on the right** (problem list, submissions list), which folds behind a
   **Filters** button on phones. Use this pattern for any other long list.
 - **Profile** has a card on the left (picture, name, school, grade, region, stats) and content on the right.
@@ -197,21 +198,12 @@ Newest last. Do not undo these without the owner's say-so.
 - Pages felt like "popups": the same white boxes on the same cream page everywhere. Chosen fix (from three
   options): a header bar on every page, with the boxes below kept. The owner approved changing `base.html` for
   this. The rail and footer stay as they are; the owner is open to seeing suggestions for them.
-- Problem page: its header bar is Codeforces-style. The problem's name is centred at the top with short limits
-  under it ("Time limit: 2 seconds"), points and difficulty, and the Statement / Submissions / Details tabs sit in
-  the bar too, so the page reads as one full page. The statement box starts straight with the text.
-- **Students are ranked by contest rating**, like Codeforces and AtCoder, everywhere (users list, organization
-  pages, home page, profile, school rank). A student who has not been rated yet has no rank and is listed after
-  the rated ones. Practice points are still shown and can be sorted by, but do not rank anyone.
-- **Verified badge:** a student is "Verified" (credible) automatically after `PNOI_VERIFIED_MIN_CONTESTS` (5) rated
-  contests with a clean record. Any disqualification removes it. No manual approval.
-- **Problem difficulty is calculated automatically**: the rating at which a contestant had a 50% chance of
-  solving the problem in its contest (as Codeforces and AtCoder do). Until there is enough data, the setter's own
-  estimate is shown, marked as an estimate (`~1200`). Built: `judge/utils/difficulty.py`, run when a contest
-  is rated. Problem points are a separate, older number and are still entered by hand.
-- **Organizations are groups of students** (clubs, training groups), not official schools. Any student can ask to
-  start one; it appears only after the owner's team approves it. Built: `OrganizationProposal`, the page
-  `/organizations/new`, and approve / reject actions in the admin pages.
+- Problem page (chosen from four layouts): a full-screen workspace, like a coding app. A slim general "Problems"
+  bar on top; below it the statement (white) and the code editor (dark navy) each fill half the screen, edge to
+  edge, with no cream around them. The problem's name is centred at the top of the statement, Codeforces-style,
+  with short limits under it ("Time limit: 2 seconds") and the Statement / Submissions / Details tabs. The owner
+  dislikes pages that are "just a beige background" with boxes swapped on top; this page should feel like a set
+  environment.
 
 ## Current status
 
@@ -305,6 +297,7 @@ DMOJ's; new interface text has no translations.
 - 2026-11-17, Devin: header bar on every main page (home, problems, submissions, users, organizations, contests,
   About) so each section has its own place (PR 32). `base.html` gained one `page_head` block. Checked at desktop
   and phone width. Not checked: staff tabs, lists inside a contest. The remaining pages follow in another PR.
-- 2026-11-17, Devin: problem page header bar: centred name, short limits, and the Statement / Submissions /
-  Details tabs moved up into the bar (PR 34). Checked at desktop and phone width, tabs still switch. Not checked:
-  with a real judge (the code editor side), inside a contest, organization-private problems.
+- 2026-11-17, Devin: problem page rebuilt as a full-screen workspace: general "Problems" bar, statement pane with
+  the centred name, limits and tabs, dark editor pane filling the right half (PR 34). Checked at desktop and phone
+  width, logged in and out; submitting shows the result strip under the editor. Not checked: a real judge's
+  verdict (only a fake local judge), inside a contest, organization-private problems.
