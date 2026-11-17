@@ -230,6 +230,10 @@ Newest last. Do not undo these without the owner's say-so.
   cyan (1300), blue (1600), violet (1900), orange (2400), red (3000+). Same thresholds and rating formula as DMOJ.
   The colour name is only a tooltip. **No divisions for now**: every rated round is rated for everyone (the
   contest's rating floor / ceiling stay unused until the owner decides otherwise).
+- **Hosting** (decided 2026-11-17): two OVHcloud VPS servers in Singapore, a site server (VPS-2) and a separate
+  judge server (VPS-1), joined by Tailscale, behind Cloudflare; about US$14–15 a month. Plan and phases in
+  `docs/pnoi/hosting.md`. Accounts and payments are the owner's; secrets are generated on the servers and never
+  shared in chat or committed. Hosting work is Claude's (it needs the owner's computer and servers).
 
 ## Current status
 
@@ -253,6 +257,8 @@ for PNOI only inside `.pn-comments` (used on the news post); they are still left
 contest pages.
 
 **Guides:** `docs/pnoi/` has tested organiser guides for adding a problem and running a contest.
+
+**Hosting:** planned, not started (`docs/pnoi/hosting.md`). Next: Phase 0, the owner's accounts and domain name.
 
 **Known gaps:** the edit profile page scrolls sideways on phones; no dark mode; maths rendering (Mathoid) is
 switched off; live updates show "disconnected" locally; no real problems or contests yet; staff accounts can still
@@ -351,3 +357,5 @@ DMOJ's; new interface text has no translations.
 - 2026-11-17, Claude: rating bands are colour-only (DMOJ's titles such as "Expert" replaced by colour names in the
   tooltip) and use the classic seven colours, also used by problem difficulty. No divisions. All six systems the
   owner listed are now decided and built.
+- 2026-11-17, Claude: fresh local backup (`backups/2026-11-17`, outside the repository). Hosting plan written
+  (`docs/pnoi/hosting.md`) after the owner chose two servers.
