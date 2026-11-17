@@ -227,9 +227,9 @@ scoreboard, users list (with a right-hand filter panel: search, region, sort), p
 password and other account pages, About, single news post (with its comment section), organizations (the list, an
 organization's page, asking to join).
 
-**Header bar (`page-head.html`):** on home, problem list, submissions list, users, organizations list, contests list
-and About. Still to get it: problem page, contest page and scoreboard, profile, organization page, news post,
-account pages.
+**Header bar (`page-head.html`):** on home, problem list, submissions list, users, organizations (list, an
+organization's page, asking to join), contests list, contest page and scoreboard, profile, edit profile, news post,
+account pages and About. The problem page has its own slim "Problems" bar. Not yet: pages still in the old layout.
 
 **Still in DMOJ's old layout (to rebuild):** the organiser-only organisation pages (edit, manage members, review
 join requests, class pages), tickets, contest statistics,
@@ -309,6 +309,10 @@ DMOJ's; new interface text has no translations.
 - 2026-11-17, Devin: header bar on every main page (home, problems, submissions, users, organizations, contests,
   About) so each section has its own place (PR 32). `base.html` gained one `page_head` block. Checked at desktop
   and phone width. Not checked: staff tabs, lists inside a contest. The remaining pages follow in another PR.
+- 2026-11-17, Devin: header bar on the remaining rebuilt pages: contest page and scoreboard, profile, edit profile,
+  an organization's page and its join form, news post, account pages (PR 33). Pages with their own title lower
+  down show the section name in the bar (`head_section`). Checked at desktop and phone width. Not checked: staff
+  tabs, sign-up and password pages one by one, pages inside a running contest.
 - 2026-11-17, Devin: problem page rebuilt as a full-screen workspace: general "Problems" bar, statement pane with
   the centred name, limits and tabs, dark editor pane filling the right half (PR 34). Checked at desktop and phone
   width, logged in and out; submitting shows the result strip under the editor. Not checked: a real judge's

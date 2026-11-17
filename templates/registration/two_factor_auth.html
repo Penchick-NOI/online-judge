@@ -2,6 +2,12 @@
 {% block legacy_css %}{% endblock %}
 {% block title_row %}{% endblock %}
 
+{% block page_head %}
+    {% set head_icon = 'fa-user' %}
+    {% set head_section = _('Your account') %}
+    {% include "page-head.html" %}
+{% endblock %}
+
 {% block js_media %}
     <script>
         // This is basically impossible to write without ES6, hence separate script block.

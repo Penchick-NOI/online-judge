@@ -2,6 +2,12 @@
 {% block legacy_css %}{% endblock %}
 {% block title_row %}{% endblock %}
 
+{% block page_head %}
+    {% set head_icon = 'fa-newspaper-o' %}
+    {% set head_section = _('News') %}
+    {% include "page-head.html" %}
+{% endblock %}
+
 {% block js_media %}
     {% if enable_comments %}
         {% include "comments/media-js.html" %}

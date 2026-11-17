@@ -2,6 +2,12 @@
 {% block legacy_css %}{% endblock %}
 {% block title_row %}{% endblock %}
 
+{% block page_head %}
+    {% set head_icon = 'fa-user' %}
+    {% set head_section = _('Your account') %}
+    {% include "page-head.html" %}
+{% endblock %}
+
 {% block body %}
     <div class="pn-auth">
         <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
