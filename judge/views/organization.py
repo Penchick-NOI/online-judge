@@ -20,7 +20,7 @@ from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateR
 from reversion import revisions
 
 from judge.forms import EditOrganizationForm
-from judge.models import Class, Organization, OrganizationRequest, Profile
+from judge.models import Class, Organization, OrganizationProposal, OrganizationRequest, Profile
 from judge.utils.diggpaginator import DiggPaginator
 from judge.utils.ranker import ranker
 from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, TitleMixin, generic_message
@@ -103,6 +103,73 @@ class OrganizationList(TitleMixin, ListView):
         listed = Q(member__is_unlisted=False, member__user__is_staff=False)
         return (super(OrganizationList, self).get_queryset()
                 .annotate(member_count=Count('member', filter=listed)).order_by('name'))
+
+    def get_context_data(self, **kwargs):
+        context = super(OrganizationList, self).get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            # A student sees what happened to their own requests; rejected ones only for a while.
+            context['my_proposals'] = [
+                proposal for proposal in self.request.profile.organization_proposals.all()[:5]
+                if proposal.state == 'P' or (proposal.state == 'R' and proposal.reply)
+            ]
+            if self.request.user.has_perm('judge.change_organizationproposal'):
+                context['pending_proposals'] = OrganizationProposal.objects.filter(state='P').count()
+        return context
+
+
+class StartOrganizationForm(forms.ModelForm):
+    class Meta:
+        model = OrganizationProposal
+        fields = ['name', 'about', 'is_open']
+        widgets = {
+            'name': forms.TextInput(attrs={'maxlength': 60, 'autocomplete': 'off'}),
+            'about': forms.Textarea(attrs={'rows': 4, 'maxlength': 600}),
+        }
+
+    def __init__(self, *args, profile=None, **kwargs):
+        super(StartOrganizationForm, self).__init__(*args, **kwargs)
+        self.profile = profile
+
+    def clean_name(self):
+        name = ' '.join(self.cleaned_data['name'].split())
+        if len(name) < 3:
+            raise forms.ValidationError(_('The name is too short.'))
+        if len(name) > 60:
+            raise forms.ValidationError(_('The name is too long. Use at most 60 characters.'))
+        if OrganizationProposal.name_taken(name):
+            raise forms.ValidationError(_('An organization with this name already exists or is waiting for approval.'))
+        return name
+
+    def clean_about(self):
+        about = self.cleaned_data['about'].strip()
+        if len(about) > 600:
+            raise forms.ValidationError(_('Keep it short: at most 600 characters.'))
+        return about
+
+    def clean(self):
+        if self.profile is not None and self.profile.organization_proposals.filter(state='P').exists():
+            raise forms.ValidationError(_('You already have a request waiting. Wait for the PNOI team to answer it '
+                                          'before sending another.'))
+        return super(StartOrganizationForm, self).clean()
+
+
+class StartOrganization(LoginRequiredMixin, TitleMixin, FormView):
+    """PNOI: a student asks to start an organization. Staff approve it in the admin pages."""
+    template_name = 'organization/start.html'
+    form_class = StartOrganizationForm
+    title = gettext_lazy('Start an organization')
+
+    def get_form_kwargs(self):
+        kwargs = super(StartOrganization, self).get_form_kwargs()
+        kwargs['profile'] = self.request.profile
+        return kwargs
+
+    def form_valid(self, form):
+        proposal = form.save(commit=False)
+        proposal.user = self.request.profile
+        proposal.state = 'P'
+        proposal.save()
+        return HttpResponseRedirect(reverse('organization_list'))
 
 
 class OrganizationHome(QueryStringSortMixin, OrganizationDetailView):

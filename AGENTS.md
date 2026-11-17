@@ -199,7 +199,8 @@ Newest last. Do not undo these without the owner's say-so.
   estimate is shown, marked as an estimate (`~1200`). Built: `judge/utils/difficulty.py`, run when a contest
   is rated. Problem points are a separate, older number and are still entered by hand.
 - **Organizations are groups of students** (clubs, training groups), not official schools. Any student can ask to
-  start one; it appears only after the owner's team approves it. (The request form is not built yet.)
+  start one; it appears only after the owner's team approves it. Built: `OrganizationProposal`, the page
+  `/organizations/new`, and approve / reject actions in the admin pages.
 
 ## Current status
 
@@ -280,3 +281,9 @@ DMOJ's; new interface text has no translations.
   difficulty (below 1200, 1200 to 1799, 1800+) instead of points. Difficulty is hidden while inside a contest.
   Tested with two simulated rated contests. Not checked: phone width; a problem used in several contests simply
   keeps the result of the one rated last.
+- 2026-11-17, Claude: students can ask to start an organization (`/organizations/new`, model
+  `OrganizationProposal`, migration 0155). Staff approve or reject in the admin pages; approving creates the
+  organization with the student as its administrator and first member. The Organizations page shows a student
+  the state of their request and shows staff how many are waiting. New guide `docs/pnoi/organizations.md`.
+  Tested end to end locally, including phone width. The page skeleton does not show Django flash messages, so
+  feedback is shown on the Organizations page instead.
