@@ -239,7 +239,7 @@
                         {% if problem.time_limit == 1 %}
                             {{ _('Time limit: 1 second') }}
                         {% else %}
-                            {{ _('Time limit: %(time)s seconds', time=problem.time_limit|floatformat) }}
+                            {{ _('Time limit: %(time)s seconds', time='%g'|format(problem.time_limit)) }}
                         {% endif %}
                     </span>
                     <span>{{ _('Memory limit: %(memory)s', memory=problem.memory_limit|kbsimpleformat) }}</span>
