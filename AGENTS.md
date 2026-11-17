@@ -198,6 +198,18 @@ Newest last. Do not undo these without the owner's say-so.
 - Pages felt like "popups": the same white boxes on the same cream page everywhere. Chosen fix (from three
   options): a header bar on every page, with the boxes below kept. The owner approved changing `base.html` for
   this. The rail and footer stay as they are; the owner is open to seeing suggestions for them.
+- **Students are ranked by contest rating**, like Codeforces and AtCoder, everywhere (users list, organization
+  pages, home page, profile, school rank). A student who has not been rated yet has no rank and is listed after
+  the rated ones. Practice points are still shown and can be sorted by, but do not rank anyone.
+- **Verified badge:** a student is "Verified" (credible) automatically after `PNOI_VERIFIED_MIN_CONTESTS` (5) rated
+  contests with a clean record. Any disqualification removes it. No manual approval.
+- **Problem difficulty is calculated automatically**: the rating at which a contestant had a 50% chance of
+  solving the problem in its contest (as Codeforces and AtCoder do). Until there is enough data, the setter's own
+  estimate is shown, marked as an estimate (`~1200`). Built: `judge/utils/difficulty.py`, run when a contest
+  is rated. Problem points are a separate, older number and are still entered by hand.
+- **Organizations are groups of students** (clubs, training groups), not official schools. Any student can ask to
+  start one; it appears only after the owner's team approves it. Built: `OrganizationProposal`, the page
+  `/organizations/new`, and approve / reject actions in the admin pages.
 - Problem page (chosen from four layouts): a full-screen workspace, like a coding app. A slim general "Problems"
   bar on top; below it the statement (white) and the code editor (dark navy) each fill half the screen, edge to
   edge, with no cream around them. The problem's name is centred at the top of the statement, Codeforces-style,
