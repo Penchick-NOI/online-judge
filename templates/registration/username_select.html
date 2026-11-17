@@ -8,13 +8,43 @@
     {% include "page-head.html" %}
 {% endblock %}
 
+{# The last step of signing up with Google: a username, optional school details and the two tick boxes. #}
 {% block body %}
     <div class="pn-auth">
-        <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
+        <h1 class="pn-title">{{ _('Finish signing up') }}</h1>
         <form action="" method="post" class="pn-card pn-card-pad pn-form">
             {% csrf_token %}
-            <table>{{ form.as_table() }}</table>
-            <button type="submit" class="pn-btn pn-btn-block">{{ _('Continue >') }}</button>
+            {{ form.non_field_errors() }}
+
+            <label for="{{ form.username.id_for_label }}">{{ _('Username') }}</label>
+            {{ form.username }}
+            {{ form.username.errors }}
+            <p class="pn-help">{{ _('Letters, numbers and underscores. Other students will see it.') }}</p>
+
+            <fieldset class="pn-signup-school">
+                <legend>{{ _('Your school') }} <span>{{ _('(optional)') }}</span></legend>
+                <label for="{{ form.school.id_for_label }}">{{ _('School') }}</label>
+                {{ form.school }}
+                {{ form.school.errors }}
+                <datalist id="pn-school-names">
+                    {% for name in school_names %}<option value="{{ name }}">{% endfor %}
+                </datalist>
+                <div class="pn-school-row">
+                    <div>
+                        <label for="{{ form.grade.id_for_label }}">{{ _('Grade level') }}</label>
+                        {{ form.grade }}
+                    </div>
+                    <div>
+                        <label for="{{ form.region.id_for_label }}">{{ _('Region') }}</label>
+                        {{ form.region }}
+                    </div>
+                </div>
+                <p class="pn-help">{{ _('Shown on your profile. You can change or hide it later.') }}</p>
+            </fieldset>
+
+            {% include "registration/agreement-fields.html" %}
+
+            <button type="submit" class="pn-btn pn-btn-red pn-btn-block">{{ _('Create my account') }}</button>
         </form>
     </div>
 {% endblock %}

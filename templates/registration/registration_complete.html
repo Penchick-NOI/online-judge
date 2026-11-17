@@ -12,7 +12,10 @@
     <div class="pn-auth">
         <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
         <div class="pn-card pn-card-pad">
-            <p style="margin: 0">{{ _('You have successfully been registered. An email has been sent to the email address you provided to confirm your registration.') }}</p>
+            <p style="margin: 0 0 10px"><strong>{{ _('Check your email.') }}</strong></p>
+            <p style="margin: 0 0 10px">{{ _('We sent you a link to confirm your email address. Open it to finish creating your account, then log in.') }}</p>
+            <p class="pn-help" style="margin: 0">{{ _('Nothing there after a few minutes? Look in your spam or promotions folder, or') }}
+                <a href="{{ url('registration_resend_activation') }}">{{ _('send a new link') }}</a>.</p>
         </div>
     </div>
 {% endblock %}

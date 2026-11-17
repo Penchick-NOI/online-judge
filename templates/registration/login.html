@@ -14,7 +14,14 @@
         <form action="" method="post" class="pn-card pn-card-pad pn-form">
             {% csrf_token %}
             {% if form.errors %}
-                <p class="pn-note pn-note-red" id="form-errors">{{ _('Invalid username or password.') }}</p>
+                {% if form.has_error('__all__', 'pn_unconfirmed') %}
+                    <p class="pn-note pn-note-red" id="form-errors">
+                        {{ _('Your email address is not confirmed yet. Open the link we emailed you when you signed up.') }}
+                        <a href="{{ url('registration_resend_activation') }}">{{ _('Send me a new link') }}</a>
+                    </p>
+                {% else %}
+                    <p class="pn-note pn-note-red" id="form-errors">{{ _('Invalid username or password.') }}</p>
+                {% endif %}
             {% endif %}
             <label for="{{ form.username.id_for_label }}">{{ _('Username') }}</label>
             {{ form.username }}

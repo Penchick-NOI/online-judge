@@ -13,5 +13,20 @@
     1
    ]
   }
+ },
+ {
+  "model": "flatpages.flatpage",
+  "pk": 2,
+  "fields": {
+   "url": "/rules/",
+   "title": "Rules and privacy",
+   "content": "These are the rules for using PNOI, the Penchick National Olympiad in Informatics, and an explanation of what PNOI does with your information. Please read them before you sign up. They are written to be short and clear.\n\n## Who can use PNOI\n\n- PNOI is for students, mainly in the Philippines, who want to practise competitive programming and join contests. Anyone may use it.\n- **If you are under 18**, you need your parent's or guardian's agreement to use PNOI. Please show them this page.\n- **One account per person.** Do not make a second account, and do not share your account with anyone.\n\n## Playing fair\n\nContests only mean something if everyone plays fair. During a contest:\n\n- Solve the problems yourself. Do not get help from other people, and do not help anyone else.\n- Do not share, post or look up solutions to the contest's problems until the contest has ended.\n- Do not submit code that someone else wrote, or code generated for you by an AI tool, unless the contest says it is allowed.\n- Do not use more than one account.\n\nAt all times:\n\n- Do not try to break, overload or trick the judge or the website, and do not submit code meant to harm it.\n- Be kind in comments and messages. No insults, bullying, or rude or offensive names.\n\nIf you break these rules, the PNOI team may disqualify you from a contest, remove your **Verified** badge, delete comments, or close your account. If you find a bug in the site, please tell the team instead of using it.\n\n## What information PNOI keeps\n\n- **Your account:** your username, your email address and your password. Your email address is never shown to other users. Your password is stored scrambled, so not even the PNOI team can read it.\n- **Your school details (optional):** your school, grade level and region, if you choose to give them. They are shown on your profile and used for school rankings. You can change them or hide them at any time in **Edit profile**.\n- **Your activity:** the code you submit, its results, your contest results and your rating. Your results and rating are public. Other users can see your code only after they have solved the same problem themselves, unless a problem is set up differently.\n- **Security details:** the time you last visited and the internet address (IP address) you used, to protect accounts and catch cheating.\n- **Cookies:** PNOI uses cookies only to keep you logged in and to remember your settings. There are no advertising cookies.\n\nPNOI does not sell your information or show you advertisements. The PNOI team uses your information only to run the site and its contests.\n\n## Your choices\n\n- You can download a copy of your information from your profile settings.\n- If you want your account deleted, ask the PNOI team.\n\n## Changes\n\nThe PNOI team may update these rules. If something important changes, it will be announced on the home page.\n",
+   "enable_comments": false,
+   "template_name": "flatpages/markdown.html",
+   "registration_required": false,
+   "sites": [
+    1
+   ]
+  }
  }
 ]

@@ -216,6 +216,11 @@ Newest last. Do not undo these without the owner's say-so.
   with short limits under it ("Time limit: 2 seconds") and the Statement / Submissions / Details tabs. The owner
   dislikes pages that are "just a beige background" with boxes swapped on top; this page should feel like a set
   environment.
+- **Making an account:** email confirmation by link is required for password sign-ups; "Continue with Google"
+  is offered next to the form (no email link needed); sign-up has two required tick boxes: "18 or older, or my
+  parent or guardian agrees" (no birth date is stored) and agreement to the **Rules and privacy** page
+  (`/rules/`, a flat page saved in `judge/fixtures/pnoi_pages.json`). The rules text was drafted by Claude and is
+  not legal advice; the owner reviews it.
 
 ## Current status
 
@@ -321,3 +326,9 @@ DMOJ's; new interface text has no translations.
   (Python AC, C++17 AC, wrong answer WA, the live result strip gets the full verdict) and checked it inside a
   running contest. Follow-up: header bar added to "Start an organization" and to the standalone submit page; the
   problem page facts read "100 points (partial)" instead of "100p points".
+- 2026-11-17, Claude: making an account. Sign-up and the Google step ask for the two tick boxes; Google sign-up is
+  one PNOI page (username, optional school, tick boxes) instead of DMOJ's username page and full profile form;
+  new Rules and privacy page; friendlier confirmation email and pages; logging in before confirming says so and
+  links to a new "Send me a new link" page (`/accounts/activate/resend/`, three per hour per address). New guide
+  `docs/pnoi/accounts-setup.md` for the email service and Google keys on a real server. Not tried: real email
+  delivery and a real Google sign-in (both need hosting). `registration/profile_creation.html` is no longer used.

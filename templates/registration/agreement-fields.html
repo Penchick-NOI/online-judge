@@ -1,0 +1,19 @@
+{# The two required tick boxes on sign-up (with a password and with Google). #}
+<div class="pn-agree">
+    <label class="pn-check" for="{{ form.age_ok.id_for_label }}">
+        {{ form.age_ok }}
+        <span>{{ _('I am 18 or older, or my parent or guardian agrees to me using PNOI.') }}</span>
+    </label>
+    {{ form.age_ok.errors }}
+    <label class="pn-check" for="{{ form.agree_rules.id_for_label }}">
+        {{ form.agree_rules }}
+        <span>
+            {%- if tos_url -%}
+                {{ _('I have read and agree to the') }} <a href="{{ tos_url }}" target="_blank" rel="noopener">{{ _('PNOI rules and privacy notice') }}</a>.
+            {%- else -%}
+                {{ _('I agree to the PNOI rules and privacy notice.') }}
+            {%- endif -%}
+        </span>
+    </label>
+    {{ form.agree_rules.errors }}
+</div>

@@ -12,7 +12,8 @@
     <div class="pn-auth">
         <h1 class="pn-title">{% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}</h1>
         <div class="pn-card pn-card-pad">
-            <p style="margin: 0">{{ _('%(key)s is an invalid activation key.', key=activation_key) }}</p>
+            <p style="margin: 0">{{ _('This confirmation link does not work. It may have expired, been replaced by a newer link, or already been used.') }}
+                <a href="{{ url('registration_resend_activation') }}">{{ _('Send me a new link') }}</a></p>
         </div>
     </div>
 {% endblock %}

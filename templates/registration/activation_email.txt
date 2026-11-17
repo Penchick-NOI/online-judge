@@ -1,13 +1,11 @@
-{% trans trimmed count=expiration_days, site_name=site.name %}
-Please activate your {{ site_name }} account in the next {{ count }} day.
+{{ _('Welcome to %(site_name)s!', site_name=site.name) }}
+
+{% trans trimmed count=expiration_days %}
+One last step: confirm your email address by opening the link below. The link works for {{ count }} day.
 {% pluralize %}
-Please activate your {{ site_name }} account in the next {{ count }} days.
+One last step: confirm your email address by opening the link below. The link works for {{ count }} days.
 {% endtrans %}
 
-
-{{ _('Please click on the following link to activate your account:') }}
     {{ request.scheme }}://{{ site.domain }}/accounts/activate/{{ activation_key }}/
 
-{{ _('Alternatively, you can reply to this message to activate your account. Your reply must keep the following text intact for this to work:') }}
-
-{{ activation_key }}
+{{ _('If you did not sign up for %(site_name)s, you can ignore this email.', site_name=site.name) }}

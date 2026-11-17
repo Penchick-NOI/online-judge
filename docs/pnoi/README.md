@@ -8,6 +8,8 @@ never used DMOJ (the software PNOI is built on) before.
   afterwards.
 - [Organizations: approving requests](organizations.md): approve or reject students' requests to start an
   organization.
+- [Accounts: email confirmation and Google sign-in](accounts-setup.md): how signing up works and
+  what to set up on a real server.
 
 You need an account with staff access to follow these guides. If you are logged in and click your picture at the
 bottom of the menu on the left, staff accounts see an **Admin** link. If you do not see it, ask a site administrator to give your
