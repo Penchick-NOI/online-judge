@@ -259,11 +259,10 @@
                 <span>{{ _('Memory limit: %(memory)s', memory=problem.memory_limit|kbsimpleformat) }}</span>
                 <span>
                     {% if contest_problem %}
-                        {{ contest_problem.points }}{% if contest_problem.partial %}p{% endif %}
+                        {{ contest_problem.points }} {{ _('points') }}{% if contest_problem.partial %} {{ _('(partial)') }}{% endif %}
                     {% else %}
-                        {{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}
+                        {{ problem.points|floatformat }} {{ _('points') }}{% if problem.partial %} {{ _('(partial)') }}{% endif %}
                     {% endif %}
-                    {{ _('points') }}
                 </span>
                 {% if not contest_problem and problem.difficulty is not none %}
                     <span title="{% if problem.difficulty_is_estimate %}{{ _('Estimated by the problem setter. It will be calculated after a rated contest.') }}{% else %}{{ _('Calculated from a rated contest.') }}{% endif %}">
