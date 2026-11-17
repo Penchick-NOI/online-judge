@@ -760,18 +760,81 @@ table.pn-table {
 }
 
 // ---------------------------------------------------------------- problem page
-.pn-problem-head {
+// The problem's header bar: name centred with the limits under it (as on Codeforces), tabs along its bottom edge.
+.pn-phead-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 14px 20px 8px;
+
+    // An empty box as wide as the icon, so the title is centred on the page and not pushed right.
+    &::after {
+        flex: none;
+        width: 46px;
+        content: "";
+    }
+}
+
+.pn-phead-main {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+
+.pn-phead-title {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px 14px;
+    justify-content: center;
+    gap: 6px 10px;
 
     .pn-title {
         margin: 0;
+        font-size: 28px;
+        overflow-wrap: anywhere;
+    }
+}
+
+.pn-phead-facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 18px;
+    margin-top: 4px;
+    color: var(--pn-muted);
+    font-size: 14px;
+}
+
+.pn-phead .pn-ptabs {
+    justify-content: center;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 20px;
+    border-bottom: 0;
+}
+
+@media (max-width: 560px) {
+    .pn-phead-top {
+        gap: 10px;
+        padding: 10px 14px 6px;
+
+        &::after {
+            display: none;
+        }
     }
 
-    .pn-spacer {
-        flex: 1;
+    .pn-phead-title .pn-title {
+        font-size: 22px;
+    }
+
+    .pn-phead-facts {
+        font-size: 13px;
+    }
+
+    .pn-phead .pn-ptabs {
+        padding: 0 8px;
     }
 }
 
@@ -2316,12 +2379,6 @@ body[data-pn] {
 
 // ---------------------------------------------------------------- problem workspace
 // A problem opens as two panes: read on the left, code on the right.
-.pn-fact-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
 .pn-workspace {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -2330,16 +2387,12 @@ body[data-pn] {
 }
 
 .pn-pane {
-    padding: 0 20px 20px;
+    padding: 20px;
 }
 
 .pn-ptabs {
     display: flex;
     gap: 4px;
-    margin: 0 -20px 18px;
-    padding: 0 12px;
-    border-bottom: 1px solid var(--pn-line);
-
     button {
         padding: 13px 10px 11px;
         border: 0;
@@ -4464,16 +4517,6 @@ body[data-pn] {
 // ---------------------------------------------------------------- problem difficulty
 .pn-difficulty span {
     font-weight: 700;
-}
-
-.pn-difficulty-chip {
-    background: var(--pn-surface);
-    border: 1px solid var(--pn-line-strong);
-    color: var(--pn-muted);
-
-    b {
-        margin-left: 3px;
-    }
 }
 
 // ---------------------------------------------------------------- start an organization

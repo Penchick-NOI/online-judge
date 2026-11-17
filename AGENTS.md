@@ -197,6 +197,9 @@ Newest last. Do not undo these without the owner's say-so.
 - Pages felt like "popups": the same white boxes on the same cream page everywhere. Chosen fix (from three
   options): a header bar on every page, with the boxes below kept. The owner approved changing `base.html` for
   this. The rail and footer stay as they are; the owner is open to seeing suggestions for them.
+- Problem page: its header bar is Codeforces-style. The problem's name is centred at the top with short limits
+  under it ("Time limit: 2 seconds"), points and difficulty, and the Statement / Submissions / Details tabs sit in
+  the bar too, so the page reads as one full page. The statement box starts straight with the text.
 - **Students are ranked by contest rating**, like Codeforces and AtCoder, everywhere (users list, organization
   pages, home page, profile, school rank). A student who has not been rated yet has no rank and is listed after
   the rated ones. Practice points are still shown and can be sorted by, but do not rank anyone.
@@ -302,3 +305,6 @@ DMOJ's; new interface text has no translations.
 - 2026-11-17, Devin: header bar on every main page (home, problems, submissions, users, organizations, contests,
   About) so each section has its own place (PR 32). `base.html` gained one `page_head` block. Checked at desktop
   and phone width. Not checked: staff tabs, lists inside a contest. The remaining pages follow in another PR.
+- 2026-11-17, Devin: problem page header bar: centred name, short limits, and the Statement / Submissions /
+  Details tabs moved up into the bar (PR 34). Checked at desktop and phone width, tabs still switch. Not checked:
+  with a real judge (the code editor side), inside a contest, organization-private problems.
