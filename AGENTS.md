@@ -121,8 +121,9 @@ All of these are CSS variables at the top of `resources/pnoi.scss`. Use the vari
   picture and account menu at the bottom. On phones it becomes a bar along the bottom.
 - **Home page is a dashboard:** next contest, the student's own rating and recent submissions, top users, past
   contests.
-- **Problem page is a split workspace:** statement, submissions and details in tabs on the left; language choice,
-  code editor, submit button and the live result on the right. Students submit without leaving the page.
+- **Problem page is a full-screen split workspace:** statement, submissions and details in tabs on the left (white
+  pane, scrolls on its own); language choice, dark code editor, submit button and the live result on the right.
+  The panes fill the screen below a slim "Problems" bar. Students submit without leaving the page.
 - **List pages have a filter panel on the right** (problem list, submissions list), which folds behind a
   **Filters** button on phones. Use this pattern for any other long list.
 - **Profile** has a card on the left (picture, name, school, grade, region, stats) and content on the right.
@@ -209,6 +210,12 @@ Newest last. Do not undo these without the owner's say-so.
 - **Organizations are groups of students** (clubs, training groups), not official schools. Any student can ask to
   start one; it appears only after the owner's team approves it. Built: `OrganizationProposal`, the page
   `/organizations/new`, and approve / reject actions in the admin pages.
+- Problem page (chosen from four layouts): a full-screen workspace, like a coding app. A slim general "Problems"
+  bar on top; below it the statement (white) and the code editor (dark navy) each fill half the screen, edge to
+  edge, with no cream around them. The problem's name is centred at the top of the statement, Codeforces-style,
+  with short limits under it ("Time limit: 2 seconds") and the Statement / Submissions / Details tabs. The owner
+  dislikes pages that are "just a beige background" with boxes swapped on top; this page should feel like a set
+  environment.
 
 ## Current status
 
@@ -222,8 +229,7 @@ organization's page, asking to join).
 
 **Header bar (`page-head.html`):** on home, problem list, submissions list, users, organizations (list, an
 organization's page, asking to join), contests list, contest page and scoreboard, profile, edit profile, news post,
-account pages and About. Not yet: the problem page (waiting for the owner's answer) and pages still in the old
-layout.
+account pages and About. The problem page has its own slim "Problems" bar. Not yet: pages still in the old layout.
 
 **Still in DMOJ's old layout (to rebuild):** the organiser-only organisation pages (edit, manage members, review
 join requests, class pages), tickets, contest statistics,
@@ -307,3 +313,7 @@ DMOJ's; new interface text has no translations.
   an organization's page and its join form, news post, account pages (PR 33). Pages with their own title lower
   down show the section name in the bar (`head_section`). Checked at desktop and phone width. Not checked: staff
   tabs, sign-up and password pages one by one, pages inside a running contest.
+- 2026-11-17, Devin: problem page rebuilt as a full-screen workspace: general "Problems" bar, statement pane with
+  the centred name, limits and tabs, dark editor pane filling the right half (PR 34). Checked at desktop and phone
+  width, logged in and out; submitting shows the result strip under the editor. Not checked: a real judge's
+  verdict (only a fake local judge), inside a contest, organization-private problems.
