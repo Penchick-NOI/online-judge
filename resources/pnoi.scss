@@ -1608,7 +1608,9 @@ ul.pn-tabs {
 }
 
 // ---------------------------------------------------------------- ratings
-// Names and rating numbers are coloured by rating tier.
+// Names and rating numbers are coloured by rating band, in the classic competitive programming colours:
+// gray (below 1000), green (1000), cyan (1300), blue (1600), violet (1900), orange (2400), red (3000+).
+// The class names are DMOJ's; PNOI shows no titles, only the colours.
 .rating {
     font-weight: 700;
 }
@@ -1619,27 +1621,31 @@ ul.pn-tabs {
 }
 
 .rate-newbie, .rate-newbie a {
-    color: #7a7f8c !important;
+    color: #808080 !important;
 }
 
 .rate-amateur, .rate-amateur a {
-    color: #1e8e5a !important;
+    color: #008000 !important;
 }
 
 .rate-expert, .rate-expert a {
-    color: #1d3a8a !important;
+    color: #03a89e !important;
 }
 
 .rate-candidate-master, .rate-candidate-master a {
-    color: #7b3fbf !important;
+    color: #0000ff !important;
 }
 
 .rate-master, .rate-master a {
-    color: #b7791f !important;
+    color: #aa00aa !important;
 }
 
-.rate-grandmaster, .rate-grandmaster a, .rate-target, .rate-target a {
-    color: #d7263d !important;
+.rate-grandmaster, .rate-grandmaster a {
+    color: #ff8c00 !important;
+}
+
+.rate-target, .rate-target a {
+    color: #ff0000 !important;
 }
 
 .rate-group {

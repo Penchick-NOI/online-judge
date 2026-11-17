@@ -195,14 +195,15 @@ def rate_contest(contest):
                             .order_by('-contest__end_time').values('rating')[:1]))
 
 
+# PNOI: rating bands have no titles, only colours (like AtCoder). These colour names are shown as a tooltip.
 RATING_LEVELS = [
-    gettext_lazy('Newbie'),
-    gettext_lazy('Amateur'),
-    gettext_lazy('Expert'),
-    gettext_lazy('Candidate Master'),
-    gettext_lazy('Master'),
-    gettext_lazy('Grandmaster'),
-    gettext_lazy('Target'),
+    gettext_lazy('Gray'),
+    gettext_lazy('Green'),
+    gettext_lazy('Cyan'),
+    gettext_lazy('Blue'),
+    gettext_lazy('Violet'),
+    gettext_lazy('Orange'),
+    gettext_lazy('Red'),
 ]
 RATING_VALUES = [1000, 1300, 1600, 1900, 2400, 3000]
 RATING_CLASS = ['rate-newbie', 'rate-amateur', 'rate-expert', 'rate-candidate-master',
