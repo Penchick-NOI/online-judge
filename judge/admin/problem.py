@@ -30,6 +30,25 @@ class ProblemForm(ModelForm):
         self.fields['change_message'].widget.attrs.update({
             'placeholder': gettext('Describe the changes you made (optional)'),
         })
+        # PNOI: points come from the difficulty, so they are only typed for a problem without one.
+        if 'points' in self.fields:
+            self.fields['points'].required = False
+        # PNOI: partial points are the default, so students get credit for the subtasks they pass.
+        if not self.instance.pk and 'partial' in self.fields:
+            self.fields['partial'].initial = True
+
+    def clean(self):
+        cleaned_data = super(ProblemForm, self).clean()
+        if 'points' in self.fields:
+            estimate = cleaned_data.get('difficulty_estimate')
+            calculated = self.instance.difficulty_calculated if self.instance.pk else None
+            difficulty = calculated if calculated is not None else estimate
+            if difficulty is not None:
+                cleaned_data['points'] = Problem.points_for_difficulty(difficulty)
+            elif cleaned_data.get('points') is None:
+                self.add_error('difficulty_estimate',
+                               gettext('Give a difficulty estimate. The points are worked out from it.'))
+        return cleaned_data
 
     class Meta:
         widgets = {
@@ -165,6 +184,8 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         fields = tuple(self.readonly_fields) + ('difficulty_calculated',)
+        if obj is not None and obj.difficulty is not None:
+            fields += ('points',)
         if not request.user.has_perm('judge.create_private_problem'):
             fields += ('organizations',)
             if not request.user.has_perm('judge.change_public_visibility'):
@@ -250,7 +271,8 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         super(ProblemAdmin, self).save_model(request, obj, form, change)
         if (
             form.changed_data and
-            any(f in form.changed_data for f in ('is_public', 'organizations', 'points', 'partial'))
+            any(f in form.changed_data for f in ('is_public', 'organizations', 'points', 'partial',
+                                                 'difficulty_estimate'))
         ):
             self._rescore(request, obj.id)
 

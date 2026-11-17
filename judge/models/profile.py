@@ -3,7 +3,6 @@ import hmac
 import json
 import secrets
 import struct
-from operator import mul
 
 import pyotp
 import webauthn
@@ -343,15 +342,15 @@ class Profile(models.Model):
                            .annotate(max_points=Max('submission__points')).order_by('-max_points')
                            .values_list('max_points', flat=True).filter(max_points__gt=0)
         )
-        bonus_function = settings.DMOJ_PP_BONUS_FUNCTION
         points = sum(data)
-        entries = min(len(data), len(table))
         problems = (
             public_problems.filter(submission__user=self, submission__is_archived=False, submission__result='AC',
                                    submission__case_points__gte=F('submission__case_total'))
             .values('id').distinct().count()
         )
-        pp = sum(map(mul, table[:entries], data[:entries])) + bonus_function(problems)
+        # PNOI: the practice score is the simple total of the points earned on every problem, partial points
+        # included. It is kept in `performance_points`, the field DMOJ ranks and sorts by, so nothing else changes.
+        pp = points
         if self.points != points or problems != self.problem_count or self.performance_points != pp:
             self.points = points
             self.problem_count = problems

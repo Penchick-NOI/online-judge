@@ -5,6 +5,7 @@ used in, which is how Codeforces and AtCoder describe difficulty. It is worked o
 that contest: who solved the problem and who did not, and how strong each of them was.
 """
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Max
 
 
@@ -65,5 +66,10 @@ def update_contest_difficulties(contest):
         difficulty = estimate_difficulty(results)
         if difficulty is not None:
             problem = contest_problem.problem
+            old_points = problem.points
             problem.difficulty_calculated = difficulty
             problem.save(update_fields=['difficulty_calculated', 'difficulty'])
+            if problem.points != old_points:
+                # Practice points depend on problem points, so everyone's submissions are rescored.
+                from judge.tasks import rescore_problem
+                transaction.on_commit(rescore_problem.s(problem.id).delay)

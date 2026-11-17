@@ -46,8 +46,8 @@
                     <span>{{ _('Problems solved') }}</span>
                 </div>
                 <div>
-                    <b title="{{ user.performance_points|floatformat(2) }}">{{ user.performance_points|floatformat(0) }}</b>
-                    <span>{{ _('Total points:')|replace(':', '') }}</span>
+                    <b>{{ user.performance_points|floatformat }}</b>
+                    <span>{{ _('Practice points') }}</span>
                 </div>
                 {% if school_rank %}
                     <div>

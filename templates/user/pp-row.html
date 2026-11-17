@@ -12,11 +12,5 @@
 </div>
 
 <div class="pn-sub-usage pn-pp">
-    <a href="{{ url('submission_status', breakdown.sub_id) }}">{{ breakdown.points|floatformat(0) }}pp</a>
-    <div>
-        {% with percent='<b>%s%%</b>'|safe|format(breakdown.weight|floatformat(0)),
-                pp=breakdown.scaled_points|floatformat(1 if breakdown.scaled_points < 10 else 0) %}
-            {{ _('weighted %(percent)s (%(pp)spp)', percent=percent, pp=pp) }}
-        {% endwith %}
-    </div>
+    <a href="{{ url('submission_status', breakdown.sub_id) }}">{{ breakdown.points|floatformat }} {{ _('points') }}</a>
 </div>

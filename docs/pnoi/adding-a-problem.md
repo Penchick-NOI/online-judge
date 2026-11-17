@@ -77,18 +77,22 @@ A problem stays hidden from students until you tick **Publicly visible**, so you
 4. Under **Taxonomy**, choose at least one entry in **Problem types** and pick a **Problem group**. Both are
    required.
 5. Under **Points**:
-   - **Points** — how many points the problem is worth on the problem list and towards a student's total.
-   - **Allows partial points** — tick this if students should get part of the points when they pass only some
-     test cases (or batches). If it is unticked, only a full solve counts.
+   - **Points** — leave it empty. PNOI works out the points from the difficulty below: the difficulty divided by
+     100, so a `1200` problem is worth 12 points. Once the problem has a difficulty this box cannot be edited.
+     You only type points for a problem with no difficulty estimate at all.
+   - **Allows partial points** — ticked by default: students get part of the points when they pass only some
+     test cases (or batches), and those count towards their practice points. Untick it if only a full solve
+     should count.
    - **Short circuit** — if ticked, the judge stops at the first failed test case instead of running the rest.
      Leave it unticked if you want partial points.
    Under **Difficulty**, just below:
    - **Difficulty estimate** — your own guess of how hard the problem is, on the same scale as ratings: `800` is
      the easiest, `1200` is a typical beginner problem, `2000` and above is hard. The problem list shows it with
-     a `~` in front (for example `~1200`) so students know it is a guess. You may leave it empty.
+     a `~` in front (for example `~1200`) so students know it is a guess. Fill it in: the points come from it.
    - **Calculated difficulty** — you cannot type here. After the problem has been used in a rated contest and
      you click **Rate**, the site works out the difficulty by itself and shows it here and on the problem list,
-     replacing your estimate. It needs at least 10 rated contestants in that contest.
+     replacing your estimate. It needs at least 10 rated contestants in that contest. The problem's points
+     change with it, and every student's practice points are updated.
 6. Under **Limits**:
    - **Time limit** — in **seconds**. Fractional values work, for example `1` or `1.5`.
    - **Memory limit** — in **kilobytes**, not megabytes. Multiply megabytes by 1024. For example 256 MB is
